@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/docs/" />
+  <Folder Name="/src/">
+    <Project Path="src/MarketBook.Api/MarketBook.Api.csproj" Id="fbe167b2-1d55-4917-9903-01ba9c72362d" />
+    <Project Path="src/MarketBook.Application/MarketBook.Application.csproj" Id="bf972745-1200-41b9-9d22-627b2c178916" />
+    <Project Path="src/MarketBook.Domain/MarketBook.Domain.csproj" Id="00ed4a7b-5fe2-4b67-9c45-b003eb81c1ed" />
+    <Project Path="src/MarketBook.Infrastructure/MarketBook.Infrastructure.csproj" Id="f426e3e5-8b5f-4ed7-aa52-1ff1fc0cc3f7" />
+    <Project Path="src/MarketBook.Web/MarketBook.Web.csproj" Id="39598d26-97a3-414f-b10d-0bec8af193c3" />
+  </Folder>
+  <Folder Name="/src/tools/">
+    <Project Path="src/MarketBook.Tools.ProjectInspector/MarketBook.Tools.ProjectInspector.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MarketBook.Application.Tests/MarketBook.Application.Tests.csproj" Id="28218220-9d67-4a3f-bc96-e6a30a3a04f0" />
+    <Project Path="tests/MarketBook.Domain.Tests/MarketBook.Domain.Tests.csproj" Id="2fa07754-e3c4-48d7-9220-c7ff408447cd" />
+    <Project Path="tests/MarketBook.Integration.Tests/MarketBook.Integration.Tests.csproj" Id="8edeb985-085a-496b-ba33-9ff86d30c9f4" />
+  </Folder>
+</Solution>

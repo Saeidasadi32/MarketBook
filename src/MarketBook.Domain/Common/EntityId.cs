@@ -1,0 +1,81 @@
+﻿// -----------------------------------------------------------------------------
+// Project   : MarketBook (Intelligent Market Book System)
+// Platform  : MarketBook Platform
+// Layer     : Domain
+// Namespace : MarketBook.Domain.Common
+//
+// Copyright (c) Saeid Asadi. All rights reserved.
+// Licensed under the MIT License.
+// -----------------------------------------------------------------------------
+
+using NUlid;
+using System.Diagnostics;
+
+namespace MarketBook.Domain.Common;
+
+/// <summary>
+/// EN: Represents the base type for all strongly typed entity identifiers.
+/// Every identifier in the domain is based on a ULID value.
+///
+/// FA: کلاس پایه برای تمام شناسه‌های Strongly Typed دامنه.
+/// تمام شناسه‌های دامنه بر پایه ULID هستند.
+/// </summary>
+[DebuggerDisplay("{Value}")]
+public abstract record EntityId
+{
+    /// <summary>
+    /// EN: Initializes a new identifier.
+    ///
+    /// FA: یک شناسه جدید ایجاد می‌کند.
+    /// </summary>
+    /// <param name="value">
+    /// EN: Underlying ULID value.
+    ///
+    /// FA: مقدار ULID.
+    /// </param>
+    protected EntityId(Ulid value)
+    {
+        Value = value;
+    }
+
+    /// <summary>
+    /// EN: Gets identifier value.
+    ///
+    /// FA: مقدار شناسه.
+    /// </summary>
+    public Ulid Value { get; }
+
+    /// <summary>
+    /// EN: Creates a new ULID.
+    ///
+    /// FA: یک ULID جدید تولید می‌کند.
+    /// </summary>
+    public static Ulid NewId()
+    {
+        return Ulid.NewUlid();
+    }
+
+    /// <summary>
+    /// EN: Returns string representation.
+    ///
+    /// FA: نمایش متنی شناسه.
+    /// </summary>
+    public override string ToString()
+        => Value.ToString();
+
+    /// <summary>
+    /// EN: Implicit conversion to ULID.
+    ///
+    /// FA: تبدیل ضمنی به ULID.
+    /// </summary>
+    public static implicit operator Ulid(EntityId id)
+        => id.Value;
+
+    /// <summary>
+    /// EN: Implicit conversion to string.
+    ///
+    /// FA: تبدیل ضمنی به رشته.
+    /// </summary>
+    public static implicit operator string(EntityId id)
+        => id.Value.ToString();
+}

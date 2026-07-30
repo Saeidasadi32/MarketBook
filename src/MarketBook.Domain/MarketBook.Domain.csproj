@@ -12,9 +12,6 @@
 
   <ItemGroup>
     <Folder Include="Market\Enums\" />
-    <Folder Include="Calendar\" />
-    <Folder Include="Industry\" />
-    <Folder Include="Sector\" />
   </ItemGroup>
 
 </Project>

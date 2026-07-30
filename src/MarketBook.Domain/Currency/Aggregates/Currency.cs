@@ -17,7 +17,7 @@ namespace MarketBook.Domain.Currency.Aggregates;
 /// EN: Represents a trading currency.
 /// FA: یک ارز قابل استفاده در معاملات را نمایش می‌دهد.
 /// </summary>
-public sealed class Currency : AggregateRoot
+public sealed class Currency : AggregateRoot<CurrencyId>
 {
     public Currency(
         CurrencyId id,

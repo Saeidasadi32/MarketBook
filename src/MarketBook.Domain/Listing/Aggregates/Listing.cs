@@ -19,36 +19,12 @@ namespace MarketBook.Domain.Listing.Aggregates;
 /// EN: Represents a tradable listing of an instrument on a market.
 /// FA: نمایش‌دهنده پذیرش یک ابزار مالی در یک بازار مشخص است.
 /// </summary>
-public sealed class Listing : AggregateRoot
+public sealed class Listing : AggregateRoot<ListingId>
 {
     /// <summary>
     /// EN: Initializes a new instance of the <see cref="Listing"/> class.
     /// FA: نمونه جدیدی از کلاس <see cref="Listing"/> را ایجاد می‌کند.
     /// </summary>
-    /// <param name="id">
-    /// EN: Listing identifier.
-    /// FA: شناسه پذیرش.
-    /// </param>
-    /// <param name="instrumentId">
-    /// EN: Instrument identifier.
-    /// FA: شناسه ابزار مالی.
-    /// </param>
-    /// <param name="marketId">
-    /// EN: Market identifier.
-    /// FA: شناسه بازار.
-    /// </param>
-    /// <param name="tradingSymbol">
-    /// EN: Trading symbol.
-    /// FA: نماد معاملاتی.
-    /// </param>
-    /// <param name="tickSize">
-    /// EN: Minimum price increment.
-    /// FA: حداقل گام تغییر قیمت.
-    /// </param>
-    /// <param name="pricePrecision">
-    /// EN: Number of decimal digits allowed for prices.
-    /// FA: تعداد ارقام اعشار مجاز برای قیمت.
-    /// </param>
     public Listing(
         ListingId id,
         InstrumentId instrumentId,
@@ -57,17 +33,19 @@ public sealed class Listing : AggregateRoot
         TradingSymbol tradingSymbol,
         decimal tickSize,
         byte pricePrecision)
+        : base(id)
     {
         if (tickSize <= 0)
-            throw new ArgumentOutOfRangeException(nameof(tickSize));
+            throw new ArgumentOutOfRangeException(
+                nameof(tickSize),
+                "Tick size must be greater than zero.");
 
-        Id = id;
         InstrumentId = instrumentId;
         MarketId = marketId;
+        CurrencyId = currencyId;
         TradingSymbol = tradingSymbol;
         TickSize = tickSize;
         PricePrecision = pricePrecision;
-        CurrencyId = currencyId;
 
         IsPrimary = false;
         IsActive = true;
@@ -75,10 +53,13 @@ public sealed class Listing : AggregateRoot
     }
 
     /// <summary>
-    /// EN: Gets the listing identifier.
-    /// FA: شناسه پذیرش را دریافت می‌کند.
+    /// EN: Parameterless constructor for ORM frameworks.
+    /// FA: سازنده بدون پارامتر برای فریم‌ورک‌های ORM.
     /// </summary>
-    public ListingId Id { get; }
+    private Listing()
+    {
+        // For ORM
+    }
 
     /// <summary>
     /// EN: Gets the related instrument identifier.
@@ -98,6 +79,10 @@ public sealed class Listing : AggregateRoot
     /// </summary>
     public TradingSymbol TradingSymbol { get; }
 
+    /// <summary>
+    /// EN: Gets the currency identifier.
+    /// FA: شناسه ارز را دریافت می‌کند.
+    /// </summary>
     public CurrencyId CurrencyId { get; }
 
     /// <summary>
@@ -136,7 +121,11 @@ public sealed class Listing : AggregateRoot
     /// </summary>
     public void MakePrimary()
     {
+        if (IsPrimary)
+            return;
+
         IsPrimary = true;
+        Raise(new ListingMadePrimaryEvent(Id));
     }
 
     /// <summary>
@@ -145,7 +134,11 @@ public sealed class Listing : AggregateRoot
     /// </summary>
     public void RemovePrimary()
     {
+        if (!IsPrimary)
+            return;
+
         IsPrimary = false;
+        Raise(new ListingPrimaryRemovedEvent(Id));
     }
 
     /// <summary>
@@ -154,7 +147,11 @@ public sealed class Listing : AggregateRoot
     /// </summary>
     public void Activate()
     {
+        if (IsActive)
+            return;
+
         IsActive = true;
+        Raise(new ListingActivatedEvent(Id));
     }
 
     /// <summary>
@@ -163,6 +160,44 @@ public sealed class Listing : AggregateRoot
     /// </summary>
     public void Deactivate()
     {
+        if (!IsActive)
+            return;
+
         IsActive = false;
+        Raise(new ListingDeactivatedEvent(Id));
+    }
+
+    /// <summary>
+    /// EN: Rounds a price to the listing's precision and tick size.
+    /// FA: قیمت را بر اساس دقت و گام تغییر قیمت گرد می‌کند.
+    /// </summary>
+    public decimal RoundPrice(decimal price)
+    {
+        var rounded = Math.Round(price / TickSize) * TickSize;
+        return Math.Round(rounded, PricePrecision, MidpointRounding.AwayFromZero);
     }
 }
+
+/// <summary>
+/// EN: Domain event raised when a listing becomes primary.
+/// FA: رویداد دامنه زمانی که پذیرش به اصلی تبدیل می‌شود.
+/// </summary>
+public sealed record ListingMadePrimaryEvent(ListingId ListingId) : DomainEvent;
+
+/// <summary>
+/// EN: Domain event raised when primary flag is removed.
+/// FA: رویداد دامنه زمانی که وضعیت اصلی حذف می‌شود.
+/// </summary>
+public sealed record ListingPrimaryRemovedEvent(ListingId ListingId) : DomainEvent;
+
+/// <summary>
+/// EN: Domain event raised when a listing is activated.
+/// FA: رویداد دامنه زمانی که پذیرش فعال می‌شود.
+/// </summary>
+public sealed record ListingActivatedEvent(ListingId ListingId) : DomainEvent;
+
+/// <summary>
+/// EN: Domain event raised when a listing is deactivated.
+/// FA: رویداد دامنه زمانی که پذیرش غیرفعال می‌شود.
+/// </summary>
+public sealed record ListingDeactivatedEvent(ListingId ListingId) : DomainEvent;

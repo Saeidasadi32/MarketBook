@@ -2,7 +2,7 @@
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
-// Namespace : MarketBook.Domain.Instrument.ValueObjects
+// Namespace : MarketBook.Domain.Portfolio.ValueObjects
 //
 // Copyright (c) Saeid Asadi. All rights reserved.
 // Licensed under the MIT License.
@@ -11,49 +11,48 @@
 using MarketBook.Domain.Common;
 using NUlid;
 
-namespace MarketBook.Domain.Instrument.ValueObjects;
+namespace MarketBook.Domain.Portfolio.ValueObjects;
 
 /// <summary>
-/// EN: Represents the unique identifier of a Instrument.
-/// FA: شناسه یکتای Instrument را نمایش می‌دهد.
+/// EN: Represents the unique identifier of a trade.
+/// FA: شناسه یکتای یک معامله را نمایش می‌دهد.
 /// </summary>
-public sealed record InstrumentId : EntityId
+public sealed record TradeId : EntityId
 {
     /// <summary>
-    /// EN: Initializes a new instance of the <see cref="InstrumentId"/> class.
-    /// FA: نمونه جدیدی از کلاس <see cref="InstrumentId"/> را ایجاد می‌کند.
+    /// EN: Initializes a new instance of the <see cref="TradeId"/> class.
+    /// FA: نمونه جدیدی از کلاس <see cref="TradeId"/> را ایجاد می‌کند.
     /// </summary>
-    /// <param name="value">Underlying ULID value.</param>
-    private InstrumentId(Ulid value) : base(value)
+    private TradeId(Ulid value) : base(value)
     {
-}
+    }
 
-/// <summary>
-/// EN: Creates a new unique identifier.
-/// FA: یک شناسه یکتای جدید ایجاد می‌کند.
-/// </summary>
-public static InstrumentId New () => new(Ulid.NewUlid());
+    /// <summary>
+    /// EN: Creates a new unique trade identifier.
+    /// FA: یک شناسه یکتای جدید برای معامله ایجاد می‌کند.
+    /// </summary>
+    public static TradeId New() => new(Ulid.NewUlid());
 
-/// <summary>
-/// EN: Creates an identifier from an existing ULID.
-/// FA: یک شناسه از یک ULID موجود ایجاد می‌کند.
-/// </summary>
-public static InstrumentId FromUlid (Ulid value) => new(value);
+    /// <summary>
+    /// EN: Creates a trade identifier from an existing ULID.
+    /// FA: یک شناسه معامله از یک ULID موجود ایجاد می‌کند.
+    /// </summary>
+    public static TradeId FromUlid(Ulid value) => new(value);
 
     /// <summary>
     /// EN: Parses a ULID string into an identifier.
     /// FA: رشته ULID را به شناسه تبدیل می‌کند.
     /// </summary>
-    public static InstrumentId Parse(string value)
+    public static TradeId Parse(string value)
     {
-        Guard.AgainstNullOrWhiteSpace(value, nameof(InstrumentId));
+        Guard.AgainstNullOrWhiteSpace(value, nameof(TradeId));
 
         if (Ulid.TryParse(value, out var ulid))
             return new(ulid);
 
         throw new DomainException(
             new Error(
-                $"{nameof(InstrumentId)}.InvalidFormat",
+                $"{nameof(TradeId)}.InvalidFormat",
                 $"'{value}' is not a valid ULID."));
     }
 
@@ -61,7 +60,7 @@ public static InstrumentId FromUlid (Ulid value) => new(value);
     /// EN: Attempts to parse a ULID string.
     /// FA: تلاش می‌کند رشته ULID را به شناسه تبدیل کند.
     /// </summary>
-    public static bool TryParse(string? value, out InstrumentId? result)
+    public static bool TryParse(string? value, out TradeId? result)
     {
         if (!string.IsNullOrWhiteSpace(value) && Ulid.TryParse(value, out var ulid))
         {
@@ -77,6 +76,5 @@ public static InstrumentId FromUlid (Ulid value) => new(value);
     /// EN: Explicit conversion from string.
     /// FA: تبدیل صریح از رشته.
     /// </summary>
-    public static explicit operator InstrumentId(string value) => Parse(value);
-
+    public static explicit operator TradeId(string value) => Parse(value);
 }

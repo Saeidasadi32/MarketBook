@@ -1,4 +1,6 @@
-﻿namespace MarketBook.Domain.Common;
+﻿using System.Runtime.CompilerServices;
+
+namespace MarketBook.Domain.Common;
 
 /// <summary>
 /// EN: Guard helper methods.
@@ -8,14 +10,14 @@ public static class Guard
 {
     public static void AgainstNull(
         object? value,
-        string name)
+        [CallerArgumentExpression(nameof(value))] string? name = null)
     {
         ArgumentNullException.ThrowIfNull(value, name);
     }
 
     public static void AgainstNullOrWhiteSpace(
         string? value,
-        string name)
+        [CallerArgumentExpression(nameof(value))] string? name = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(
             value,

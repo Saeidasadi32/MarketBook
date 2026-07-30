@@ -21,8 +21,10 @@ namespace MarketBook.Domain.MarketData.Aggregates;
 /// EN: Represents all market information for one listing on one trading day.
 /// FA: تمام اطلاعات بازار یک نماد در یک روز معاملاتی را نمایش می‌دهد.
 /// </summary>
-public sealed class MarketData : AggregateRoot
+public sealed class MarketData : AggregateRoot<MarketDataId>
 {
+    private readonly List<CorporateAction> _corporateActions = [];
+
     /// <summary>
     /// EN: Initializes a new instance of the <see cref="MarketData"/> class.
     /// FA: نمونه جدیدی از کلاس <see cref="MarketData"/> را ایجاد می‌کند.
@@ -32,20 +34,24 @@ public sealed class MarketData : AggregateRoot
         ListingId listingId,
         TradingDate tradingDate,
         DailySnapshot snapshot)
+        : base(id)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
-        Id = id;
         ListingId = listingId;
         TradingDate = tradingDate;
         Snapshot = snapshot;
+        CreatedOn = DateTimeOffset.UtcNow;
     }
 
     /// <summary>
-    /// EN: Gets market data identifier.
-    /// FA: شناسه داده بازار را دریافت می‌کند.
+    /// EN: Parameterless constructor for ORM frameworks.
+    /// FA: سازنده بدون پارامتر برای فریم‌ورک‌های ORM.
     /// </summary>
-    public MarketDataId Id { get; }
+    private MarketData()
+    {
+        // For ORM
+    }
 
     /// <summary>
     /// EN: Gets listing identifier.
@@ -66,10 +72,10 @@ public sealed class MarketData : AggregateRoot
     public DailySnapshot Snapshot { get; private set; }
 
     /// <summary>
-    /// EN: Stores corporate actions affecting this trading day.
-    /// FA: رویدادهای شرکتی مؤثر بر این روز معاملاتی را نگهداری می‌کند.
+    /// EN: Gets the creation date.
+    /// FA: تاریخ ایجاد را دریافت می‌کند.
     /// </summary>
-    private readonly List<CorporateAction> _corporateActions = [];
+    public DateTimeOffset CreatedOn { get; }
 
     /// <summary>
     /// EN: Gets all corporate actions.
@@ -82,10 +88,6 @@ public sealed class MarketData : AggregateRoot
     /// EN: Adds a corporate action.
     /// FA: یک رویداد شرکتی را اضافه می‌کند.
     /// </summary>
-    /// <param name="corporateAction">
-    /// EN: Corporate action.
-    /// FA: رویداد شرکتی.
-    /// </param>
     public void AddCorporateAction(CorporateAction corporateAction)
     {
         ArgumentNullException.ThrowIfNull(corporateAction);
@@ -94,19 +96,20 @@ public sealed class MarketData : AggregateRoot
             return;
 
         _corporateActions.Add(corporateAction);
+        Raise(new CorporateActionAddedEvent(Id, corporateAction));
     }
 
     /// <summary>
     /// EN: Removes a corporate action.
     /// FA: یک رویداد شرکتی را حذف می‌کند.
     /// </summary>
-    /// <param name="id">
-    /// EN: Corporate action identifier.
-    /// FA: شناسه رویداد.
-    /// </param>
     public void RemoveCorporateAction(CorporateActionId id)
     {
-        _corporateActions.RemoveAll(x => x.Id == id);
+        var removed = _corporateActions.RemoveAll(x => x.Id == id);
+        if (removed > 0)
+        {
+            Raise(new CorporateActionRemovedEvent(Id, id));
+        }
     }
 
     /// <summary>
@@ -117,6 +120,28 @@ public sealed class MarketData : AggregateRoot
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
+        if (Snapshot == snapshot)
+            return;
+
         Snapshot = snapshot;
+        Raise(new MarketDataSnapshotUpdatedEvent(Id, snapshot));
     }
 }
+
+/// <summary>
+/// EN: Domain event raised when a corporate action is added.
+/// FA: رویداد دامنه زمانی که یک رویداد شرکتی اضافه می‌شود.
+/// </summary>
+public sealed record CorporateActionAddedEvent(MarketDataId MarketDataId, CorporateAction CorporateAction) : DomainEvent;
+
+/// <summary>
+/// EN: Domain event raised when a corporate action is removed.
+/// FA: رویداد دامنه زمانی که یک رویداد شرکتی حذف می‌شود.
+/// </summary>
+public sealed record CorporateActionRemovedEvent(MarketDataId MarketDataId, CorporateActionId CorporateActionId) : DomainEvent;
+
+/// <summary>
+/// EN: Domain event raised when a snapshot is updated.
+/// FA: رویداد دامنه زمانی که Snapshot به‌روزرسانی می‌شود.
+/// </summary>
+public sealed record MarketDataSnapshotUpdatedEvent(MarketDataId MarketDataId, DailySnapshot NewSnapshot) : DomainEvent;

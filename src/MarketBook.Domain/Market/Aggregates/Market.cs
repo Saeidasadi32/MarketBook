@@ -18,7 +18,7 @@ namespace MarketBook.Domain.Market.Aggregates;
 /// EN: Represents a financial exchange or trading venue.
 /// FA: یک بازار یا بورس مالی را نمایش می‌دهد.
 /// </summary>
-public sealed class Market : AggregateRoot
+public sealed class Market : AggregateRoot<MarketId>
 {
     /// <summary>
     /// EN: Initializes a new instance of the <see cref="Market"/> class.

@@ -17,7 +17,7 @@ namespace MarketBook.Domain.Investor.Aggregates;
 /// EN: Represents an investor.
 /// FA: یک سرمایه‌گذار را نمایش می‌دهد.
 /// </summary>
-public sealed class Investor : AggregateRoot
+public sealed class Investor : AggregateRoot<InvestorId>
 {
     /// <summary>
     /// EN: Initializes a new investor.

@@ -46,16 +46,6 @@ public abstract record EntityId
     public Ulid Value { get; }
 
     /// <summary>
-    /// EN: Creates a new ULID.
-    ///
-    /// FA: یک ULID جدید تولید می‌کند.
-    /// </summary>
-    public static Ulid NewId()
-    {
-        return Ulid.NewUlid();
-    }
-
-    /// <summary>
     /// EN: Returns string representation.
     ///
     /// FA: نمایش متنی شناسه.
@@ -70,12 +60,4 @@ public abstract record EntityId
     /// </summary>
     public static implicit operator Ulid(EntityId id)
         => id.Value;
-
-    /// <summary>
-    /// EN: Implicit conversion to string.
-    ///
-    /// FA: تبدیل ضمنی به رشته.
-    /// </summary>
-    public static implicit operator string(EntityId id)
-        => id.Value.ToString();
 }

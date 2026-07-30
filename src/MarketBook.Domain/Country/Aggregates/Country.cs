@@ -18,7 +18,7 @@ namespace MarketBook.Domain.Country.Aggregates;
 /// EN: Represents a sovereign country.
 /// FA: یک کشور را در سیستم نمایش می‌دهد.
 /// </summary>
-public sealed class Country : AggregateRoot
+public sealed class Country : AggregateRoot<CountryId>
 {
     /// <summary>
     /// EN: Initializes a new instance of the <see cref="Country"/> class.

@@ -1,0 +1,35 @@
+﻿// -----------------------------------------------------------------------------
+// Project   : MarketBook (Intelligent Market Book System)
+// Platform  : MarketBook Platform
+// Layer     : Application
+// Namespace : MarketBook.Application.Common.Interfaces
+//
+// Copyright (c) Saeid Asadi. All rights reserved.
+// Licensed under the MIT License.
+// -----------------------------------------------------------------------------
+
+namespace MarketBook.Application.Common.Interfaces.Messaging;
+
+/// <summary>
+/// EN: Defines a handler for an application command.
+/// FA: پردازش‌کننده یک فرمان برنامه را تعریف می‌کند.
+/// </summary>
+/// <typeparam name="TCommand">
+/// EN: Command type.
+/// FA: نوع فرمان.
+/// </typeparam>
+/// <typeparam name="TResult">
+/// EN: Command result.
+/// FA: نتیجه فرمان.
+/// </typeparam>
+public interface ICommandHandler<in TCommand, TResult>
+    where TCommand : ICommand<TResult>
+{
+    /// <summary>
+    /// EN: Handles a command.
+    /// FA: فرمان را پردازش می‌کند.
+    /// </summary>
+    Task<TResult> HandleAsync(
+        TCommand command,
+        CancellationToken cancellationToken = default);
+}

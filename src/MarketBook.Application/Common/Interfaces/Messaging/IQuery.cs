@@ -1,0 +1,25 @@
+﻿// -----------------------------------------------------------------------------
+// Project   : MarketBook (Intelligent Market Book System)
+// Platform  : MarketBook Platform
+// Layer     : Application
+// Namespace : MarketBook.Application.Common.Interfaces
+//
+// Copyright (c) Saeid Asadi. All rights reserved.
+// Licensed under the MIT License.
+// -----------------------------------------------------------------------------
+
+using MediatR;
+
+namespace MarketBook.Application.Common.Interfaces.Messaging;
+
+/// <summary>
+/// EN: Represents a query that does not change system state.
+/// FA: نمایانگر یک پرس‌وجو است که وضعیت سیستم را تغییر نمی‌دهد.
+/// </summary>
+/// <typeparam name="TResponse">
+/// EN: Query response.
+/// FA: پاسخ پرس‌وجو.
+/// </typeparam>
+public interface IQuery<out TResponse> : IRequest<TResponse>
+{
+}

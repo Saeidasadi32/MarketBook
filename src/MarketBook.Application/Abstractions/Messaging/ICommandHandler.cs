@@ -2,7 +2,7 @@
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Application
-// Namespace : MarketBook.Application.Common.Interfaces
+// Namespace : MarketBook.Application.Abstractions.Messaging
 //
 // Copyright (c) Saeid Asadi. All rights reserved.
 // Licensed under the MIT License.
@@ -20,12 +20,12 @@ namespace MarketBook.Application.Abstractions.Messaging;
 /// EN: Command type.
 /// FA: نوع فرمان.
 /// </typeparam>
-/// <typeparam name="TResult">
-/// EN: Command result.
-/// FA: نتیجه فرمان.
+/// <typeparam name="TResponse">
+/// EN: Command response.
+/// FA: پاسخ فرمان.
 /// </typeparam>
-public interface ICommandHandler<TCommand, TResponse> :
+public interface ICommandHandler<in TCommand, TResponse> :
     IRequestHandler<TCommand, TResponse>
-    where TCommand : IRequest<TResponse>
+    where TCommand : notnull, ICommand<TResponse>
 {
 }

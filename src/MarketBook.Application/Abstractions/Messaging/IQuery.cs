@@ -10,7 +10,7 @@
 
 using MediatR;
 
-namespace MarketBook.Application.Common.Interfaces.Messaging;
+namespace MarketBook.Application.Abstractions.Messaging;
 
 /// <summary>
 /// EN: Represents a query that does not change system state.

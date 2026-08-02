@@ -23,6 +23,6 @@ var scanner = new ProjectScanner();
 
 var report = scanner.Scan(root);
 
-MarkdownWriter.Write(report, Path.Combine(root, "ProjectReport.md"));
+//MarkdownWriter.Write(report, Path.Combine(root, "ProjectReport.md"));
 
 Console.WriteLine("Done.");

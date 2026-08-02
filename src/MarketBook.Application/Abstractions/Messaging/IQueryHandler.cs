@@ -2,13 +2,15 @@
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Application
-// Namespace : MarketBook.Application.Common.Interfaces
+// Namespace : MarketBook.Application.Abstractions.Messaging
 //
 // Copyright (c) Saeid Asadi. All rights reserved.
 // Licensed under the MIT License.
 // -----------------------------------------------------------------------------
 
-namespace MarketBook.Application.Common.Interfaces.Messaging;
+using MediatR;
+
+namespace MarketBook.Application.Abstractions.Messaging;
 
 /// <summary>
 /// EN: Defines a handler for a query.
@@ -23,13 +25,7 @@ namespace MarketBook.Application.Common.Interfaces.Messaging;
 /// FA: پاسخ پرس‌وجو.
 /// </typeparam>
 public interface IQueryHandler<in TQuery, TResponse>
+    : IRequestHandler<TQuery, TResponse>
     where TQuery : IQuery<TResponse>
 {
-    /// <summary>
-    /// EN: Handles a query.
-    /// FA: پرس‌وجو را پردازش می‌کند.
-    /// </summary>
-    Task<TResponse> HandleAsync(
-        TQuery query,
-        CancellationToken cancellationToken = default);
 }

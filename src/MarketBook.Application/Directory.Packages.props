@@ -2,38 +2,26 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
-
   <ItemGroup>
-
     <!-- CQRS -->
     <PackageVersion Include="MediatR" Version="14.2.0" />
-
     <!-- Validation -->
-    <PackageVersion Include="FluentValidation" Version="12.1.0" />
-
+    <PackageVersion Include="FluentValidation" Version="12.1.1" />
     <!-- Entity Framework -->
-    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.10" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0" />
-
     <!-- Dependency Injection -->
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
-
     <!-- Logging -->
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
-
     <!-- Options -->
     <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.0" />
-
     <!-- ULID -->
     <PackageVersion Include="NUlid" Version="1.7.3" />
-
     <!-- Fluent Assertions -->
     <PackageVersion Include="FluentAssertions" Version="8.8.0" />
-
     <!-- xUnit -->
     <PackageVersion Include="xunit" Version="2.9.3" />
-
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4" />
-
   </ItemGroup>
 </Project>

@@ -10,13 +10,13 @@
 
 using MediatR;
 
-namespace MarketBook.Application.Common.Interfaces.Messaging;
+namespace MarketBook.Application.Abstractions.Messaging;
 
 /// <summary>
 /// EN: Represents an application command that changes the system state.
 /// FA: نمایانگر یک فرمان برنامه است که وضعیت سیستم را تغییر می‌دهد.
 /// </summary>
-/// <typeparam name="TResult">
+/// <typeparam name="TResponse">
 /// EN: Command execution result.
 /// FA: نتیجه اجرای فرمان.
 /// </typeparam>

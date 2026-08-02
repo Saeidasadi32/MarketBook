@@ -2,35 +2,33 @@
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Application
-// Namespace : MarketBook.Application.Common.Interfaces.Persistence
+// Namespace : MarketBook.Application.Abstractions.Persistence
 //
 // Copyright (c) Saeid Asadi. All rights reserved.
 // Licensed under the MIT License.
 // -----------------------------------------------------------------------------
 
-namespace MarketBook.Application.Common.Interfaces.Persistence;
+using Microsoft.EntityFrameworkCore;
+
+namespace MarketBook.Application.Abstractions.Persistence;
 
 /// <summary>
-/// EN: Represents a unit of work for coordinating persistence operations.
-///
-/// FA: واحد کار برای هماهنگ‌سازی عملیات ذخیره‌سازی را نمایش می‌دهد.
+/// EN: Represents the application's database context contract.
+/// FA: قرارداد Context پایگاه داده برنامه را نمایش می‌دهد.
 /// </summary>
-public interface IUnitOfWork
+public interface IApplicationDbContext
 {
     /// <summary>
-    /// EN: Persists all pending changes asynchronously.
-    ///
-    /// FA: تمام تغییرات در انتظار را به صورت ناهمگام ذخیره می‌کند.
+    /// EN: Persists all changes to the database.
+    /// FA: تمام تغییرات را در پایگاه داده ذخیره می‌کند.
     /// </summary>
     /// <param name="cancellationToken">
     /// EN: Cancellation token.
-    ///
     /// FA: توکن لغو عملیات.
     /// </param>
     /// <returns>
-    /// EN: Number of affected records.
-    ///
-    /// FA: تعداد رکوردهای تحت تأثیر.
+    /// EN: Number of affected rows.
+    /// FA: تعداد رکوردهای تغییر یافته.
     /// </returns>
     Task<int> SaveChangesAsync(
         CancellationToken cancellationToken = default);

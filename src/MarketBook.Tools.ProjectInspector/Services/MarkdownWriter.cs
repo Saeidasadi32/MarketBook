@@ -1,8 +1,5 @@
-﻿using System;
+﻿namespace MarketBook.Tools.ProjectInspector.Services;
 
-public class Class1
+public sealed class MarkdownWriter
 {
-	public Class1()
-	{
-	}
 }

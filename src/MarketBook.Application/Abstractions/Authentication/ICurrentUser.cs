@@ -8,7 +8,7 @@
 // Licensed under the MIT License.
 // -----------------------------------------------------------------------------
 
-namespace MarketBook.Application.Common.Interfaces.Identity;
+namespace MarketBook.Application.Abstractions.Identity;
 
 /// <summary>
 /// EN: Provides information about the current authenticated user.

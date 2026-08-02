@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MarketBook.Application.Common.Interfaces.Localization
+namespace MarketBook.Application.Abstractions.Localization
 {
     internal class IStringLocalizer
     {

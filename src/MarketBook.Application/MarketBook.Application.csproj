@@ -14,4 +14,8 @@
     <ProjectReference Include="..\MarketBook.Domain\MarketBook.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+
 </Project>

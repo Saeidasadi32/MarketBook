@@ -8,7 +8,7 @@
 // Licensed under the MIT License.
 // -----------------------------------------------------------------------------
 
-namespace MarketBook.Application.Common.Interfaces.Persistence;
+namespace MarketBook.Application.Abstractions.Persistence;
 
 /// <summary>
 /// EN: Represents a unit of work for coordinating persistence operations.

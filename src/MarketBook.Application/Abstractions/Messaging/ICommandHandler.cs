@@ -8,7 +8,9 @@
 // Licensed under the MIT License.
 // -----------------------------------------------------------------------------
 
-namespace MarketBook.Application.Common.Interfaces.Messaging;
+using MediatR;
+
+namespace MarketBook.Application.Abstractions.Messaging;
 
 /// <summary>
 /// EN: Defines a handler for an application command.
@@ -22,14 +24,8 @@ namespace MarketBook.Application.Common.Interfaces.Messaging;
 /// EN: Command result.
 /// FA: نتیجه فرمان.
 /// </typeparam>
-public interface ICommandHandler<in TCommand, TResult>
-    where TCommand : ICommand<TResult>
+public interface ICommandHandler<TCommand, TResponse> :
+    IRequestHandler<TCommand, TResponse>
+    where TCommand : IRequest<TResponse>
 {
-    /// <summary>
-    /// EN: Handles a command.
-    /// FA: فرمان را پردازش می‌کند.
-    /// </summary>
-    Task<TResult> HandleAsync(
-        TCommand command,
-        CancellationToken cancellationToken = default);
 }

@@ -8,7 +8,7 @@
 // Licensed under the MIT License.
 // -----------------------------------------------------------------------------
 
-namespace MarketBook.Application.Common.Interfaces.Clock;
+namespace MarketBook.Application.Abstractions.Clock;
 
 /// <summary>
 /// EN: Provides the current date and time.

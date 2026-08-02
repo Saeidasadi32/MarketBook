@@ -8,7 +8,7 @@
 // Licensed under the MIT License.
 // -----------------------------------------------------------------------------
 
-namespace MarketBook.Application.Common.Interfaces.Messaging;
+namespace MarketBook.Application.Abstractions.Messaging;
 
 /// <summary>
 /// EN: Defines a handler for a query.

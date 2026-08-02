@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MarketBook.Application.Common.Interfaces.Caching
+namespace MarketBook.Application.Abstractions.Caching
 {
     internal class ICacheService
     {

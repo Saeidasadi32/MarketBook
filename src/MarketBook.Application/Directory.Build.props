@@ -16,8 +16,6 @@
 
 		<AnalysisLevel>latest</AnalysisLevel>
 
-		<AnalysisMode>All</AnalysisMode>
-
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
 
 		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>

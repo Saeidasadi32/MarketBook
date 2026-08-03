@@ -10,6 +10,7 @@
 
 using MarketBook.Application.Abstractions.Persistence;
 using MarketBook.Application.Infrastructure;
+using MarketBook.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,6 +54,8 @@ public static class DependencyInjection
 
         services.AddScoped<IApplicationDbContext>(
             provider => provider.GetRequiredService<ApplicationDbContext>());
+
+        services.AddScoped<ICountryRepository, CountryRepository>();
 
         return services;
     }

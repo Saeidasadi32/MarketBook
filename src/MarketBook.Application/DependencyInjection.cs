@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Application
@@ -9,9 +9,9 @@
 // -----------------------------------------------------------------------------
 
 using FluentValidation;
+using MarketBook.Application.Behaviors;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using MarketBook.Application.Behaviors;
 
 namespace MarketBook.Application;
 

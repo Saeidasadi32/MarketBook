@@ -10,16 +10,16 @@
     <PackageVersion Include="FluentValidation" Version="12.1.1" />
     <!-- Entity Framework -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.10" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.10" />
     <!-- Dependency Injection -->
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
     <!-- Logging -->
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.10" />
     <!-- Options -->
-    <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.0" />
-	<PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
-	<PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0" />
-	<PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.10" />
     <!-- ULID -->
     <PackageVersion Include="NUlid" Version="1.7.3" />
     <!-- Fluent Assertions -->

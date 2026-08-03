@@ -10,30 +10,34 @@
 
 using FluentValidation;
 using MediatR;
-using MarketBook.Domain.Common;
 
 namespace MarketBook.Application.Behaviors;
 
 /// <summary>
-/// EN: Validates requests before they are handled.
-/// FA: قبل از اجرای درخواست، اعتبارسنجی را انجام می‌دهد.
+/// EN: Validates incoming requests before passing them to the next pipeline step.
+/// FA: قبل از ارسال درخواست به مرحله بعد Pipeline، اعتبارسنجی را انجام می‌دهد.
 /// </summary>
-public sealed class ValidationBehavior<TRequest, TResponse> :
-    IPipelineBehavior<TRequest, TResponse>
-    where TRequest : notnull, IRequest<TResponse>
+/// <typeparam name="TRequest">
+/// EN: Request type.
+/// FA: نوع درخواست.
+/// </typeparam>
+/// <typeparam name="TResponse">
+/// EN: Response type.
+/// FA: نوع پاسخ.
+/// </typeparam>
+public sealed class ValidationBehavior<TRequest, TResponse>
+    : IPipelineBehavior<TRequest, TResponse>
+    where TRequest : notnull
 {
     private readonly IEnumerable<IValidator<TRequest>> _validators;
 
     /// <summary>
-    /// EN: Initializes a new instance of the
-    /// <see cref="ValidationBehavior{TRequest,TResponse}"/> class.
-    /// FA: نمونه جدیدی از کلاس
-    /// <see cref="ValidationBehavior{TRequest,TResponse}"/>
-    /// را ایجاد می‌کند.
+    /// EN: Initializes a new instance of the ValidationBehavior class.
+    /// FA: نمونه جدیدی از کلاس ValidationBehavior را ایجاد می‌کند.
     /// </summary>
     /// <param name="validators">
-    /// EN: Validators for the request.
-    /// FA: اعتبارسنج‌های مربوط به درخواست.
+    /// EN: Registered validators.
+    /// FA: اعتبارسنج‌های ثبت شده.
     /// </param>
     public ValidationBehavior(
         IEnumerable<IValidator<TRequest>> validators)
@@ -41,26 +45,7 @@ public sealed class ValidationBehavior<TRequest, TResponse> :
         _validators = validators;
     }
 
-    /// <summary>
-    /// EN: Validates the request before invoking the next handler.
-    /// FA: قبل از اجرای Handler بعدی، درخواست را اعتبارسنجی می‌کند.
-    /// </summary>
-    /// <param name="request">
-    /// EN: Incoming request.
-    /// FA: درخواست ورودی.
-    /// </param>
-    /// <param name="next">
-    /// EN: Delegate representing the next step in the pipeline.
-    /// FA: نماینده مرحله بعدی Pipeline.
-    /// </param>
-    /// <param name="cancellationToken">
-    /// EN: Cancellation token.
-    /// FA: توکن لغو عملیات.
-    /// </param>
-    /// <returns>
-    /// EN: Handler response.
-    /// FA: پاسخ Handler.
-    /// </returns>
+    /// <inheritdoc/>
     public async Task<TResponse> Handle(
         TRequest request,
         RequestHandlerDelegate<TResponse> next,
@@ -76,22 +61,12 @@ public sealed class ValidationBehavior<TRequest, TResponse> :
                 v.ValidateAsync(context, cancellationToken)));
 
         var errors = failures
-            .SelectMany(x => x.Errors)
-            .Where(x => x is not null)
-            .ToArray();
+            .SelectMany(v => v.Errors)
+            .Where(e => e is not null)
+            .ToList();
 
-        if (errors.Length == 0)
+        if (errors.Count == 0)
             return await next();
-
-        if (typeof(TResponse) == typeof(Result))
-        {
-            var error = new Error(
-                "Validation.Error",
-                string.Join(Environment.NewLine,
-                    errors.Select(e => e.ErrorMessage)));
-
-            return (TResponse)(object)Result.Failure(error);
-        }
 
         throw new ValidationException(errors);
     }

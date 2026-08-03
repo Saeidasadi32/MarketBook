@@ -1,27 +1,33 @@
 <Project>
 
-  <PropertyGroup>
+	<PropertyGroup>
 
-    <TargetFramework>net10.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 
-    <Nullable>enable</Nullable>
+		<LangVersion>latest</LangVersion>
 
-    <ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
 
-    <LangVersion>latest</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
 
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 
-    <AnalysisLevel>latest</AnalysisLevel>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<AnalysisLevel>latest</AnalysisLevel>
 
-    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+		<AnalysisMode>All</AnalysisMode>
 
-    <Deterministic>true</Deterministic>
+		<EnableNETAnalyzers>true</EnableNETAnalyzers>
 
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
 
-  </PropertyGroup>
+		<Deterministic>true</Deterministic>
+
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+
+		<DebugType>portable</DebugType>
+
+	</PropertyGroup>
 
 </Project>

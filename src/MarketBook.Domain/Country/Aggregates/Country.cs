@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -53,12 +53,6 @@ public sealed class Country : AggregateRoot<CountryId>
         CreatedOn = DateTimeOffset.UtcNow;
         IsActive = true;
     }
-
-    /// <summary>
-    /// EN: Gets the country identifier.
-    /// FA: شناسه کشور را دریافت می‌کند.
-    /// </summary>
-    public CountryId Id { get; }
 
     /// <summary>
     /// EN: Gets the ISO country code.

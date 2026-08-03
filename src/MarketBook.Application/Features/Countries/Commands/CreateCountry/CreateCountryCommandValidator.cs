@@ -1,8 +1,8 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Application
-// Namespace : MarketBook.Application.Features.Country.Commands.CreateCountry
+// Namespace : MarketBook.Application.Features.Countries.Commands.CreateCountry
 //
 // Copyright (c) Saeid Asadi. All rights reserved.
 // Licensed under the MIT License.
@@ -10,7 +10,7 @@
 
 using FluentValidation;
 
-namespace MarketBook.Application.Features.Country.Commands.CreateCountry;
+namespace MarketBook.Application.Features.Countries.Commands.CreateCountry;
 
 /// <summary>
 /// EN: Validates <see cref="CreateCountryCommand"/>.

@@ -25,7 +25,7 @@ namespace MarketBook.Infrastructure.Persistence.Repositories;
 /// </summary>
 internal sealed class CountryRepository : ICountryRepository
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IApplicationDbContext _context;
 
     /// <summary>
     /// EN: Initializes a new instance of the <see cref="CountryRepository"/> class.
@@ -36,7 +36,7 @@ internal sealed class CountryRepository : ICountryRepository
     /// FA: کانتکست پایگاه داده برنامه.
     /// </param>
     public CountryRepository(
-        ApplicationDbContext context)
+        IApplicationDbContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 

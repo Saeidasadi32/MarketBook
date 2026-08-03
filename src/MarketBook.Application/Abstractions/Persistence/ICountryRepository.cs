@@ -14,7 +14,7 @@ using MarketBook.Domain.Country.ValueObjects;
 namespace MarketBook.Application.Abstractions.Persistence;
 
 /// <summary>
-/// EN: Defines persistence operations for the Country aggregate.
+/// EN: Defines persistence operations for the Countries aggregate.
 /// FA: عملیات ماندگاری Aggregate کشور را تعریف می‌کند.
 /// </summary>
 public interface ICountryRepository

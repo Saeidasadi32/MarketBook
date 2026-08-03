@@ -1,17 +1,18 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Application
-// Namespace : MarketBook.Application.Features.Country.Queries.GetCountryById
+// Namespace : MarketBook.Application.Features.Countries.Queries.GetCountryById
 //
 // Copyright (c) Saeid Asadi. All rights reserved.
 // Licensed under the MIT License.
 // -----------------------------------------------------------------------------
 
 using MarketBook.Application.Abstractions.Messaging;
+using MarketBook.Application.Features.Countries.Responses;
 using MarketBook.Domain.Common;
 
-namespace MarketBook.Application.Features.Country.Queries.GetCountryById;
+namespace MarketBook.Application.Features.Countries.Queries.GetCountryById;
 
 /// <summary>
 /// EN: Handles <see cref="GetCountryByIdQuery"/>.
@@ -28,7 +29,7 @@ public sealed class GetCountryByIdQueryHandler
         return Task.FromResult(
             Result<CountryResponse>.Failure(
                 new Error(
-                    "Country.NotImplemented",
-                    "Country query has not been implemented yet.")));
+                    "Countries.NotImplemented",
+                    "Countries query has not been implemented yet.")));
     }
 }

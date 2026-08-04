@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Application
@@ -27,7 +27,7 @@ public class ApplicationException : Exception
     /// FA: خطای برنامه.
     /// </param>
     public ApplicationException(Error error)
-        : base(error.Message)
+        : base(GetMessage(error))
     {
         Error = error;
     }
@@ -47,8 +47,9 @@ public class ApplicationException : Exception
     public ApplicationException(
         Error error,
         Exception innerException)
-        : base(error.Message, innerException)
+        : base(GetMessage(error), innerException)
     {
+        ArgumentNullException.ThrowIfNull(innerException);
         Error = error;
     }
 
@@ -57,4 +58,11 @@ public class ApplicationException : Exception
     /// FA: خطای مرتبط را دریافت می‌کند.
     /// </summary>
     public Error Error { get; }
+
+    private static string GetMessage(Error error)
+    {
+        ArgumentNullException.ThrowIfNull(error);
+
+        return error.Message;
+    }
 }

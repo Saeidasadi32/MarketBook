@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+namespace MarketBook.Application.Abstractions.Localization;
 
-namespace MarketBook.Application.Abstractions.Localization
+/// <summary>
+/// EN: Provides localized string resources.
+/// FA: سرویس ارائه رشته‌های چندزبانه.
+/// </summary>
+public interface IStringLocalizer
 {
-    internal class IStringLocalizer
-    {
-    }
 }

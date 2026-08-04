@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Application
@@ -40,7 +40,9 @@ public sealed class LoggingBehavior<TRequest, TResponse>
             "Handling request {RequestName}",
             typeof(TRequest).Name);
 
-        var response = await next();
+        ArgumentNullException.ThrowIfNull(next);
+
+        TResponse? response = await next(cancellationToken);
 
         _logger.LogInformation(
             "Request {RequestName} completed",

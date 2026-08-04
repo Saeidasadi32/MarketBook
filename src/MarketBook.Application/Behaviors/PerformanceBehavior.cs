@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Application
@@ -37,9 +37,11 @@ public sealed class PerformanceBehavior<TRequest, TResponse>
         RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
-        var stopwatch = Stopwatch.StartNew();
+        ArgumentNullException.ThrowIfNull(next);
 
-        var response = await next();
+        Stopwatch stopwatch = Stopwatch.StartNew();
+
+        TResponse? response = await next(cancellationToken);
 
         stopwatch.Stop();
 

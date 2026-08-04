@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Application
@@ -9,6 +9,7 @@
 // -----------------------------------------------------------------------------
 
 using FluentValidation;
+using FluentValidation.Results;
 using MediatR;
 
 namespace MarketBook.Application.Behaviors;
@@ -51,22 +52,24 @@ public sealed class ValidationBehavior<TRequest, TResponse>
         RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(next);
+
         if (!_validators.Any())
-            return await next();
+            return await next(cancellationToken);
 
-        var context = new ValidationContext<TRequest>(request);
+        ValidationContext<TRequest> context = new(request);
 
-        var failures = await Task.WhenAll(
+        ValidationResult[] failures = await Task.WhenAll(
             _validators.Select(v =>
                 v.ValidateAsync(context, cancellationToken)));
 
-        var errors = failures
+        List<ValidationFailure> errors = failures
             .SelectMany(v => v.Errors)
             .Where(e => e is not null)
             .ToList();
 
         if (errors.Count == 0)
-            return await next();
+            return await next(cancellationToken);
 
         throw new ValidationException(errors);
     }

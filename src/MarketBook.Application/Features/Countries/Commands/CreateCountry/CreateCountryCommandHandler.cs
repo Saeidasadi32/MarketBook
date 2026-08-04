@@ -37,11 +37,12 @@ public sealed class CreateCountryCommandHandler
     }
 
     /// <inheritdoc/>
-    public async Task<Result> HandleAsync(
+    public async Task<Result> Handle(
         CreateCountryCommand command,
         CancellationToken cancellationToken)
     {
-        var code = new CountryCode(command.Code);
+        ArgumentNullException.ThrowIfNull(command);
+        CountryCode code = new (command.Code);
 
         if (await _repository.ExistsAsync(code, cancellationToken))
         {
@@ -51,7 +52,7 @@ public sealed class CreateCountryCommandHandler
                     "Country already exists."));
         }
 
-        var country = new Country(
+        Country country = new (
             CountryId.New(),
             code,
             command.Name,

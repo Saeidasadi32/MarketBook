@@ -17,15 +17,8 @@ namespace MarketBook.Application.Features.Countries.Commands.CreateCountry;
 /// EN: Represents a command for creating a country.
 /// FA: فرمان ایجاد یک کشور را نمایش می‌دهد.
 /// </summary>
-/// <param name="Code">
-/// EN: ISO country code.
-/// FA: کد استاندارد ISO کشور.
-/// </param>
-/// <param name="Name">
-/// EN: Countries name.
-/// FA: نام کشور.
-/// </param>
 public sealed record CreateCountryCommand(
     string Code,
-    string Name)
+    string Name,
+    string TimeZone)
     : ICommand<Result>;

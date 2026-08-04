@@ -27,7 +27,7 @@ public sealed class GetCountryByIdQueryHandler
         CancellationToken cancellationToken)
     {
         return Task.FromResult(
-            Result<CountryResponse>.Failure(
+            Result<CountryResponse>.Fail(
                 new Error(
                     "Countries.NotImplemented",
                     "Countries query has not been implemented yet.")));

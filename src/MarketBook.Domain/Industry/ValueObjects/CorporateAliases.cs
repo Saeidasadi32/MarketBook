@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -37,7 +37,7 @@ public sealed record CorporateAliases
             return;
         }
 
-        foreach (var alias in aliases)
+        foreach (string alias in aliases)
         {
             Add(alias);
         }
@@ -81,14 +81,22 @@ public sealed record CorporateAliases
     /// FA: یک نام جایگزین را حذف می‌کند.
     /// </summary>
     public bool Remove(string alias)
-        => _aliases.Remove(Normalize(alias));
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(alias);
+
+        return _aliases.Remove(Normalize(alias));
+    }
 
     /// <summary>
     /// EN: Determines whether the specified alias exists.
     /// FA: بررسی می‌کند که آیا نام جایگزین وجود دارد یا خیر.
     /// </summary>
     public bool Contains(string alias)
-        => _aliases.Contains(Normalize(alias));
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(alias);
+
+        return _aliases.Contains(Normalize(alias));
+    }
 
     /// <summary>
     /// EN: Creates a merged alias collection.

@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -51,7 +51,7 @@ public sealed class IndustryAggregate : AggregateRoot<IndustryId>
     /// EN: Gets the industry name.
     /// FA: نام صنعت را دریافت می‌کند.
     /// </summary>
-    public IndustryName Name { get; private set; }
+    public IndustryName Name { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets the description.
@@ -123,7 +123,7 @@ public sealed class IndustryAggregate : AggregateRoot<IndustryId>
     /// EN: Increments the version of the aggregate.
     /// FA: نسخه Aggregate را افزایش می‌دهد.
     /// </summary>
-    private void IncrementVersion()
+    private static void IncrementVersion()
     {
         // Version در AggregateRoot به صورت private set است
         // برای افزایش آن از Reflection یا تغییر طراحی استفاده کنید

@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -8,6 +8,7 @@
 // Licensed under the MIT License.
 // -----------------------------------------------------------------------------
 
+using MarketBook.Domain.Instrument.ValueObjects;
 using System.Text.RegularExpressions;
 
 namespace MarketBook.Domain.Market.ValueObjects;
@@ -47,8 +48,27 @@ public sealed partial record MarketCode
     /// </summary>
     public string Value { get; }
 
+    /// <summary>
+    /// EN: Converts the value object to string.
+    /// FA: مقدار شیء را به رشته تبدیل می‌کند.
+    /// </summary>
+    public string ToStringValue()
+        => Value;
+
+    /// <summary>
+    /// EN: Creates asset class from string.
+    /// FA: کلاس دارایی را از رشته ایجاد می‌کند.
+    /// </summary>
+    public static MarketCode FromString(string value)
+        => new(value);
+
     /// <inheritdoc />
     public override string ToString() => Value;
 
-    public static implicit operator string(MarketCode code) => code.Value;
+    public static implicit operator string(MarketCode code)
+    {
+        ArgumentNullException.ThrowIfNull(code);
+
+        return code.Value;
+    }
 }

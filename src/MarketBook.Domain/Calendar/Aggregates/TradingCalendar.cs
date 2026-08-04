@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -33,7 +33,8 @@ public sealed class TradingCalendar : AggregateRoot<TradingCalendarId>
         int year)
         : base(id)
     {
-        MarketId = marketId;
+        MarketId = marketId ?? throw new ArgumentNullException(nameof(marketId));
+
         Year = year;
         CreatedOn = DateTimeOffset.UtcNow;
         IsActive = true;
@@ -45,6 +46,7 @@ public sealed class TradingCalendar : AggregateRoot<TradingCalendarId>
     /// </summary>
     private TradingCalendar()
     {
+        MarketId = default!;
         // For ORM
     }
 
@@ -52,19 +54,18 @@ public sealed class TradingCalendar : AggregateRoot<TradingCalendarId>
     /// EN: Gets the market identifier.
     /// FA: شناسه بازار را دریافت می‌کند.
     /// </summary>
-    public MarketId MarketId { get; }
-
+    public MarketId MarketId { get; private set; }
     /// <summary>
     /// EN: Gets the calendar year.
     /// FA: سال تقویم را دریافت می‌کند.
     /// </summary>
-    public int Year { get; }
+    public int Year { get; private set; }
 
     /// <summary>
     /// EN: Gets the creation date.
     /// FA: تاریخ ایجاد را دریافت می‌کند.
     /// </summary>
-    public DateTimeOffset CreatedOn { get; }
+    public DateTimeOffset CreatedOn { get; private set; }
 
     /// <summary>
     /// EN: Gets a value indicating whether the calendar is active.
@@ -165,8 +166,8 @@ public sealed class TradingCalendar : AggregateRoot<TradingCalendarId>
     /// </summary>
     public DateOnly? GetNextTradingDay(DateOnly fromDate)
     {
-        var date = fromDate.AddDays(1);
-        var maxAttempts = 365;
+        DateOnly date = fromDate.AddDays(1);
+        int maxAttempts = 365;
 
         while (maxAttempts-- > 0)
         {
@@ -185,12 +186,12 @@ public sealed class TradingCalendar : AggregateRoot<TradingCalendarId>
     /// </summary>
     public IEnumerable<DateOnly> GetTradingDays()
     {
-        for (var month = 1; month <= 12; month++)
+        for (int month = 1; month <= 12; month++)
         {
-            var daysInMonth = DateTime.DaysInMonth(Year, month);
-            for (var day = 1; day <= daysInMonth; day++)
+            int daysInMonth = DateTime.DaysInMonth(Year, month);
+            for (int day = 1; day <= daysInMonth; day++)
             {
-                var date = new DateOnly(Year, month, day);
+                DateOnly date = new(Year, month, day);
                 if (IsTradingDay(date))
                 {
                     yield return date;

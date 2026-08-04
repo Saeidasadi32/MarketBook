@@ -58,13 +58,13 @@ public sealed class Portfolio : AggregateRoot<PortfolioId>
     /// EN: Gets investor identifier.
     /// FA: شناسه سرمایه‌گذار را دریافت می‌کند.
     /// </summary>
-    public InvestorId InvestorId { get; }
+    public InvestorId InvestorId { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets portfolio name.
     /// FA: نام پرتفوی را دریافت می‌کند.
     /// </summary>
-    public PortfolioName Name { get; private set; }
+    public PortfolioName Name { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets creation date.
@@ -149,7 +149,7 @@ public sealed class Portfolio : AggregateRoot<PortfolioId>
 
         _events.Add(portfolioEvent);
 
-        var position = _positions.FirstOrDefault(
+        Position? position = _positions.FirstOrDefault(
             x => x.ListingId == portfolioEvent.ListingId);
 
         if (position is null)

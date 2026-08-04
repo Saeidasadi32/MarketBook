@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 
 namespace MarketBook.Domain.Common;
 
@@ -8,6 +8,7 @@ namespace MarketBook.Domain.Common;
 /// </summary>
 public static class Guard
 {
+
     public static void AgainstNull(
         object? value,
         [CallerArgumentExpression(nameof(value))] string? name = null)

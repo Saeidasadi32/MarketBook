@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -24,9 +24,7 @@ public readonly record struct Quantity :
     /// </summary>
     public Quantity(decimal value)
     {
-        if (value < 0)
-            throw new ArgumentOutOfRangeException(nameof(value));
-
+        ArgumentOutOfRangeException.ThrowIfNegative(value);
         Value = value;
     }
 
@@ -46,6 +44,34 @@ public readonly record struct Quantity :
 
     public bool IsPositive => Value > 0m;
 
+    /// <summary>
+    /// EN: Adds another quantity.
+    /// FA: یک مقدار دیگر را اضافه می‌کند.
+    /// </summary>
+    public Quantity Add(Quantity other)
+        => new(Value + other.Value);
+
+    /// <summary>
+    /// EN: Subtracts another quantity.
+    /// FA: یک مقدار دیگر را کم می‌کند.
+    /// </summary>
+    public Quantity Subtract(Quantity other)
+        => new(Value - other.Value);
+
+    /// <summary>
+    /// EN: Converts quantity to decimal.
+    /// FA: مقدار را به decimal تبدیل می‌کند.
+    /// </summary>
+    public decimal ToDecimal()
+        => Value;
+
+    /// <summary>
+    /// EN: Creates quantity from decimal.
+    /// FA: مقدار را از decimal ایجاد می‌کند.
+    /// </summary>
+    public static Quantity FromDecimal(decimal value)
+        => new(value);
+
     public int CompareTo(Quantity other)
         => Value.CompareTo(other.Value);
 
@@ -54,7 +80,7 @@ public readonly record struct Quantity :
         if (obj is Quantity other)
             return CompareTo(other);
 
-        throw new ArgumentException(nameof(obj));
+        throw new ArgumentException("Object must be of type Quantity.", nameof(obj));
     }
 
     public override string ToString()

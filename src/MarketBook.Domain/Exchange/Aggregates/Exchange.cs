@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -41,12 +41,6 @@ public sealed class Exchange : AggregateRoot<ExchangeId>
         CreatedOn = DateTimeOffset.UtcNow;
         IsActive = true;
     }
-
-    /// <summary>
-    /// EN: Gets exchange identifier.
-    /// FA: شناسه بورس را دریافت می‌کند.
-    /// </summary>
-    public ExchangeId Id { get; }
 
     /// <summary>
     /// EN: Gets exchange code.

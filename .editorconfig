@@ -31,7 +31,7 @@ csharp_indent_switch_labels = true
 ########################################
 
 csharp_style_var_for_built_in_types = false:error
-csharp_style_var_when_type_is_apparent = false:error
+csharp_style_var_when_type_is_apparent = false:warning
 csharp_style_var_elsewhere = false:error
 
 ########################################
@@ -99,7 +99,7 @@ dotnet_diagnostic.CA2016.severity = error
 dotnet_diagnostic.CA2208.severity = error
 dotnet_diagnostic.CA2211.severity = error
 dotnet_diagnostic.CA2213.severity = error
-dotnet_diagnostic.CA2225.severity = warning
+dotnet_diagnostic.CA2225.severity = none
 dotnet_diagnostic.CA2264.severity = error
 
 ########################################

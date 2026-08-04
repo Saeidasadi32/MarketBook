@@ -1,4 +1,4 @@
-﻿
+
 // -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
@@ -26,7 +26,7 @@ public sealed class DomainException : Exception
     /// FA: خطای حاوی دلیل ایجاد استثنا.
     /// </param>
     public DomainException(Error error)
-        : base(error.Message)
+        : base(GetMessage(error))
     {
         Error = error;
     }
@@ -44,7 +44,7 @@ public sealed class DomainException : Exception
     /// FA: استثنای داخلی که باعث این استثنا شده است.
     /// </param>
     public DomainException(Error error, Exception innerException)
-        : base(error.Message, innerException)
+        : base(GetMessage(error), innerException)
     {
         Error = error;
     }
@@ -54,4 +54,14 @@ public sealed class DomainException : Exception
     /// FA: خطای مرتبط با این استثنا را دریافت می‌کند.
     /// </summary>
     public Error Error { get; }
+
+    public override string Message
+    => Error.Message;
+
+    private static string GetMessage(Error error)
+    {
+        ArgumentNullException.ThrowIfNull(error);
+
+        return error.Message;
+    }
 }

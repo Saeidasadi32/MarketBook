@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -42,5 +42,5 @@ public abstract class NumericValueObject<TValue> : ValueObject
     }
 
     public override string ToString()
-        => Value.ToString();
+        => Value.ToString() ?? string.Empty;
 }

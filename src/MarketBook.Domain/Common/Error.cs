@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -20,9 +20,13 @@ public sealed record Error
     /// EN: Represents no error.
     /// FA: بدون خطا.
     /// </summary>
-    public static readonly Error None = new(
-        string.Empty,
-        string.Empty);
+    private Error()
+    {
+        Code = string.Empty;
+        Message = string.Empty;
+    }
+
+    public static readonly Error None = new();
 
     /// <summary>
     /// EN: Initializes a new error.

@@ -55,7 +55,7 @@ public sealed class Position : Entity<PositionId>
     /// EN: Gets listing identifier.
     /// FA: شناسه نماد را دریافت می‌کند.
     /// </summary>
-    public ListingId ListingId { get; }
+    public ListingId ListingId { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets position side (Long/Short).
@@ -131,11 +131,11 @@ public sealed class Position : Entity<PositionId>
     /// </summary>
     private void ApplyBuy(PortfolioEvent portfolioEvent)
     {
-        var totalCost =
+        decimal totalCost =
             (AveragePrice.Value * Quantity.Value) +
             (portfolioEvent.Price.Value * portfolioEvent.Quantity.Value);
 
-        var totalQuantity = Quantity.Value + portfolioEvent.Quantity.Value;
+        decimal totalQuantity = Quantity.Value + portfolioEvent.Quantity.Value;
 
         if (totalQuantity == 0)
             throw new DomainException(

@@ -65,19 +65,19 @@ public sealed class Trade : Entity<TradeId>
     /// EN: Gets the listing identifier (symbol).
     /// FA: شناسه نماد معاملاتی را دریافت می‌کند.
     /// </summary>
-    public ListingId ListingId { get; }
+    public ListingId ListingId { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets the portfolio identifier.
     /// FA: شناسه پرتفوی را دریافت می‌کند.
     /// </summary>
-    public PortfolioId PortfolioId { get; }
+    public PortfolioId PortfolioId { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets the trade side (Buy/Sell).
     /// FA: جهت معامله (خرید/فروش) را دریافت می‌کند.
     /// </summary>
-    public TradeSide Side { get; }
+    public TradeSide Side { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets the traded quantity.

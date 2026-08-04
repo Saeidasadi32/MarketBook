@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -16,6 +16,10 @@ namespace MarketBook.Domain.Instrument.ValueObjects;
 /// </summary>
 public sealed record AssetClass
 {
+    /// <summary>
+    /// EN: Initializes a new instance of the <see cref="AssetClass"/> class.
+    /// FA: نمونه جدیدی از کلاس <see cref="AssetClass"/> ایجاد می‌کند.
+    /// </summary>
     public AssetClass(string value)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
@@ -41,8 +45,32 @@ public sealed record AssetClass
     public static readonly AssetClass Derivative = new("Derivative");
     public static readonly AssetClass Other = new("Other");
 
-    public override string ToString() => Value;
+    /// <summary>
+    /// EN: Converts the value object to string.
+    /// FA: مقدار شیء را به رشته تبدیل می‌کند.
+    /// </summary>
+    public string ToStringValue()
+        => Value;
 
+    /// <summary>
+    /// EN: Creates asset class from string.
+    /// FA: کلاس دارایی را از رشته ایجاد می‌کند.
+    /// </summary>
+    public static AssetClass FromString(string value)
+        => new(value);
+
+    /// <inheritdoc />
+    public override string ToString()
+        => Value;
+
+    /// <summary>
+    /// EN: Implicit conversion to string.
+    /// FA: تبدیل ضمنی به رشته.
+    /// </summary>
     public static implicit operator string(AssetClass assetClass)
-        => assetClass.Value;
+    {
+        ArgumentNullException.ThrowIfNull(assetClass);
+
+        return assetClass.Value;
+    }
 }

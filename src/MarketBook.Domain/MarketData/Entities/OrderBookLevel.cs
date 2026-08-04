@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -31,14 +31,10 @@ public sealed class OrderBookLevel
         Volume askVolume,
         int askCount)
     {
-        if (level <= 0)
-            throw new ArgumentOutOfRangeException(nameof(level));
 
-        if (bidCount < 0)
-            throw new ArgumentOutOfRangeException(nameof(bidCount));
-
-        if (askCount < 0)
-            throw new ArgumentOutOfRangeException(nameof(askCount));
+        ArgumentOutOfRangeException.ThrowIfNegative(level);
+        ArgumentOutOfRangeException.ThrowIfNegative(bidCount);
+        ArgumentOutOfRangeException.ThrowIfNegative(askCount);
 
         Level = level;
         BidPrice = bidPrice;

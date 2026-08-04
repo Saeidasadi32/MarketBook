@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -48,7 +48,7 @@ public sealed record CurrencyId : EntityId
     {
         Guard.AgainstNullOrWhiteSpace(value);
 
-        if (Ulid.TryParse(value, out var ulid))
+        if (Ulid.TryParse(value, out Ulid ulid))
             return new(ulid);
 
         throw new DomainException(
@@ -63,7 +63,7 @@ public sealed record CurrencyId : EntityId
     /// </summary>
     public static bool TryParse(string? value, out CurrencyId? result)
     {
-        if (!string.IsNullOrWhiteSpace(value) && Ulid.TryParse(value, out var ulid))
+        if (!string.IsNullOrWhiteSpace(value) && Ulid.TryParse(value, out Ulid ulid))
         {
             result = new(ulid);
             return true;

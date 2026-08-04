@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -8,6 +8,7 @@
 // Licensed under the MIT License.
 // -----------------------------------------------------------------------------
 
+using MarketBook.Domain.Country.ValueObjects;
 using System.Text.RegularExpressions;
 
 namespace MarketBook.Domain.Exchange.ValueObjects;
@@ -39,7 +40,26 @@ public sealed record ExchangeCode
     /// </summary>
     public string Value { get; }
 
+    /// <summary>
+    /// EN: Converts Exchange code to string.
+    /// FA: کد بورس را به رشته تبدیل می‌کند.
+    /// </summary>
+    public string ToStringValue()
+        => Value;
+
+    /// <summary>
+    /// EN: Creates a Exchange code from string.
+    /// FA: کد بورس را از رشته ایجاد می‌کند.
+    /// </summary>
+    public static ExchangeCode FromString(string value)
+        => new(value);
+
     public override string ToString() => Value;
 
-    public static implicit operator string(ExchangeCode code) => code.Value;
+    public static implicit operator string(ExchangeCode code)
+    {
+        ArgumentNullException.ThrowIfNull(code);
+
+        return code.Value;
+    }
 }

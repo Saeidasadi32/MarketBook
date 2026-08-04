@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -22,8 +22,6 @@ namespace MarketBook.Domain.Common;
 public abstract class AggregateRoot<TId> : Entity<TId>
     where TId : EntityId
 {
-    private readonly List<IDomainEvent> _domainEvents = [];
-
     /// <summary>
     /// EN: Initializes a new instance of the <see cref="AggregateRoot{TId}"/> class.
     /// FA: نمونه جدیدی از کلاس <see cref="AggregateRoot{TId}"/> را ایجاد می‌کند.
@@ -43,26 +41,10 @@ public abstract class AggregateRoot<TId> : Entity<TId>
     }
 
     /// <summary>
-    /// EN: Gets all pending domain events.
-    ///
-    /// FA: تمام رویدادهای دامنه ثبت‌شده را دریافت می‌کند.
-    /// </summary>
-    public new IReadOnlyCollection<IDomainEvent> DomainEvents
-        => _domainEvents.AsReadOnly();
-
-    /// <summary>
     /// EN: Gets the version of the aggregate for concurrency control.
     /// FA: نسخه Aggregate را برای کنترل همزمانی دریافت می‌کند.
     /// </summary>
     public int Version { get; private set; }
-
-    /// <summary>
-    /// EN: Determines whether the aggregate has pending events.
-    ///
-    /// FA: مشخص می‌کند آیا Aggregate رویداد ثبت‌شده دارد یا خیر.
-    /// </summary>
-    public bool HasDomainEvents
-        => _domainEvents.Count > 0;
 
     /// <summary>
     /// EN: Raises a new domain event.
@@ -77,18 +59,8 @@ public abstract class AggregateRoot<TId> : Entity<TId>
                     "AggregateRoot.DomainEvent.Null",
                     "Domain event cannot be null."));
 
-        _domainEvents.Add(domainEvent);
+        AddDomainEvent(domainEvent);
         IncrementVersion();
-    }
-
-    /// <summary>
-    /// EN: Removes all pending domain events.
-    ///
-    /// FA: تمام رویدادهای دامنه را پاک می‌کند.
-    /// </summary>
-    public new void ClearDomainEvents()
-    {
-        _domainEvents.Clear();
     }
 
     /// <summary>

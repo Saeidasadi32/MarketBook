@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -36,12 +36,6 @@ public sealed class Currency : AggregateRoot<CurrencyId>
     }
 
     /// <summary>
-    /// EN: Gets currency identifier.
-    /// FA: شناسه ارز را دریافت می‌کند.
-    /// </summary>
-    public CurrencyId Id { get; }
-
-    /// <summary>
     /// EN: Gets ISO currency code.
     /// FA: کد استاندارد ارز را دریافت می‌کند.
     /// </summary>
@@ -51,7 +45,7 @@ public sealed class Currency : AggregateRoot<CurrencyId>
     /// EN: Gets currency name.
     /// FA: نام ارز را دریافت می‌کند.
     /// </summary>
-    public string Name { get; private set; }
+    public string Name { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets creation date.

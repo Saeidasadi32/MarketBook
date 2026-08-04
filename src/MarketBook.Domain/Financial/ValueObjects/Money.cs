@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -30,8 +30,7 @@ public readonly record struct Money :
     /// </param>
     public Money(decimal value)
     {
-        if (value < 0)
-            throw new ArgumentOutOfRangeException(nameof(value));
+        ArgumentOutOfRangeException.ThrowIfNegative(value);
 
         Value = decimal.Round(value, 2, MidpointRounding.AwayFromZero);
     }
@@ -119,7 +118,7 @@ public readonly record struct Money :
             value,
             NumberStyles.Number,
             CultureInfo.InvariantCulture,
-            out var result))
+            out decimal result))
         {
             money = new(result);
             return true;

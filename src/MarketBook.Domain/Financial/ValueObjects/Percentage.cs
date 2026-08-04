@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -109,7 +109,7 @@ public readonly record struct Percentage :
         if (obj is Percentage other)
             return CompareTo(other);
 
-        throw new ArgumentException($"Object must be of type {nameof(Percentage)}.");
+        throw new ArgumentException("Object must be of type Percentage.", nameof(obj));
     }
 
     /// <summary>
@@ -125,7 +125,10 @@ public readonly record struct Percentage :
     /// </summary>
     public static Percentage Parse(string value)
     {
-        var clean = value.TrimEnd('%', ' ');
+        ArgumentNullException.ThrowIfNull(value);
+
+        string clean = value.TrimEnd('%', ' ');
+
         return new Percentage(decimal.Parse(clean, CultureInfo.InvariantCulture));
     }
 
@@ -133,8 +136,14 @@ public readonly record struct Percentage :
     /// EN: Tries to parse a string to a percentage.
     /// FA: سعی می‌کند یک رشته را به درصد تبدیل کند.
     /// </summary>
-    public static bool TryParse(string value, out Percentage percentage)
+    public static bool TryParse(string? value, out Percentage percentage)
     {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            percentage = Zero;
+            return false;
+        }
+
         try
         {
             percentage = Parse(value);
@@ -146,6 +155,12 @@ public readonly record struct Percentage :
             return false;
         }
     }
+
+    public decimal ToDecimal()
+    => Value;
+
+    public static Percentage FromDecimal(decimal value)
+        => new(value);
 
     // Operators
     public static Percentage operator +(Percentage left, Percentage right)
@@ -177,10 +192,10 @@ public readonly record struct Percentage :
         => left.Value <= right.Value;
 
     public static implicit operator decimal(Percentage percentage)
-        => percentage.Value;
+        => percentage.ToDecimal();
 
     public static explicit operator Percentage(decimal value)
-        => new(value);
+        => FromDecimal(value);
 
     public Percentage Abs() => new(decimal.Abs(Value));
 }

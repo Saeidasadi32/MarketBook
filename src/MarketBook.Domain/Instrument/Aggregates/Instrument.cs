@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -83,25 +83,25 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
     /// EN: Gets the instrument display name.
     /// FA: نام نمایشی ابزار مالی را دریافت می‌کند.
     /// </summary>
-    public InstrumentName Name { get; private set; }
+    public InstrumentName Name { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets the asset class.
     /// FA: کلاس دارایی را دریافت می‌کند.
     /// </summary>
-    public AssetClass AssetClass { get; }
+    public AssetClass AssetClass { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets the instrument type.
     /// FA: نوع ابزار مالی را دریافت می‌کند.
     /// </summary>
-    public InstrumentType Type { get; }
+    public InstrumentType Type { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets the instrument category.
     /// FA: گروه ابزار مالی را دریافت می‌کند.
     /// </summary>
-    public InstrumentCategory Category { get; }
+    public InstrumentCategory Category { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets the International Securities Identification Number (ISIN).
@@ -224,7 +224,7 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
     /// EN: Increments the version of the aggregate.
     /// FA: نسخه Aggregate را افزایش می‌دهد.
     /// </summary>
-    private void IncrementVersion()
+    private static void IncrementVersion()
     {
         // Version در AggregateRoot به صورت private set است
         // برای افزایش آن از Reflection یا تغییر طراحی استفاده کنید

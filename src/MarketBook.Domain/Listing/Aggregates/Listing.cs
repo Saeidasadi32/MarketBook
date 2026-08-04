@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -65,25 +65,25 @@ public sealed class Listing : AggregateRoot<ListingId>
     /// EN: Gets the related instrument identifier.
     /// FA: شناسه ابزار مالی را دریافت می‌کند.
     /// </summary>
-    public InstrumentId InstrumentId { get; }
+    public InstrumentId InstrumentId { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets the market identifier.
     /// FA: شناسه بازار را دریافت می‌کند.
     /// </summary>
-    public MarketId MarketId { get; }
+    public MarketId MarketId { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets the trading symbol.
     /// FA: نماد معاملاتی را دریافت می‌کند.
     /// </summary>
-    public TradingSymbol TradingSymbol { get; }
+    public TradingSymbol TradingSymbol { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets the currency identifier.
     /// FA: شناسه ارز را دریافت می‌کند.
     /// </summary>
-    public CurrencyId CurrencyId { get; }
+    public CurrencyId CurrencyId { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets the minimum price increment.
@@ -107,7 +107,7 @@ public sealed class Listing : AggregateRoot<ListingId>
     /// EN: Gets the creation date.
     /// FA: تاریخ ایجاد را دریافت می‌کند.
     /// </summary>
-    public DateTimeOffset CreatedOn { get; }
+    public DateTimeOffset CreatedOn { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets whether the listing is active.

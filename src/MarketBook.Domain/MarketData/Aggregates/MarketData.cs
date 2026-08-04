@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -57,19 +57,19 @@ public sealed class MarketData : AggregateRoot<MarketDataId>
     /// EN: Gets listing identifier.
     /// FA: شناسه پذیرش را دریافت می‌کند.
     /// </summary>
-    public ListingId ListingId { get; }
+    public ListingId ListingId { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets trading date.
     /// FA: تاریخ معاملاتی را دریافت می‌کند.
     /// </summary>
-    public TradingDate TradingDate { get; }
+    public TradingDate TradingDate { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets the daily market snapshot.
     /// FA: Snapshot روزانه بازار را دریافت می‌کند.
     /// </summary>
-    public DailySnapshot Snapshot { get; private set; }
+    public DailySnapshot Snapshot { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets the creation date.
@@ -105,7 +105,7 @@ public sealed class MarketData : AggregateRoot<MarketDataId>
     /// </summary>
     public void RemoveCorporateAction(CorporateActionId id)
     {
-        var removed = _corporateActions.RemoveAll(x => x.Id == id);
+        int removed = _corporateActions.RemoveAll(x => x.Id == id);
         if (removed > 0)
         {
             Raise(new CorporateActionRemovedEvent(Id, id));

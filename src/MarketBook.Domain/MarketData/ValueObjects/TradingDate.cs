@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -28,6 +28,13 @@ public readonly record struct TradingDate : IComparable<TradingDate>
     /// </param>
     public TradingDate(DateOnly value)
     {
+        if (value == default)
+        {
+            throw new ArgumentException(
+                "Trading date cannot be empty.",
+                nameof(value));
+        }
+
         Value = value;
     }
 
@@ -132,7 +139,11 @@ public readonly record struct TradingDate : IComparable<TradingDate>
     /// FA: یک رشته را به تاریخ معاملاتی تبدیل می‌کند.
     /// </summary>
     public static TradingDate Parse(string value)
-        => new(DateOnly.Parse(value, CultureInfo.InvariantCulture));
+    {
+        ArgumentNullException.ThrowIfNull(value);
+
+        return new(DateOnly.Parse(value, CultureInfo.InvariantCulture));
+    }
 
     /// <summary>
     /// EN: Tries to parse a string to a trading date.
@@ -140,7 +151,7 @@ public readonly record struct TradingDate : IComparable<TradingDate>
     /// </summary>
     public static bool TryParse(string value, out TradingDate date)
     {
-        if (DateOnly.TryParse(value, CultureInfo.InvariantCulture, out var result))
+        if (DateOnly.TryParse(value, CultureInfo.InvariantCulture, out DateOnly result))
         {
             date = new(result);
             return true;

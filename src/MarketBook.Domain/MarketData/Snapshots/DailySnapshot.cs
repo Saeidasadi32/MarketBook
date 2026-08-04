@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -29,7 +29,6 @@ public sealed class DailySnapshot : IEquatable<DailySnapshot>
         TradeStatistics statistics,
         OrderBook orderBook)
     {
-        ArgumentNullException.ThrowIfNull(tradingDate);
         ArgumentNullException.ThrowIfNull(dailyPrice);
         ArgumentNullException.ThrowIfNull(statistics);
         ArgumentNullException.ThrowIfNull(orderBook);

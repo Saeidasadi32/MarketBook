@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -58,7 +58,7 @@ public sealed class PortfolioEvent : Entity<PortfolioEventId>
     /// EN: Gets listing identifier.
     /// FA: شناسه نماد را دریافت می‌کند.
     /// </summary>
-    public ListingId ListingId { get; }
+    public ListingId ListingId { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets transaction type (Buy/Sell).
@@ -88,7 +88,7 @@ public sealed class PortfolioEvent : Entity<PortfolioEventId>
     /// EN: Gets transaction costs.
     /// FA: هزینه‌های معامله را دریافت می‌کند.
     /// </summary>
-    public TransactionCost Cost { get; }
+    public TransactionCost Cost { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets the gross transaction value.

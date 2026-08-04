@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -7,6 +7,8 @@
 // Copyright (c) Saeid Asadi. All rights reserved.
 // Licensed under the MIT License.
 // -----------------------------------------------------------------------------
+
+using MarketBook.Domain.Instrument.ValueObjects;
 
 namespace MarketBook.Domain.Market.ValueObjects;
 
@@ -37,9 +39,27 @@ public sealed record TimeZoneId
     /// </summary>
     public string Value { get; }
 
+    /// <summary>
+    /// EN: Converts the value object to string.
+    /// FA: مقدار شیء را به رشته تبدیل می‌کند.
+    /// </summary>
+    public string ToStringValue()
+        => Value;
+
+    /// <summary>
+    /// EN: Creates asset class from string.
+    /// FA: کلاس دارایی را از رشته ایجاد می‌کند.
+    /// </summary>
+    public static TimeZoneId FromString(string value)
+        => new(value);
+
     /// <inheritdoc />
     public override string ToString() => Value;
 
     public static implicit operator string(TimeZoneId value)
-        => value.Value;
+    {
+        ArgumentNullException.ThrowIfNull(value);
+
+        return value.Value;
+    }
 }

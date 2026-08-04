@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -33,12 +33,6 @@ public sealed class Investor : AggregateRoot<InvestorId>
         FullName = fullName.Trim();
         CreatedOn = DateTimeOffset.UtcNow;
     }
-
-    /// <summary>
-    /// EN: Gets the investor identifier.
-    /// FA: شناسه سرمایه‌گذار را دریافت می‌کند.
-    /// </summary>
-    public InvestorId Id { get; }
 
     /// <summary>
     /// EN: Gets the investor full name.

@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -7,6 +7,8 @@
 // Copyright (c) Saeid Asadi. All rights reserved.
 // Licensed under the MIT License.
 // -----------------------------------------------------------------------------
+
+using MarketBook.Domain.Instrument.ValueObjects;
 
 namespace MarketBook.Domain.Sector.ValueObjects;
 
@@ -48,6 +50,20 @@ public sealed record Sector
     public static readonly Sector RealEstate = new("Real Estate");
     public static readonly Sector Utilities = new("Utilities");
 
+    /// <summary>
+    /// EN: Converts the value object to string.
+    /// FA: مقدار شیء را به رشته تبدیل می‌کند.
+    /// </summary>
+    public string ToStringValue()
+        => Value;
+
+    /// <summary>
+    /// EN: Creates asset class from string.
+    /// FA: کلاس دارایی را از رشته ایجاد می‌کند.
+    /// </summary>
+    public static Sector FromString(string value)
+        => new(value);
+
     /// <inheritdoc />
     public override string ToString() => Value;
 
@@ -55,7 +71,12 @@ public sealed record Sector
     /// EN: Implicit conversion to string.
     /// FA: تبدیل ضمنی به رشته.
     /// </summary>
-    public static implicit operator string(Sector sector) => sector.Value;
+    public static implicit operator string(Sector sector)
+    {
+        ArgumentNullException.ThrowIfNull(sector);
+
+        return sector.Value;
+    }
 
     /// <summary>
     /// EN: Explicit conversion from string.

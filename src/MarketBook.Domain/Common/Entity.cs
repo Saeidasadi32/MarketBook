@@ -8,10 +8,6 @@
 // Licensed under the MIT License.
 // -----------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace MarketBook.Domain.Common;
 
 /// <summary>
@@ -25,13 +21,13 @@ namespace MarketBook.Domain.Common;
 public abstract class Entity<TId> : IEquatable<Entity<TId>>
     where TId : EntityId
 {
-    private readonly List<IDomainEvent> _domainEvents = new();
+    private readonly List<IDomainEvent> _domainEvents = [];
 
     /// <summary>
     /// EN: Gets the unique identifier of the entity.
     /// FA: شناسه یکتای موجودیت را برمی‌گرداند.
     /// </summary>
-    public TId Id { get; protected init; }
+    public TId Id { get; protected init; } = default!;
 
     /// <summary>
     /// EN: Gets a read-only collection of domain events that occurred during the entity's lifecycle.
@@ -53,8 +49,7 @@ public abstract class Entity<TId> : IEquatable<Entity<TId>>
     /// </exception>
     protected Entity(TId id)
     {
-        if (id is null)
-            throw new DomainException(new Error("Entity.Id.Null", "Entity identifier cannot be null."));
+        ArgumentNullException.ThrowIfNull(id);
 
         Id = id;
     }
@@ -82,8 +77,7 @@ public abstract class Entity<TId> : IEquatable<Entity<TId>>
     /// </exception>
     protected void AddDomainEvent(IDomainEvent domainEvent)
     {
-        if (domainEvent is null)
-            throw new DomainException(new Error("Entity.DomainEvent.Null", "Domain event cannot be null."));
+        ArgumentNullException.ThrowIfNull(domainEvent);
 
         _domainEvents.Add(domainEvent);
     }
@@ -136,7 +130,7 @@ public abstract class Entity<TId> : IEquatable<Entity<TId>>
         if (GetType() != other.GetType())
             return false;
 
-        return Id.Equals(other.Id);
+        return EqualityComparer<TId>.Default.Equals(Id, other.Id);
     }
 
     /// <summary>

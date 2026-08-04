@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -35,6 +35,13 @@ public abstract record EntityId
     /// </param>
     protected EntityId(Ulid value)
     {
+        if (value == Ulid.Empty)
+        {
+            throw new ArgumentException(
+                "Entity identifier cannot be empty.",
+                nameof(value));
+        }
+
         Value = value;
     }
 
@@ -44,6 +51,14 @@ public abstract record EntityId
     /// FA: مقدار شناسه.
     /// </summary>
     public Ulid Value { get; }
+
+    /// <summary>
+    /// EN: Converts this identifier to ULID.
+    ///
+    /// FA: این شناسه را به ULID تبدیل می‌کند.
+    /// </summary>
+    public Ulid ToUlid()
+        => Value;
 
     /// <summary>
     /// EN: Returns string representation.
@@ -59,5 +74,9 @@ public abstract record EntityId
     /// FA: تبدیل ضمنی به ULID.
     /// </summary>
     public static implicit operator Ulid(EntityId id)
-        => id.Value;
+    {
+        ArgumentNullException.ThrowIfNull(id);
+
+        return id.Value;
+    }
 }

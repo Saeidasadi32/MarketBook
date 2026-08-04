@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -40,11 +40,12 @@ public sealed class Market : AggregateRoot<MarketId>
         MarketId id,
         ExchangeId exchangeId,
         MarketCode code,
-        string name)
+        string name) : base(id)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(code);
+        ArgumentException.ThrowIfNullOrEmpty(code);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
+        Code = code;
         Id = id;
         Name = name.Trim();
         ExchangeId = exchangeId;
@@ -53,11 +54,12 @@ public sealed class Market : AggregateRoot<MarketId>
         IsActive = true;
     }
 
-    /// <summary>
-    /// EN: Gets the market identifier.
-    /// FA: شناسه بازار را دریافت می‌کند.
-    /// </summary>
-    public MarketId Id { get; }
+    private Market()
+    {
+        Code = default!;
+        Name = default!;
+        ExchangeId = default!;
+    }
 
     /// <summary>
     /// EN: Gets the market code.

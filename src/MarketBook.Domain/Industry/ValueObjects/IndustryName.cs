@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -23,6 +23,7 @@ public sealed record IndustryName
     public IndustryName(string value)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
+
         Value = value.Trim();
     }
 
@@ -32,9 +33,39 @@ public sealed record IndustryName
     /// </summary>
     public string Value { get; }
 
-    /// <inheritdoc />
-    public override string ToString() => Value;
+    /// <summary>
+    /// EN: Converts the value object to string.
+    /// FA: مقدار شیء را به رشته تبدیل می‌کند.
+    /// </summary>
+    public string ToStringValue()
+        => Value;
 
-    public static implicit operator string(IndustryName name) => name.Value;
-    public static explicit operator IndustryName(string value) => new(value);
+    /// <summary>
+    /// EN: Creates an industry name from string.
+    /// FA: نام صنعت را از رشته ایجاد می‌کند.
+    /// </summary>
+    public static IndustryName FromString(string value)
+        => new(value);
+
+    /// <inheritdoc />
+    public override string ToString()
+        => Value;
+
+    /// <summary>
+    /// EN: Implicit conversion to string.
+    /// FA: تبدیل ضمنی به رشته.
+    /// </summary>
+    public static implicit operator string(IndustryName name)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+
+        return name.Value;
+    }
+
+    /// <summary>
+    /// EN: Explicit conversion from string.
+    /// FA: تبدیل صریح از رشته.
+    /// </summary>
+    public static explicit operator IndustryName(string value)
+        => FromString(value);
 }

@@ -8,6 +8,8 @@
 // Licensed under the MIT License.
 // -----------------------------------------------------------------------------
 
+using MarketBook.Domain.Instrument.ValueObjects;
+
 namespace MarketBook.Domain.Portfolio.Entities;
 
 /// <summary>
@@ -103,6 +105,20 @@ public sealed record AssetType
     /// </summary>
     public static readonly AssetType Other = new("Other");
 
+    /// <summary>
+    /// EN: Converts the value object to string.
+    /// FA: مقدار شیء را به رشته تبدیل می‌کند.
+    /// </summary>
+    public string ToStringValue()
+        => Value;
+
+    /// <summary>
+    /// EN: Creates asset class from string.
+    /// FA: کلاس دارایی را از رشته ایجاد می‌کند.
+    /// </summary>
+    public static AssetType FromString(string value)
+        => new(value);
+
     /// <inheritdoc />
     public override string ToString() => Value;
 
@@ -111,7 +127,11 @@ public sealed record AssetType
     /// FA: تبدیل ضمنی به رشته.
     /// </summary>
     public static implicit operator string(AssetType assetType)
-        => assetType.Value;
+    {
+        ArgumentNullException.ThrowIfNull(assetType);
+
+        return assetType.Value;
+    }
 
     /// <summary>
     /// EN: Explicit conversion from string.

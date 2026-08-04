@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -60,6 +60,20 @@ public sealed record Industry
     public static readonly Industry Utilities = new("Utilities");
     public static readonly Industry Other = new("Other");
 
+    /// <summary>
+    /// EN: Converts industry to string.
+    /// FA: صنعت را به رشته تبدیل می‌کند.
+    /// </summary>
+    public string ToStringValue()
+        => Value;
+
+    /// <summary>
+    /// EN: Creates an industry from string.
+    /// FA: صنعت را از رشته ایجاد می‌کند.
+    /// </summary>
+    public static Industry FromString(string value)
+        => new(value);
+
     /// <inheritdoc />
     public override string ToString() => Value;
 
@@ -67,7 +81,12 @@ public sealed record Industry
     /// EN: Implicit conversion to string.
     /// FA: تبدیل ضمنی به رشته.
     /// </summary>
-    public static implicit operator string(Industry industry) => industry.Value;
+    public static implicit operator string(Industry industry)
+    {
+        ArgumentNullException.ThrowIfNull(industry);
+
+        return industry.Value;
+    }
 
     /// <summary>
     /// EN: Explicit conversion from string.

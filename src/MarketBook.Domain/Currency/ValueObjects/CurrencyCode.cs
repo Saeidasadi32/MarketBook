@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -8,6 +8,7 @@
 // Licensed under the MIT License.
 // -----------------------------------------------------------------------------
 
+using MarketBook.Domain.Country.ValueObjects;
 using System.Text.RegularExpressions;
 
 namespace MarketBook.Domain.Currency.ValueObjects;
@@ -39,7 +40,26 @@ public sealed record CurrencyCode
     /// </summary>
     public string Value { get; }
 
+    /// <summary>
+    /// EN: Converts Currency code to string.
+    /// FA: کد واحد پولی را به رشته تبدیل می‌کند.
+    /// </summary>
+    public string ToStringValue()
+        => Value;
+
+    /// <summary>
+    /// EN: Creates a Currency code from string.
+    /// FA: کد واحد پولی را از رشته ایجاد می‌کند.
+    /// </summary>
+    public static CurrencyCode FromString(string value)
+        => new(value);
+
     public override string ToString() => Value;
 
-    public static implicit operator string(CurrencyCode code) => code.Value;
+    public static implicit operator string(CurrencyCode code)
+    {
+        ArgumentNullException.ThrowIfNull(code);
+
+        return code.Value;
+    }
 }

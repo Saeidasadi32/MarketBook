@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -47,8 +47,27 @@ public sealed record InstrumentCategory
     public static readonly InstrumentCategory Index = new("Index");
     public static readonly InstrumentCategory Other = new("Other");
 
+    /// <summary>
+    /// EN: Converts the value object to string.
+    /// FA: مقدار شیء را به رشته تبدیل می‌کند.
+    /// </summary>
+    public string ToStringValue()
+        => Value;
+
+    /// <summary>
+    /// EN: Creates asset class from string.
+    /// FA: کلاس دارایی را از رشته ایجاد می‌کند.
+    /// </summary>
+    public static InstrumentCategory FromString(string value)
+        => new(value);
+
+
     public override string ToString() => Value;
 
     public static implicit operator string(InstrumentCategory category)
-        => category.Value;
+    {
+        ArgumentNullException.ThrowIfNull(category);
+
+        return category.Value;
+    }
 }

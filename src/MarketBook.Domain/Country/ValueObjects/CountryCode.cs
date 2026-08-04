@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -47,8 +47,27 @@ public sealed record CountryCode
     /// </summary>
     public string Value { get; }
 
+    /// <summary>
+    /// EN: Converts country code to string.
+    /// FA: کد کشور را به رشته تبدیل می‌کند.
+    /// </summary>
+    public string ToStringValue()
+        => Value;
+
+    /// <summary>
+    /// EN: Creates a country code from string.
+    /// FA: کد کشور را از رشته ایجاد می‌کند.
+    /// </summary>
+    public static CountryCode FromString(string value)
+        => new(value);
+
     /// <inheritdoc />
     public override string ToString() => Value;
 
-    public static implicit operator string(CountryCode code) => code.Value;
+    public static implicit operator string(CountryCode code)
+    {
+        ArgumentNullException.ThrowIfNull(code);
+
+        return code.Value;
+    }
 }

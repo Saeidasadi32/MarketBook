@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+namespace MarketBook.Domain.MarketData.Snapshots;
 
-namespace MarketBook.Domain.MarketData.Snapshots
+public class OrderBookSnapshot
 {
-    internal class OrderBookSnapshot
-    {
-    }
 }

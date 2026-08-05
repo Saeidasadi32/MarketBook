@@ -18,4 +18,5 @@ public sealed record CountryResponse(
     string Id,
     string Code,
     string Name,
+    string TimeZone,
     bool IsActive);

@@ -8,6 +8,9 @@
 // Licensed under the MIT License.
 // -----------------------------------------------------------------------------
 
+using MarketBook.Domain.Common;
+using System.Text;
+
 namespace MarketBook.Domain.Industry.ValueObjects;
 
 /// <summary>
@@ -33,13 +36,13 @@ public sealed record CorporateAliases
     public CorporateAliases(IEnumerable<string>? aliases = null)
     {
         if (aliases is null)
-        {
             return;
-        }
 
-        foreach (string alias in aliases)
+        foreach (string? alias in aliases
+                     .Where(x => !string.IsNullOrWhiteSpace(x))
+                     .Distinct(StringComparer.OrdinalIgnoreCase))
         {
-            Add(alias);
+            _aliases.Add(Normalize(alias));
         }
     }
 
@@ -93,7 +96,7 @@ public sealed record CorporateAliases
     /// </summary>
     public bool Contains(string alias)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(alias);
+        Guard.AgainstNullOrWhiteSpace(alias);
 
         return _aliases.Contains(Normalize(alias));
     }
@@ -104,7 +107,7 @@ public sealed record CorporateAliases
     /// </summary>
     public CorporateAliases Merge(CorporateAliases other)
     {
-        ArgumentNullException.ThrowIfNull(other);
+        Guard.AgainstNull(other);
 
         return new CorporateAliases(_aliases.Concat(other._aliases));
     }
@@ -114,17 +117,29 @@ public sealed record CorporateAliases
     /// FA: نمونه جدیدی با یک نام جایگزین اضافه‌شده برمی‌گرداند.
     /// </summary>
     public CorporateAliases WithAlias(string alias)
-        => new(_aliases.Append(alias));
+    {
+        Guard.AgainstNullOrWhiteSpace(alias);
+
+        return new(_aliases.Append(alias));
+    }
 
     /// <summary>
     /// EN: Returns a new instance without the specified alias.
     /// FA: نمونه جدیدی بدون نام جایگزین مشخص‌شده برمی‌گرداند.
     /// </summary>
     public CorporateAliases WithoutAlias(string alias)
-        => new(_aliases.Where(x => !string.Equals(
-            x,
-            Normalize(alias),
-            StringComparison.OrdinalIgnoreCase)));
+    {
+        Guard.AgainstNullOrWhiteSpace(alias);
+
+        string normalized = Normalize(alias);
+
+        return new(
+            _aliases.Where(x =>
+                !string.Equals(
+                    x,
+                    normalized,
+                    StringComparison.OrdinalIgnoreCase)));
+    }
 
     /// <summary>
     /// EN: Returns a comma-separated string of aliases ordered alphabetically.
@@ -147,5 +162,13 @@ public sealed record CorporateAliases
     public static CorporateAliases Empty { get; } = new();
 
     private static string Normalize(string value)
-        => value.Trim();
+    {
+        string normalized = value
+            .Trim()
+            .Normalize(NormalizationForm.FormKC);
+
+        Guard.AgainstNullOrWhiteSpace(normalized);
+
+        return normalized;
+    }
 }

@@ -26,6 +26,8 @@
 
 		<DebugType>portable</DebugType>
 
+        <WarningsAsErrors>nullable</WarningsAsErrors>
+
 	</PropertyGroup>
 
 </Project>

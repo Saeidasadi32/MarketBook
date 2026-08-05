@@ -17,21 +17,22 @@ namespace MarketBook.Domain.Industry.Aggregates;
 /// EN: Represents an industry aggregate.
 /// FA: Aggregate صنعت را نمایش می‌دهد.
 /// </summary>
-public sealed class IndustryAggregate : AggregateRoot<IndustryId>
+public sealed class Industry : AggregateRoot<IndustryId>
 {
     private readonly List<CorporateAliases> _corporateAliases = [];
 
     /// <summary>
-    /// EN: Initializes a new instance of the <see cref="IndustryAggregate"/> class.
-    /// FA: نمونه جدیدی از کلاس <see cref="IndustryAggregate"/> را ایجاد می‌کند.
+    /// EN: Initializes a new instance of the <see cref="Industry"/> class.
+    /// FA: نمونه جدیدی از کلاس <see cref="Industry"/> را ایجاد می‌کند.
     /// </summary>
-    public IndustryAggregate(
+    public Industry(
         IndustryId id,
         IndustryName name,
         string? description = null)
         : base(id)
     {
-        ArgumentNullException.ThrowIfNull(name);
+        Guard.AgainstNull(name);
+
         Name = name;
         Description = description?.Trim();
         CreatedOn = DateTimeOffset.UtcNow;
@@ -42,7 +43,7 @@ public sealed class IndustryAggregate : AggregateRoot<IndustryId>
     /// EN: Parameterless constructor for ORM frameworks.
     /// FA: سازنده بدون پارامتر برای فریم‌ورک‌های ORM.
     /// </summary>
-    private IndustryAggregate()
+    private Industry()
     {
         // For ORM
     }
@@ -57,13 +58,13 @@ public sealed class IndustryAggregate : AggregateRoot<IndustryId>
     /// EN: Gets the description.
     /// FA: توضیحات را دریافت می‌کند.
     /// </summary>
-    public string? Description { get; }
+    public string? Description { get; private set; }
 
     /// <summary>
     /// EN: Gets the creation date.
     /// FA: تاریخ ایجاد را دریافت می‌کند.
     /// </summary>
-    public DateTimeOffset CreatedOn { get; }
+    public DateTimeOffset CreatedOn { get; private set; }
 
     /// <summary>
     /// EN: Gets a value indicating whether the industry is active.
@@ -75,7 +76,8 @@ public sealed class IndustryAggregate : AggregateRoot<IndustryId>
     /// EN: Gets corporate aliases in this industry.
     /// FA: نام‌های جایگزین شرکت‌ها در این صنعت را دریافت می‌کند.
     /// </summary>
-    public IReadOnlyList<CorporateAliases> CorporateAliases => _corporateAliases;
+    public IReadOnlyCollection<CorporateAliases> CorporateAliases
+    => _corporateAliases.AsReadOnly();
 
     /// <summary>
     /// EN: Renames the industry.
@@ -87,8 +89,7 @@ public sealed class IndustryAggregate : AggregateRoot<IndustryId>
             return;
 
         Name = newName;
-        IncrementVersion();
-        AddDomainEvent(new IndustryRenamedEvent(Id, newName));
+        Raise(new IndustryRenamedEvent(Id, newName));
     }
 
     /// <summary>
@@ -101,8 +102,7 @@ public sealed class IndustryAggregate : AggregateRoot<IndustryId>
             return;
 
         IsActive = true;
-        IncrementVersion();
-        AddDomainEvent(new IndustryActivatedEvent(Id));
+        Raise(new IndustryActivatedEvent(Id));
     }
 
     /// <summary>
@@ -115,20 +115,47 @@ public sealed class IndustryAggregate : AggregateRoot<IndustryId>
             return;
 
         IsActive = false;
-        IncrementVersion();
-        AddDomainEvent(new IndustryDeactivatedEvent(Id));
+        Raise(new IndustryDeactivatedEvent(Id));
+    }
+
+    public void ChangeDescription(string? description)
+    {
+        description = description?.Trim();
+
+        if (Description == description)
+            return;
+
+        Description = description;
+
+        Raise(new IndustryDescriptionChangedEvent(Id));
     }
 
     /// <summary>
-    /// EN: Increments the version of the aggregate.
-    /// FA: نسخه Aggregate را افزایش می‌دهد.
+    /// EN: Raised when the industry description changes.
+    /// FA: هنگام تغییر توضیحات صنعت ایجاد می‌شود.
     /// </summary>
-    private static void IncrementVersion()
+
+
+    public void AddAlias(CorporateAliases alias)
     {
-        // Version در AggregateRoot به صورت private set است
-        // برای افزایش آن از Reflection یا تغییر طراحی استفاده کنید
-        // راه‌حل: Version را در AggregateRoot به protected set تغییر دهید
-        // یا از متد Raise استفاده کنید که خودش IncrementVersion را صدا می‌زند
+        ArgumentNullException.ThrowIfNull(alias);
+
+        if (_corporateAliases.Contains(alias))
+            return;
+
+        _corporateAliases.Add(alias);
+
+        Raise(new IndustryAliasAddedEvent(Id, alias));
+    }
+
+    public void RemoveAlias(CorporateAliases alias)
+    {
+        ArgumentNullException.ThrowIfNull(alias);
+
+        if (!_corporateAliases.Remove(alias))
+            return;
+
+        Raise(new IndustryAliasRemovedEvent(Id, alias));
     }
 }
 
@@ -136,3 +163,6 @@ public sealed class IndustryAggregate : AggregateRoot<IndustryId>
 public sealed record IndustryRenamedEvent(IndustryId IndustryId, IndustryName NewName) : DomainEvent;
 public sealed record IndustryActivatedEvent(IndustryId IndustryId) : DomainEvent;
 public sealed record IndustryDeactivatedEvent(IndustryId IndustryId) : DomainEvent;
+public sealed record IndustryDescriptionChangedEvent(IndustryId IndustryId) : DomainEvent;
+public sealed record IndustryAliasAddedEvent(IndustryId IndustryId, CorporateAliases Alias) : DomainEvent;
+public sealed record IndustryAliasRemovedEvent(IndustryId IndustryId, CorporateAliases Alias) : DomainEvent;

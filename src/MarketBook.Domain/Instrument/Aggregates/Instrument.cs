@@ -236,7 +236,7 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
     /// EN: Gets the industry.
     /// FA: صنعت را دریافت می‌کند.
     /// </summary>
-    public Industry.ValueObjects.Industry? Industry { get; private set; }
+    public Industry.ValueObjects.IndustryCategory? Industry { get; private set; }
 
     /// <summary>
     /// EN: Gets the sector.
@@ -254,7 +254,7 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
     /// EN: Sets the industry.
     /// FA: صنعت را تنظیم می‌کند.
     /// </summary>
-    public void SetIndustry(Industry.ValueObjects.Industry industry)
+    public void SetIndustry(Industry.ValueObjects.IndustryCategory industry)
     {
         ArgumentNullException.ThrowIfNull(industry);
 
@@ -270,7 +270,7 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
     /// EN: Sets the industry and sector.
     /// FA: صنعت و بخش اقتصادی را تنظیم می‌کند.
     /// </summary>
-    public void SetIndustryAndSector(Industry.ValueObjects.Industry industry, Sector.ValueObjects.Sector sector)
+    public void SetIndustryAndSector(Industry.ValueObjects.IndustryCategory industry, Sector.ValueObjects.Sector sector)
     {
         ArgumentNullException.ThrowIfNull(industry);
         ArgumentNullException.ThrowIfNull(sector);
@@ -356,7 +356,7 @@ public sealed record InstrumentDeactivatedEvent(
 // Domain Events جدید
 public sealed record InstrumentIndustryChangedEvent(
     InstrumentId InstrumentId,
-    Industry.ValueObjects.Industry NewIndustry,
+    Industry.ValueObjects.IndustryCategory NewIndustry,
     Sector.ValueObjects.Sector NewSector) : DomainEvent;
 
 public sealed record InstrumentAliasAddedEvent(
@@ -374,7 +374,7 @@ public sealed record InstrumentAliasesSetEvent(
 // Domain Events جدید
 public sealed record InstrumentIndustrySetEvent(
     InstrumentId InstrumentId,
-    Industry.ValueObjects.Industry Industry) : DomainEvent;
+    Industry.ValueObjects.IndustryCategory Industry) : DomainEvent;
 
 public sealed record InstrumentAliasesUpdatedEvent(
     InstrumentId InstrumentId,

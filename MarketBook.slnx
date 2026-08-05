@@ -7,9 +7,6 @@
     <Project Path="src/MarketBook.Infrastructure/MarketBook.Infrastructure.csproj" Id="f426e3e5-8b5f-4ed7-aa52-1ff1fc0cc3f7" />
     <Project Path="src/MarketBook.Web/MarketBook.Web.csproj" Id="39598d26-97a3-414f-b10d-0bec8af193c3" />
   </Folder>
-  <Folder Name="/src/tools/">
-    <Project Path="src/MarketBook.Tools.ProjectInspector/MarketBook.Tools.ProjectInspector.csproj" />
-  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/MarketBook.Application.Tests/MarketBook.Application.Tests.csproj" Id="28218220-9d67-4a3f-bc96-e6a30a3a04f0" />
     <Project Path="tests/MarketBook.Domain.Tests/MarketBook.Domain.Tests.csproj" Id="2fa07754-e3c4-48d7-9220-c7ff408447cd" />

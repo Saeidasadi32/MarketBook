@@ -24,13 +24,14 @@ public sealed class CreateCountryValidator
     {
         RuleFor(x => x.Code)
             .NotEmpty()
-            .Length(2);
+            .Length(2, 3);
 
         RuleFor(x => x.Name)
             .NotEmpty()
             .MaximumLength(200);
 
         RuleFor(x => x.TimeZone)
-            .NotEmpty();
+            .NotEmpty()
+            .MaximumLength(100);
     }
 }

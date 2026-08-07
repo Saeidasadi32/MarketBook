@@ -13,45 +13,45 @@ using MarketBook.Domain.Common;
 namespace MarketBook.Domain.Industry.ValueObjects;
 
 /// <summary>
-/// EN: Represents the name of an industry.
-/// FA: نام یک صنعت را نمایش می‌دهد.
+/// EN: Represents the unique code of an industry.
+/// FA: کد یکتای صنعت را نمایش می‌دهد.
 /// </summary>
-public sealed class IndustryName : ValueObject
+public sealed class IndustryCode : ValueObject
 {
     /// <summary>
     /// EN: Maximum allowed length.
     /// FA: حداکثر طول مجاز.
     /// </summary>
-    public const int MaxLength = 200;
+    public const int MaxLength = 20;
 
     /// <summary>
-    /// EN: Initializes a new instance of the <see cref="IndustryName"/> class.
-    /// FA: نمونه جدیدی از کلاس <see cref="IndustryName"/> را ایجاد می‌کند.
+    /// EN: Initializes a new instance of the <see cref="IndustryCode"/> class.
+    /// FA: نمونه جدیدی از کلاس <see cref="IndustryCode"/> را ایجاد می‌کند.
     /// </summary>
     /// <param name="value">
-    /// EN: Industry name.
-    /// FA: نام صنعت.
+    /// EN: Industry code.
+    /// FA: کد صنعت.
     /// </param>
-    public IndustryName(string value)
+    public IndustryCode(string value)
     {
         Guard.AgainstNullOrWhiteSpace(value);
 
-        value = value.Trim();
+        value = value.Trim().ToUpperInvariant();
 
         if (value.Length > MaxLength)
         {
             throw new DomainException(
                 new Error(
-                    $"{nameof(IndustryName)}.TooLong",
-                    $"Industry name cannot exceed {MaxLength} characters."));
+                    $"{nameof(IndustryCode)}.TooLong",
+                    $"Industry code cannot exceed {MaxLength} characters."));
         }
 
         Value = value;
     }
 
     /// <summary>
-    /// EN: Gets the industry name.
-    /// FA: نام صنعت را دریافت می‌کند.
+    /// EN: Gets the industry code.
+    /// FA: کد صنعت را دریافت می‌کند.
     /// </summary>
     public string Value { get; }
 
@@ -61,21 +61,7 @@ public sealed class IndustryName : ValueObject
         yield return Value;
     }
 
-    /// <summary>
-    /// EN: Converts the value object to string.
-    /// FA: مقدار شیء را به رشته تبدیل می‌کند.
-    /// </summary>
-    public string ToStringValue()
-        => Value;
-
-    /// <summary>
-    /// EN: Creates an industry name from string.
-    /// FA: نام صنعت را از رشته ایجاد می‌کند.
-    /// </summary>
-    public static IndustryName FromString(string value)
-        => new(value);
-
-    /// <inheritdoc />
+    /// <inheritdoc/>
     public override string ToString()
         => Value;
 
@@ -83,17 +69,17 @@ public sealed class IndustryName : ValueObject
     /// EN: Implicit conversion to string.
     /// FA: تبدیل ضمنی به رشته.
     /// </summary>
-    public static implicit operator string(IndustryName name)
+    public static implicit operator string(IndustryCode value)
     {
-        ArgumentNullException.ThrowIfNull(name);
+        Guard.AgainstNull(value, nameof(value));
 
-        return name.Value;
+        return value.Value;
     }
 
     /// <summary>
     /// EN: Explicit conversion from string.
     /// FA: تبدیل صریح از رشته.
     /// </summary>
-    public static explicit operator IndustryName(string value)
-        => FromString(value);
+    public static explicit operator IndustryCode(string value)
+        => new(value);
 }

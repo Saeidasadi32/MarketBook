@@ -27,6 +27,7 @@ public sealed class Industry : AggregateRoot<IndustryId>
     /// </summary>
     public Industry(
         IndustryId id,
+        IndustryCode code,
         IndustryName name,
         string? description = null)
         : base(id)
@@ -34,6 +35,7 @@ public sealed class Industry : AggregateRoot<IndustryId>
         Guard.AgainstNull(name);
 
         Name = name;
+        Code = code; 
         Description = description?.Trim();
         CreatedOn = DateTimeOffset.UtcNow;
         IsActive = true;
@@ -53,6 +55,8 @@ public sealed class Industry : AggregateRoot<IndustryId>
     /// FA: نام صنعت را دریافت می‌کند.
     /// </summary>
     public IndustryName Name { get; private set; } = default!;
+
+    public IndustryCode Code { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets the description.

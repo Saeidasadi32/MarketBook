@@ -80,8 +80,8 @@ dotnet_naming_style.interface_style.capitalization = pascal_case
 ########################################
 # Quality
 ########################################
-
-dotnet_diagnostic.CA1062.severity = error
+[**/Persistence/Migrations/*.cs]
+dotnet_diagnostic.CA1062.severity = none
 dotnet_diagnostic.CA1068.severity = error
 dotnet_diagnostic.CA1508.severity = warning
 dotnet_diagnostic.CA1510.severity = warning

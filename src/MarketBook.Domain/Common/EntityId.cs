@@ -75,8 +75,7 @@ public abstract record EntityId
     /// </summary>
     public static implicit operator Ulid(EntityId id)
     {
-        ArgumentNullException.ThrowIfNull(id);
-
+        Guard.AgainstNull(id);
         return id.Value;
     }
 }

@@ -25,9 +25,9 @@ public sealed class DailySnapshot : IEquatable<DailySnapshot>
     /// </summary>
     public DailySnapshot(
         TradingDate tradingDate,
-        DailyPrice dailyPrice,
-        TradeStatistics statistics,
-        OrderBook orderBook)
+        DailyPrice? dailyPrice,
+        TradeStatistics? statistics,
+        OrderBook? orderBook)
     {
         ArgumentNullException.ThrowIfNull(dailyPrice);
         ArgumentNullException.ThrowIfNull(statistics);

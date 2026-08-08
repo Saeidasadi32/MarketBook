@@ -1,7 +1,6 @@
 // -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
-// Platform  : MarketBook Platform
-// Layer     : Application
+// Platform  : Application
 // Namespace : MarketBook.Application.Features.Countries.Commands.CreateCountry
 //
 // Copyright (c) Saeid Asadi. All rights reserved.
@@ -20,8 +19,8 @@ public sealed class CreateCountryCommandValidator
     : AbstractValidator<CreateCountryCommand>
 {
     /// <summary>
-    /// EN: Initializes a new validator instance.
-    /// FA: نمونه جدیدی از اعتبارسنج را ایجاد می‌کند.
+    /// EN: Initializes a new instance of the <see cref="CreateCountryCommandValidator"/> class.
+    /// FA: نمونه جدیدی از <see cref="CreateCountryCommandValidator"/> را ایجاد می‌کند.
     /// </summary>
     public CreateCountryCommandValidator()
     {
@@ -32,5 +31,9 @@ public sealed class CreateCountryCommandValidator
         RuleFor(x => x.Name)
             .NotEmpty()
             .MaximumLength(200);
+
+        RuleFor(x => x.TimeZone)
+            .NotEmpty()
+            .MaximumLength(100);
     }
 }

@@ -14,7 +14,7 @@ using MarketBook.Domain.Country.ValueObjects;
 namespace MarketBook.Application.Abstractions.Persistence;
 
 /// <summary>
-/// EN: Defines persistence operations for the Countries aggregate.
+/// EN: Defines persistence operations for the Country aggregate.
 /// FA: عملیات ماندگاری Aggregate کشور را تعریف می‌کند.
 /// </summary>
 public interface ICountryRepository
@@ -36,14 +36,6 @@ public interface ICountryRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    Task<IReadOnlyList<Country>> GetAllAsync(
-    CancellationToken cancellationToken);
-
-    /// <summary>
     /// EN: Checks whether the specified ISO code already exists.
     /// FA: بررسی می‌کند آیا کد ISO از قبل وجود دارد یا خیر.
     /// </summary>
@@ -58,13 +50,6 @@ public interface ICountryRepository
     Task AddAsync(
         Country country,
         CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="country"></param>
-    void Update(
-    Country country);
 
     /// <summary>
     /// EN: Removes a country.

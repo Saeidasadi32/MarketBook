@@ -1,14 +1,30 @@
-var builder = WebApplication.CreateBuilder(args);
+using MarketBook.Application;
+using MarketBook.Infrastructure;
 
-// Add services to the container.
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+// -----------------------------------------------------------------------------
+// Services
+// -----------------------------------------------------------------------------
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
+builder.Services.AddApplication();
+
+builder.Services.AddInfrastructure(builder.Configuration);
+
 builder.Services.AddOpenApi();
 
-var app = builder.Build();
+// -----------------------------------------------------------------------------
+// Application
+// -----------------------------------------------------------------------------
 
-// Configure the HTTP request pipeline.
+WebApplication app = builder.Build();
+
+// -----------------------------------------------------------------------------
+// HTTP Request Pipeline
+// -----------------------------------------------------------------------------
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();

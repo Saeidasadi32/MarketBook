@@ -115,7 +115,7 @@ public sealed class IntradaySnapshot
     /// EN: Gets the price change from open.
     /// FA: تغییر قیمت از ابتدا را دریافت می‌کند.
     /// </summary>
-    public Price ChangeFromOpen => new(LastPrice.Value - OpenPrice.Value);
+    public decimal ChangeFromOpen => LastPrice.Value - OpenPrice.Value;
 
     /// <summary>
     /// EN: Gets the percentage change from open.

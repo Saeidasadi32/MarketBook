@@ -10,6 +10,7 @@
 
 using FluentValidation;
 using FluentValidation.Results;
+using MarketBook.Application.Exceptions;
 using MediatR;
 
 namespace MarketBook.Application.Behaviors;
@@ -18,59 +19,65 @@ namespace MarketBook.Application.Behaviors;
 /// EN: Validates incoming requests before passing them to the next pipeline step.
 /// FA: قبل از ارسال درخواست به مرحله بعد Pipeline، اعتبارسنجی را انجام می‌دهد.
 /// </summary>
-/// <typeparam name="TRequest">
-/// EN: Request type.
-/// FA: نوع درخواست.
-/// </typeparam>
-/// <typeparam name="TResponse">
-/// EN: Response type.
-/// FA: نوع پاسخ.
-/// </typeparam>
+/// <typeparam name="TRequest">EN: Request type. FA: نوع درخواست.</typeparam>
+/// <typeparam name="TResponse">EN: Response type. FA: نوع پاسخ.</typeparam>
 public sealed class ValidationBehavior<TRequest, TResponse>
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
-    private readonly IEnumerable<IValidator<TRequest>> _validators;
+    private readonly IValidator<TRequest>[] _validators;
 
     /// <summary>
-    /// EN: Initializes a new instance of the ValidationBehavior class.
-    /// FA: نمونه جدیدی از کلاس ValidationBehavior را ایجاد می‌کند.
+    /// EN: Initializes a new instance of the validation behavior.
+    /// FA: نمونه جدیدی از رفتار اعتبارسنجی را ایجاد می‌کند.
     /// </summary>
-    /// <param name="validators">
-    /// EN: Registered validators.
-    /// FA: اعتبارسنج‌های ثبت شده.
-    /// </param>
-    public ValidationBehavior(
-        IEnumerable<IValidator<TRequest>> validators)
+    /// <param name="validators">EN: Registered validators. FA: اعتبارسنجی‌کننده‌های ثبت‌شده.</param>
+    public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators)
     {
-        _validators = validators;
+        ArgumentNullException.ThrowIfNull(validators);
+
+        _validators = validators.ToArray();
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// EN: Validates the request and invokes the next pipeline step when validation succeeds.
+    /// FA: درخواست را اعتبارسنجی کرده و در صورت موفقیت مرحله بعدی Pipeline را اجرا می‌کند.
+    /// </summary>
+    /// <param name="request">EN: Request to validate. FA: درخواست مورد اعتبارسنجی.</param>
+    /// <param name="next">EN: Next pipeline delegate. FA: مرحله بعد Pipeline.</param>
+    /// <param name="cancellationToken">EN: Cancellation token. FA: توکن لغو.</param>
+    /// <returns>EN: Pipeline response. FA: پاسخ Pipeline.</returns>
     public async Task<TResponse> Handle(
         TRequest request,
         RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(next);
 
-        if (!_validators.Any())
+        if (_validators.Length == 0)
+        {
             return await next(cancellationToken);
+        }
 
         ValidationContext<TRequest> context = new(request);
 
-        ValidationResult[] failures = await Task.WhenAll(
-            _validators.Select(v =>
-                v.ValidateAsync(context, cancellationToken)));
+        ValidationResult[] results = await Task.WhenAll(
+            _validators.Select(
+                validator => validator.ValidateAsync(
+                    context,
+                    cancellationToken)));
 
-        List<ValidationFailure> errors = failures
-            .SelectMany(v => v.Errors)
-            .Where(e => e is not null)
+        List<ValidationFailure> failures = results
+            .SelectMany(result => result.Errors)
+            .Where(static failure => failure is not null)
             .ToList();
 
-        if (errors.Count == 0)
-            return await next(cancellationToken);
+        if (failures.Count > 0)
+        {
+            throw new ApplicationValidationException(failures);
+        }
 
-        throw new ValidationException(errors);
+        return await next(cancellationToken);
     }
 }

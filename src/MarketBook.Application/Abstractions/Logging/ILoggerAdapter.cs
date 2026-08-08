@@ -1,7 +1,6 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
-// Platform  : MarketBook Platform
-// Layer     : Application
+// Platform  : Application
 // Namespace : MarketBook.Application.Abstractions.Logging
 //
 // Copyright (c) Saeid Asadi. All rights reserved.
@@ -14,6 +13,10 @@ namespace MarketBook.Application.Abstractions.Logging;
 /// EN: Defines application logging operations.
 /// FA: عملیات لاگ برنامه را تعریف می‌کند.
 /// </summary>
+/// <typeparam name="T">
+/// EN: Type associated with the logger.
+/// FA: نوع مرتبط با لاگر.
+/// </typeparam>
 public interface ILoggerAdapter<T>
 {
     /// <summary>

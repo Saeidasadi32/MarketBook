@@ -55,7 +55,7 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
         AssetClass assetClass,
         InstrumentType type,
         InstrumentCategory category)
-        : base(id)  // ← Version در AggregateRoot مقداردهی می‌شود
+        : base(id)
     {
         ArgumentNullException.ThrowIfNull(name);
         ArgumentNullException.ThrowIfNull(assetClass);
@@ -149,8 +149,7 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
             return;
 
         Name = name;
-        IncrementVersion();
-        AddDomainEvent(new InstrumentRenamedEvent(Id, name));
+        Raise(new InstrumentRenamedEvent(Id, name));
     }
 
     /// <summary>
@@ -181,8 +180,7 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
             return;
 
         Isin = isin;
-        IncrementVersion();
-        AddDomainEvent(new InstrumentIsinChangedEvent(Id, isin));
+        Raise(new InstrumentIsinChangedEvent(Id, isin));
     }
 
     /// <summary>
@@ -195,8 +193,7 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
             return;
 
         IsActive = true;
-        IncrementVersion();
-        AddDomainEvent(new InstrumentActivatedEvent(Id));
+        Raise(new InstrumentActivatedEvent(Id));
     }
 
     /// <summary>
@@ -209,8 +206,7 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
             return;
 
         IsActive = false;
-        IncrementVersion();
-        AddDomainEvent(new InstrumentDeactivatedEvent(Id));
+        Raise(new InstrumentDeactivatedEvent(Id));
     }
 
     /// <summary>
@@ -219,18 +215,6 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
     /// </summary>
     public override string ToString()
         => $"{Name} ({Type}) - {AssetClass}";
-
-    /// <summary>
-    /// EN: Increments the version of the aggregate.
-    /// FA: نسخه Aggregate را افزایش می‌دهد.
-    /// </summary>
-    private static void IncrementVersion()
-    {
-        // Version در AggregateRoot به صورت private set است
-        // برای افزایش آن از Reflection یا تغییر طراحی استفاده کنید
-        // راه‌حل: Version را در AggregateRoot به protected set تغییر دهید
-        // یا از متد Raise استفاده کنید که خودش IncrementVersion را صدا می‌زند
-    }
 
     /// <summary>
     /// EN: Gets the industry.
@@ -262,8 +246,7 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
             return;
 
         Industry = industry;
-        IncrementVersion();
-        AddDomainEvent(new InstrumentIndustrySetEvent(Id, industry));
+        Raise(new InstrumentIndustrySetEvent(Id, industry));
     }
 
     /// <summary>
@@ -275,10 +258,12 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
         ArgumentNullException.ThrowIfNull(industry);
         ArgumentNullException.ThrowIfNull(sector);
 
+        if (Industry == industry && Sector == sector)
+            return;
+
         Industry = industry;
         Sector = sector;
-        IncrementVersion();
-        AddDomainEvent(new InstrumentIndustryChangedEvent(Id, industry, sector));
+        Raise(new InstrumentIndustryChangedEvent(Id, industry, sector));
     }
 
     /// <summary>
@@ -290,9 +275,12 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
         ArgumentException.ThrowIfNullOrWhiteSpace(alias);
 
         CorporateAliases ??= new CorporateAliases();
+
+        if (CorporateAliases.Contains(alias))
+            return;
+
         CorporateAliases.Add(alias);
-        IncrementVersion();
-        AddDomainEvent(new InstrumentAliasAddedEvent(Id, alias));
+        Raise(new InstrumentAliasAddedEvent(Id, alias));
     }
 
     /// <summary>
@@ -306,8 +294,7 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
 
         if (CorporateAliases.Remove(alias))
         {
-            IncrementVersion();
-            AddDomainEvent(new InstrumentAliasRemovedEvent(Id, alias));
+            Raise(new InstrumentAliasRemovedEvent(Id, alias));
         }
     }
 
@@ -317,9 +304,15 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
     /// </summary>
     public void SetCorporateAliases(IEnumerable<string> aliases)
     {
-        CorporateAliases = new CorporateAliases(aliases);
-        IncrementVersion();
-        AddDomainEvent(new InstrumentAliasesSetEvent(Id, CorporateAliases));
+        ArgumentNullException.ThrowIfNull(aliases);
+
+        var newAliases = new CorporateAliases(aliases);
+
+        if (CorporateAliases == newAliases)
+            return;
+
+        CorporateAliases = newAliases;
+        Raise(new InstrumentAliasesSetEvent(Id, newAliases));
     }
 }
 

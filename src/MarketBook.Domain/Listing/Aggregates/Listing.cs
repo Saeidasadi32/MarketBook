@@ -9,6 +9,7 @@
 // -----------------------------------------------------------------------------
 
 using MarketBook.Domain.Common;
+using MarketBook.Domain.Currency.ValueObjects;
 using MarketBook.Domain.Instrument.ValueObjects;
 using MarketBook.Domain.Listing.ValueObjects;
 using MarketBook.Domain.Market.ValueObjects;

@@ -10,6 +10,7 @@
 
 using MarketBook.Application.Abstractions.Messaging;
 using MarketBook.Domain.Common;
+using MarketBook.Domain.Country.ValueObjects;
 
 namespace MarketBook.Application.Features.Countries.Commands.CreateCountry;
 
@@ -21,4 +22,4 @@ public sealed record CreateCountryCommand(
     string Code,
     string Name,
     string TimeZone)
-    : ICommand<Result>;
+    : ICommand<Result<CountryId>>;

@@ -46,7 +46,6 @@ public sealed class TradingCalendar : AggregateRoot<TradingCalendarId>
     /// </summary>
     private TradingCalendar()
     {
-        MarketId = default!;
         // For ORM
     }
 
@@ -54,7 +53,7 @@ public sealed class TradingCalendar : AggregateRoot<TradingCalendarId>
     /// EN: Gets the market identifier.
     /// FA: شناسه بازار را دریافت می‌کند.
     /// </summary>
-    public MarketId MarketId { get; private set; }
+    public MarketId MarketId { get; private set; } = default!;
     /// <summary>
     /// EN: Gets the calendar year.
     /// FA: سال تقویم را دریافت می‌کند.
@@ -93,7 +92,7 @@ public sealed class TradingCalendar : AggregateRoot<TradingCalendarId>
     {
         if (_holidays.Add(date))
         {
-            AddDomainEvent(new HolidayAddedEvent(Id, date, description));
+            Raise(new HolidayAddedEvent(Id, date, description));
         }
     }
 
@@ -105,7 +104,7 @@ public sealed class TradingCalendar : AggregateRoot<TradingCalendarId>
     {
         if (_holidays.Remove(date))
         {
-            AddDomainEvent(new HolidayRemovedEvent(Id, date));
+            Raise(new HolidayRemovedEvent(Id, date));
         }
     }
 
@@ -117,7 +116,7 @@ public sealed class TradingCalendar : AggregateRoot<TradingCalendarId>
     {
         if (_halfDays.Add(date))
         {
-            AddDomainEvent(new HalfDayAddedEvent(Id, date, description));
+            Raise(new HalfDayAddedEvent(Id, date, description));
         }
     }
 
@@ -129,7 +128,7 @@ public sealed class TradingCalendar : AggregateRoot<TradingCalendarId>
     {
         if (_halfDays.Remove(date))
         {
-            AddDomainEvent(new HalfDayRemovedEvent(Id, date));
+            Raise(new HalfDayRemovedEvent(Id, date));
         }
     }
 
@@ -210,7 +209,7 @@ public sealed class TradingCalendar : AggregateRoot<TradingCalendarId>
             return;
 
         IsActive = true;
-        AddDomainEvent(new CalendarActivatedEvent(Id));
+        Raise(new CalendarActivatedEvent(Id));
     }
 
     /// <summary>
@@ -223,7 +222,7 @@ public sealed class TradingCalendar : AggregateRoot<TradingCalendarId>
             return;
 
         IsActive = false;
-        AddDomainEvent(new CalendarDeactivatedEvent(Id));
+        Raise(new CalendarDeactivatedEvent(Id));
     }
 }
 

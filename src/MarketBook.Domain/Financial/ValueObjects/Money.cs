@@ -30,8 +30,6 @@ public readonly record struct Money :
     /// </param>
     public Money(decimal value)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(value);
-
         Value = decimal.Round(value, 2, MidpointRounding.AwayFromZero);
     }
 

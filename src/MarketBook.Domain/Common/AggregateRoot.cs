@@ -12,23 +12,15 @@ namespace MarketBook.Domain.Common;
 
 /// <summary>
 /// EN: Represents the root of a Domain-Driven Design aggregate.
-///
 /// FA: ریشه یک Aggregate در طراحی دامنه را نمایش می‌دهد.
 /// </summary>
-/// <typeparam name="TId">
-/// EN: Aggregate identifier type.
-/// FA: نوع شناسه Aggregate.
-/// </typeparam>
+/// <typeparam name="TId">Aggregate identifier type.</typeparam>
 public abstract class AggregateRoot<TId> : Entity<TId>
     where TId : EntityId
 {
-    /// <summary>
-    /// EN: Initializes a new instance of the <see cref="AggregateRoot{TId}"/> class.
-    /// FA: نمونه جدیدی از کلاس <see cref="AggregateRoot{TId}"/> را ایجاد می‌کند.
-    /// </summary>
-    protected AggregateRoot(TId id) : base(id)
+    protected AggregateRoot(TId id)
+        : base(id)
     {
-        Version = 0;
     }
 
     /// <summary>
@@ -41,34 +33,26 @@ public abstract class AggregateRoot<TId> : Entity<TId>
     }
 
     /// <summary>
-    /// EN: Gets the version of the aggregate for concurrency control.
-    /// FA: نسخه Aggregate را برای کنترل همزمانی دریافت می‌کند.
+    /// EN: Gets the version of the aggregate for optimistic concurrency control.
+    /// FA: نسخه Aggregate برای کنترل همزمانی خوش‌بینانه.
     /// </summary>
     public int Version { get; private set; }
 
     /// <summary>
-    /// EN: Raises a new domain event.
-    ///
-    /// FA: یک رویداد دامنه جدید ثبت می‌کند.
+    /// EN: Gets whether the aggregate has pending domain events.
+    /// FA: مشخص می‌کند Aggregate دارای رویداد دامنه در انتظار انتشار است یا خیر.
+    /// </summary>
+    public bool HasDomainEvents => DomainEvents.Count > 0;
+
+    /// <summary>
+    /// EN: Raises a domain event and advances the aggregate version.
+    /// FA: یک رویداد دامنه ثبت کرده و نسخه Aggregate را افزایش می‌دهد.
     /// </summary>
     protected void Raise(IDomainEvent domainEvent)
     {
-        if (domainEvent is null)
-            throw new DomainException(
-                new Error(
-                    "AggregateRoot.DomainEvent.Null",
-                    "Domain event cannot be null."));
+        ArgumentNullException.ThrowIfNull(domainEvent);
 
         AddDomainEvent(domainEvent);
-        IncrementVersion();
-    }
-
-    /// <summary>
-    /// EN: Increments the version of the aggregate.
-    /// FA: نسخه Aggregate را افزایش می‌دهد.
-    /// </summary>
-    private void IncrementVersion()
-    {
         Version++;
     }
 }

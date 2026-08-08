@@ -1,19 +1,20 @@
 // -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
-// Layer     : Application
 // Namespace : MarketBook.Application.Behaviors
 // -----------------------------------------------------------------------------
 
-using MediatR;
 using MarketBook.Application.Abstractions.Logging;
+using MediatR;
 
 namespace MarketBook.Application.Behaviors;
 
 /// <summary>
-/// EN: Logs unhandled exceptions.
-/// FA: استثناهای مدیریت‌نشده را ثبت می‌کند.
+/// EN: Logs unhandled application exceptions.
+/// FA: استثناهای مدیریت‌نشده Application را ثبت می‌کند.
 /// </summary>
+/// <typeparam name="TRequest">EN: Request type. FA: نوع درخواست.</typeparam>
+/// <typeparam name="TResponse">EN: Response type. FA: نوع پاسخ.</typeparam>
 public sealed class UnhandledExceptionBehavior<TRequest, TResponse>
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
@@ -21,16 +22,18 @@ public sealed class UnhandledExceptionBehavior<TRequest, TResponse>
     private readonly ILoggerAdapter<UnhandledExceptionBehavior<TRequest, TResponse>> _logger;
 
     /// <summary>
-    /// 
+    /// EN: Initializes a new instance of the unhandled exception behavior.
+    /// FA: نمونه جدیدی از رفتار مدیریت استثنا را ایجاد می‌کند.
     /// </summary>
-    /// <param name="logger"></param>
+    /// <param name="logger">EN: Logger adapter. FA: آداپتور لاگر.</param>
     public UnhandledExceptionBehavior(
         ILoggerAdapter<UnhandledExceptionBehavior<TRequest, TResponse>> logger)
     {
+        ArgumentNullException.ThrowIfNull(logger);
         _logger = logger;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task<TResponse> Handle(
         TRequest request,
         RequestHandlerDelegate<TResponse> next,
@@ -42,10 +45,10 @@ public sealed class UnhandledExceptionBehavior<TRequest, TResponse>
         {
             return await next(cancellationToken);
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
             _logger.LogError(
-                ex,
+                exception,
                 "Unhandled exception while executing {RequestName}",
                 typeof(TRequest).Name);
 

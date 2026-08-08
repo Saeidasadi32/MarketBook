@@ -173,7 +173,7 @@ public sealed class DailyPrice: IEquatable<DailyPrice>
     /// EN: Calculates the daily price change.
     /// FA: تغییر قیمت روزانه را محاسبه می‌کند.
     /// </summary>
-    public Price Change => new(ClosePrice.Value - YesterdayPrice.Value);
+    public decimal Change => ClosePrice.Value - YesterdayPrice.Value;
 
     /// <summary>
     /// EN: Calculates the daily percentage change.

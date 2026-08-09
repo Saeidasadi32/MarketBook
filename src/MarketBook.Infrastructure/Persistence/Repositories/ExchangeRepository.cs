@@ -88,7 +88,9 @@ internal sealed class ExchangeRepository : IExchangeRepository
         ArgumentNullException.ThrowIfNull(exchange);
 
         await _context.Set<Exchange>()
-            .AddAsync(exchange, cancellationToken);
+            .AddAsync(
+                exchange,
+                cancellationToken);
     }
 
     /// <inheritdoc />

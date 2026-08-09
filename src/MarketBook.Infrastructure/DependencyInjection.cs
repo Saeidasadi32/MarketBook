@@ -44,6 +44,7 @@ public static class DependencyInjection
             static provider => provider.GetRequiredService<ApplicationDbContext>());
 
         services.AddScoped<ICountryRepository, CountryRepository>();
+        services.AddScoped<IExchangeRepository, ExchangeRepository>();
 
         services.AddSingleton(typeof(ILoggerAdapter<>), typeof(LoggerAdapter<>));
 

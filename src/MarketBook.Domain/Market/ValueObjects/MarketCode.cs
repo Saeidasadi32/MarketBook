@@ -8,7 +8,6 @@
 // Licensed under the MIT License.
 // -----------------------------------------------------------------------------
 
-using MarketBook.Domain.Instrument.ValueObjects;
 using System.Text.RegularExpressions;
 
 namespace MarketBook.Domain.Market.ValueObjects;

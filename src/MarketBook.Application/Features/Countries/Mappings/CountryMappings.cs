@@ -26,7 +26,7 @@ public static class CountryMappings
         ArgumentNullException.ThrowIfNull(country);
 
         return new CountryResponse(
-            country.Id.ToString(),
+            country.Id.Value.ToString(),
             country.Code.Value,
             country.Name,
             country.TimeZone.Value,

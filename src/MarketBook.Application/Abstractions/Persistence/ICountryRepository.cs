@@ -8,6 +8,7 @@
 // Licensed under the MIT License.
 // -----------------------------------------------------------------------------
 
+using MarketBook.Application.Common.Pagination;
 using MarketBook.Domain.Country.Aggregates;
 using MarketBook.Domain.Country.ValueObjects;
 
@@ -56,4 +57,14 @@ public interface ICountryRepository
     /// FA: یک کشور حذف می‌کند.
     /// </summary>
     void Remove(Country country);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="pageRequest"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<PagedResult<Country>> GetPagedAsync(
+    PageRequest pageRequest,
+    CancellationToken cancellationToken = default);
 }

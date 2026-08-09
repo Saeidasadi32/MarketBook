@@ -9,8 +9,8 @@
 // -----------------------------------------------------------------------------
 
 using MarketBook.Domain.Common;
+using MarketBook.Domain.Common.ValueObjects;
 using MarketBook.Domain.Country.ValueObjects;
-using MarketBook.Domain.Market.ValueObjects;
 
 namespace MarketBook.Domain.Country.Aggregates;
 

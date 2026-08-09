@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------------
 
 using MarketBook.Application.Abstractions.Persistence;
+using MarketBook.Application.Common.Pagination;
 using MarketBook.Domain.Country.Aggregates;
 using MarketBook.Domain.Country.ValueObjects;
 using MarketBook.Infrastructure.Persistence.Context;
@@ -79,5 +80,30 @@ internal sealed class CountryRepository : ICountryRepository
         ArgumentNullException.ThrowIfNull(country);
 
         _context.Set<Country>().Remove(country);
+    }
+
+    public async Task<PagedResult<Country>> GetPagedAsync(
+    PageRequest pageRequest,
+    CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(pageRequest);
+
+        IQueryable<Country> query = _context.Set<Country>()
+            .AsNoTracking()
+            .OrderBy(country => country.Name);
+
+        int totalCount = await query.CountAsync(
+            cancellationToken);
+
+        List<Country> items = await query
+            .Skip(pageRequest.Skip)
+            .Take(pageRequest.NormalizedPageSize)
+            .ToListAsync(cancellationToken);
+
+        return new PagedResult<Country>(
+            items,
+            pageRequest.NormalizedPage,
+            pageRequest.NormalizedPageSize,
+            totalCount);
     }
 }

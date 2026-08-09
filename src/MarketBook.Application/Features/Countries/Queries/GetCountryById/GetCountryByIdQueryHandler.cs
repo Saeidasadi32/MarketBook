@@ -27,10 +27,15 @@ public sealed class GetCountryByIdQueryHandler
     private readonly ICountryRepository _repository;
 
     /// <summary>
-    /// EN: Initializes a new instance of the <see cref="GetCountryByIdQueryHandler"/> class.
-    /// FA: نمونه جدیدی از <see cref="GetCountryByIdQueryHandler"/> را ایجاد می‌کند.
+    /// EN: Initializes a new instance of the
+    /// <see cref="GetCountryByIdQueryHandler"/> class.
+    /// FA: نمونه جدیدی از کلاس <see cref="GetCountryByIdQueryHandler"/>
+    /// را ایجاد می‌کند.
     /// </summary>
-    /// <param name="repository">Country repository.</param>
+    /// <param name="repository">
+    /// EN: Country repository.
+    /// FA: مخزن Country.
+    /// </param>
     public GetCountryByIdQueryHandler(ICountryRepository repository)
     {
         ArgumentNullException.ThrowIfNull(repository);
@@ -41,17 +46,36 @@ public sealed class GetCountryByIdQueryHandler
     /// EN: Gets a country by its identifier.
     /// FA: کشور را بر اساس شناسه آن دریافت می‌کند.
     /// </summary>
-    /// <param name="request">Country lookup request.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>The country response or a failure result.</returns>
+    /// <param name="request">
+    /// EN: Country lookup request.
+    /// FA: درخواست دریافت کشور.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// EN: Cancellation token.
+    /// FA: توکن لغو عملیات.
+    /// </param>
+    /// <returns>
+    /// EN: The country response or a failure result.
+    /// FA: پاسخ کشور یا نتیجه ناموفق.
+    /// </returns>
     public async Task<Result<CountryResponse>> Handle(
         GetCountryByIdQuery request,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        CountryId id = CountryId.Parse(request.Id);
-        Country? country = await _repository.GetByIdAsync(id, cancellationToken);
+        if (!CountryId.TryParse(request.Id, out CountryId? id) ||
+            id is null)
+        {
+            return Result<CountryResponse>.Fail(
+                new Error(
+                    "Country.InvalidId",
+                    "The specified country identifier is invalid."));
+        }
+
+        Country? country = await _repository.GetByIdAsync(
+            id,
+            cancellationToken);
 
         if (country is null)
         {
@@ -61,6 +85,7 @@ public sealed class GetCountryByIdQueryHandler
                     "Country was not found."));
         }
 
-        return Result<CountryResponse>.Success(country.ToResponse());
+        return Result<CountryResponse>.Success(
+            country.ToResponse());
     }
 }

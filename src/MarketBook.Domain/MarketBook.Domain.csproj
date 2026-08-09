@@ -7,12 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Market\Enums\**" />
+    <EmbeddedResource Remove="Market\Enums\**" />
+    <None Remove="Market\Enums\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="NUlid" Version="1.7.3" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Industry\Events\" />
-    <Folder Include="Market\Enums\" />
   </ItemGroup>
 
 </Project>

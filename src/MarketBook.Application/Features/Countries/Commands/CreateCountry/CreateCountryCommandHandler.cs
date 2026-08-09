@@ -9,7 +9,6 @@
 
 using MarketBook.Application.Abstractions.Messaging;
 using MarketBook.Application.Abstractions.Persistence;
-using MarketBook.Application.Features.Countries.Responses;
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Country.Aggregates;
 using MarketBook.Domain.Country.ValueObjects;

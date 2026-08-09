@@ -4,9 +4,9 @@
 // Namespace : MarketBook.Infrastructure.Persistence.Configurations
 // -----------------------------------------------------------------------------
 
+using MarketBook.Domain.Common.ValueObjects;
 using MarketBook.Domain.Country.Aggregates;
 using MarketBook.Domain.Country.ValueObjects;
-using MarketBook.Domain.Market.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;

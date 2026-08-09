@@ -8,9 +8,7 @@
 // Licensed under the MIT License.
 // -----------------------------------------------------------------------------
 
-using MarketBook.Domain.Instrument.ValueObjects;
-
-namespace MarketBook.Domain.Market.ValueObjects;
+namespace MarketBook.Domain.Common.ValueObjects;
 
 /// <summary>
 /// EN: Represents an IANA or Windows time zone identifier.

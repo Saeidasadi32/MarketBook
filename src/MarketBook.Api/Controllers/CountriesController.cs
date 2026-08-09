@@ -4,6 +4,7 @@
 // Layer     : API
 // -----------------------------------------------------------------------------
 
+using MarketBook.Api.Common;
 using MarketBook.Application.Common.Pagination;
 using MarketBook.Application.Features.Countries.Commands.CreateCountry;
 using MarketBook.Application.Features.Countries.Queries.GetCountries;
@@ -44,6 +45,7 @@ public sealed class CountriesController : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Create(
         [FromBody] CreateCountryCommand command,
         CancellationToken cancellationToken)
@@ -54,7 +56,9 @@ public sealed class CountriesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(result.Error);
+            return ApiErrorMapper.ToActionResult(
+                this,
+                result.Error);
         }
 
         string id = result.Value!.ToString();
@@ -95,12 +99,9 @@ public sealed class CountriesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return result.Error.Code switch
-            {
-                "Country.InvalidId" => BadRequest(result.Error),
-                "Country.NotFound" => NotFound(result.Error),
-                _ => BadRequest(result.Error)
-            };
+            return ApiErrorMapper.ToActionResult(
+                this,
+                result.Error);
         }
 
         return Ok(result.Value);
@@ -131,7 +132,9 @@ public sealed class CountriesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(result.Error);
+            return ApiErrorMapper.ToActionResult(
+                this,
+                result.Error);
         }
 
         return Ok(result.Value);

@@ -28,8 +28,8 @@ public static class ExchangeMappings
         ArgumentNullException.ThrowIfNull(exchange);
 
         return new ExchangeResponse(
-            exchange.Id.ToString(),
-            exchange.CountryId.ToString(),
+            exchange.Id.Value.ToString(),
+            exchange.CountryId.Value.ToString(),
             exchange.Code.Value,
             exchange.Name,
             exchange.CreatedOn,

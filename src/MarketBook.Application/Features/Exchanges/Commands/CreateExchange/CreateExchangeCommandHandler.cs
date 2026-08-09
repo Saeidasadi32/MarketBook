@@ -26,21 +26,26 @@ public sealed class CreateExchangeCommandHandler
 {
     private readonly IExchangeRepository _exchangeRepository;
     private readonly ICountryRepository _countryRepository;
+    private readonly IApplicationDbContext _dbContext;
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="exchangeRepository"></param>
     /// <param name="countryRepository"></param>
+    /// <param name="dbContext"></param>
     public CreateExchangeCommandHandler(
         IExchangeRepository exchangeRepository,
-        ICountryRepository countryRepository)
+        ICountryRepository countryRepository,
+        IApplicationDbContext dbContext)
     {
         ArgumentNullException.ThrowIfNull(exchangeRepository);
         ArgumentNullException.ThrowIfNull(countryRepository);
+        ArgumentNullException.ThrowIfNull(dbContext);
 
         _exchangeRepository = exchangeRepository;
         _countryRepository = countryRepository;
+        _dbContext = dbContext;
     }
 
     /// <summary>
@@ -118,6 +123,9 @@ public sealed class CreateExchangeCommandHandler
 
         await _exchangeRepository.AddAsync(
             exchange,
+            cancellationToken);
+
+        await _dbContext.SaveChangesAsync(
             cancellationToken);
 
         return Result<ExchangeId>.Success(exchange.Id);

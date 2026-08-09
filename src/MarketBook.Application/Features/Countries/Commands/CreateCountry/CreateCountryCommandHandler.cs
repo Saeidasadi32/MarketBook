@@ -69,7 +69,7 @@ public sealed class CreateCountryCommandHandler
         CountryId countryId = CountryId.New();
 
         Country country = new(
-            CountryId.New(),
+            countryId,
             code,
             request.Name,
             new TimeZoneId(request.TimeZone));

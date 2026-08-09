@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
-// Platform  : Infrastructure
+// Platform  : MarketBook Platform
 // Namespace : MarketBook.Infrastructure.Persistence.Configurations
 //
 // Copyright (c) Saeid Asadi. All rights reserved.
@@ -12,12 +12,13 @@ using MarketBook.Domain.Exchange.Aggregates;
 using MarketBook.Domain.Exchange.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MarketBook.Infrastructure.Persistence.Configurations;
 
 /// <summary>
 /// EN: Configures the Exchange aggregate for Entity Framework Core.
-/// FA: Aggregate بورس را برای Entity Framework Core پیکربندی می‌کند.
+/// FA: تنظیمات ماندگاری Aggregate بورس را برای Entity Framework Core انجام می‌دهد.
 /// </summary>
 internal sealed class ExchangeConfiguration
     : IEntityTypeConfiguration<Exchange>
@@ -34,28 +35,39 @@ internal sealed class ExchangeConfiguration
     {
         ArgumentNullException.ThrowIfNull(builder);
 
+        ValueConverter<ExchangeId, string> idConverter =
+            new(
+                id => id.Value.ToString(),
+                value => ExchangeId.Parse(value));
+
+        ValueConverter<CountryId, string> countryIdConverter =
+            new(
+                id => id.Value.ToString(),
+                value => CountryId.Parse(value));
+
+        ValueConverter<ExchangeCode, string> codeConverter =
+            new(
+                code => code.Value,
+                value => new ExchangeCode(value));
+
         builder.ToTable("Exchanges");
 
         builder.HasKey(exchange => exchange.Id);
 
         builder.Property(exchange => exchange.Id)
-            .HasConversion(
-                id => id.Value,
-                value => ExchangeId.FromUlid(value))
+            .HasConversion(idConverter)
             .HasMaxLength(26)
+            .IsUnicode(false)
             .ValueGeneratedNever();
 
         builder.Property(exchange => exchange.CountryId)
-            .HasConversion(
-                id => id.Value,
-                value => CountryId.FromUlid(value))
+            .HasConversion(countryIdConverter)
             .HasMaxLength(26)
+            .IsUnicode(false)
             .IsRequired();
 
         builder.Property(exchange => exchange.Code)
-            .HasConversion(
-                code => code.Value,
-                value => new ExchangeCode(value))
+            .HasConversion(codeConverter)
             .HasMaxLength(20)
             .IsUnicode(false)
             .IsRequired();

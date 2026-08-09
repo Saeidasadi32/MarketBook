@@ -7,11 +7,12 @@
 // Licensed under the MIT License.
 // -----------------------------------------------------------------------------
 
+using MarketBook.Api.Common;
+using MarketBook.Application.Common.Pagination;
 using MarketBook.Application.Features.Exchanges.Commands.CreateExchange;
 using MarketBook.Application.Features.Exchanges.Queries.GetExchangeById;
 using MarketBook.Application.Features.Exchanges.Queries.GetExchanges;
 using MarketBook.Application.Features.Exchanges.Responses;
-using MarketBook.Application.Common.Pagination;
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Exchange.ValueObjects;
 using MediatR;
@@ -63,6 +64,7 @@ public sealed class ExchangesController : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Create(
         [FromBody] CreateExchangeCommand command,
         CancellationToken cancellationToken)
@@ -73,7 +75,9 @@ public sealed class ExchangesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(result.Error);
+            return ApiErrorMapper.ToActionResult(
+                this,
+                result.Error);
         }
 
         string id = result.Value!.ToString();
@@ -124,12 +128,9 @@ public sealed class ExchangesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return result.Error.Code switch
-            {
-                "Exchange.InvalidId" => BadRequest(result.Error),
-                "Exchange.NotFound" => NotFound(result.Error),
-                _ => BadRequest(result.Error)
-            };
+            return ApiErrorMapper.ToActionResult(
+                this,
+                result.Error);
         }
 
         return Ok(result.Value);
@@ -173,7 +174,9 @@ public sealed class ExchangesController : ControllerBase
 
         if (result.IsFailure)
         {
-            return BadRequest(result.Error);
+            return ApiErrorMapper.ToActionResult(
+                this,
+                result.Error);
         }
 
         return Ok(result.Value);

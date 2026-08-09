@@ -10,9 +10,9 @@
 using MarketBook.Application.Abstractions.Messaging;
 using MarketBook.Application.Abstractions.Persistence;
 using MarketBook.Domain.Common;
+using MarketBook.Domain.Common.ValueObjects;
 using MarketBook.Domain.Country.Aggregates;
 using MarketBook.Domain.Country.ValueObjects;
-using MarketBook.Domain.Market.ValueObjects;
 
 namespace MarketBook.Application.Features.Countries.Commands.CreateCountry;
 

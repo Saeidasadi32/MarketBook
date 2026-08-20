@@ -13,6 +13,7 @@ using MarketBook.Domain.Currency.ValueObjects;
 using MarketBook.Domain.Instrument.ValueObjects;
 using MarketBook.Domain.Listing.ValueObjects;
 using MarketBook.Domain.Market.ValueObjects;
+using MarketBook.Domain.Venue.ValueObjects;
 
 namespace MarketBook.Domain.Listing.Aggregates;
 
@@ -29,20 +30,25 @@ public sealed class Listing : AggregateRoot<ListingId>
     public Listing(
         ListingId id,
         InstrumentId instrumentId,
-        MarketId marketId,
+        VenueId venueId,
         CurrencyId currencyId,
         TradingSymbol tradingSymbol,
         decimal tickSize,
         byte pricePrecision)
         : base(id)
     {
+        ArgumentNullException.ThrowIfNull(instrumentId);
+        ArgumentNullException.ThrowIfNull(venueId);
+        ArgumentNullException.ThrowIfNull(currencyId);
+        ArgumentNullException.ThrowIfNull(tradingSymbol);
+
         if (tickSize <= 0)
             throw new ArgumentOutOfRangeException(
                 nameof(tickSize),
                 "Tick size must be greater than zero.");
 
         InstrumentId = instrumentId;
-        MarketId = marketId;
+        VenueId = venueId;
         CurrencyId = currencyId;
         TradingSymbol = tradingSymbol;
         TickSize = tickSize;
@@ -51,6 +57,7 @@ public sealed class Listing : AggregateRoot<ListingId>
         IsPrimary = false;
         IsActive = true;
         CreatedOn = DateTimeOffset.UtcNow;
+        ActivatedOn = CreatedOn;
     }
 
     /// <summary>
@@ -69,10 +76,10 @@ public sealed class Listing : AggregateRoot<ListingId>
     public InstrumentId InstrumentId { get; private set; } = default!;
 
     /// <summary>
-    /// EN: Gets the market identifier.
-    /// FA: شناسه بازار را دریافت می‌کند.
+    /// EN: Gets the concrete trading venue.
+    /// FA: بستر مشخص اجرای معامله.
     /// </summary>
-    public MarketId MarketId { get; private set; } = default!;
+    public VenueId VenueId { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets the trading symbol.
@@ -117,6 +124,18 @@ public sealed class Listing : AggregateRoot<ListingId>
     public bool IsActive { get; private set; }
 
     /// <summary>
+    /// EN: Gets the timestamp when the listing became active.
+    /// FA: زمان فعال شدن پذیرش معاملاتی را دریافت می‌کند.
+    /// </summary>
+    public DateTimeOffset? ActivatedOn { get; private set; }
+
+    /// <summary>
+    /// EN: Gets the timestamp when the listing became inactive.
+    /// FA: زمان غیرفعال شدن پذیرش معاملاتی را دریافت می‌کند.
+    /// </summary>
+    public DateTimeOffset? DeactivatedOn { get; private set; }
+
+    /// <summary>
     /// EN: Marks this listing as the primary listing.
     /// FA: این پذیرش را به عنوان پذیرش اصلی تعیین می‌کند.
     /// </summary>
@@ -152,6 +171,9 @@ public sealed class Listing : AggregateRoot<ListingId>
             return;
 
         IsActive = true;
+        ActivatedOn = DateTimeOffset.UtcNow;
+        DeactivatedOn = null;
+
         Raise(new ListingActivatedEvent(Id));
     }
 
@@ -165,6 +187,8 @@ public sealed class Listing : AggregateRoot<ListingId>
             return;
 
         IsActive = false;
+        DeactivatedOn = DateTimeOffset.UtcNow;
+
         Raise(new ListingDeactivatedEvent(Id));
     }
 
@@ -174,8 +198,36 @@ public sealed class Listing : AggregateRoot<ListingId>
     /// </summary>
     public decimal RoundPrice(decimal price)
     {
-        var rounded = Math.Round(price / TickSize) * TickSize;
+        decimal rounded = Math.Round(price / TickSize) * TickSize;
         return Math.Round(rounded, PricePrecision, MidpointRounding.AwayFromZero);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="instrumentId"></param>
+    /// <param name="venueId"></param>
+    /// <param name="currencyId"></param>
+    /// <param name="tradingSymbol"></param>
+    /// <param name="tickSize"></param>
+    /// <param name="pricePrecision"></param>
+    /// <returns></returns>
+    public static Listing Create(
+        InstrumentId instrumentId,
+        VenueId venueId,
+        CurrencyId currencyId,
+        TradingSymbol tradingSymbol,
+        decimal tickSize,
+        byte pricePrecision)
+    {
+        return new Listing(
+            ListingId.New(),
+            instrumentId,
+            venueId,
+            currencyId,
+            tradingSymbol,
+            tickSize,
+            pricePrecision);
     }
 }
 

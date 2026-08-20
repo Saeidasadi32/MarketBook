@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -48,7 +48,7 @@ public static ExchangeId FromUlid (Ulid value) => new(value);
     {
         Guard.AgainstNullOrWhiteSpace(value, nameof(ExchangeId));
 
-        if (Ulid.TryParse(value, out var ulid))
+        if (Ulid.TryParse(value, out Ulid ulid))
             return new(ulid);
 
         throw new DomainException(

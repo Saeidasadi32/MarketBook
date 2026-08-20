@@ -20,8 +20,8 @@ namespace MarketBook.Domain.Currency.ValueObjects;
 public sealed record CurrencyId : EntityId
 {
     /// <summary>
-    /// EN: Initializes a new instance of the <see cref="[Entity]Id"/> class.
-    /// FA: نمونه جدیدی از کلاس <see cref="[Entity]Id"/> را ایجاد می‌کند.
+    /// EN: Initializes a new instance of the <see cref="CurrencyId"/> class.
+    /// FA: یک نمونه جدید از کلاس <see cref="CurrencyId"/> ایجاد می‌کند.
     /// </summary>
     /// <param name="value">Underlying ULID value.</param>
     private CurrencyId(Ulid value) : base(value)

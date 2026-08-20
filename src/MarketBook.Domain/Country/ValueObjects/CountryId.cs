@@ -72,7 +72,7 @@ public sealed record CountryId : EntityId
     /// </returns>
     public static CountryId Parse(string value)
     {
-        Guard.AgainstNullOrWhiteSpace(value);
+        Guard.AgainstNullOrWhiteSpace(value, nameof(CountryId));
 
         if (Ulid.TryParse(value, out Ulid ulid))
         {

@@ -16,36 +16,41 @@ namespace MarketBook.Domain.Country.Aggregates;
 
 /// <summary>
 /// EN: Represents a sovereign country.
-/// FA: یک کشور را در سیستم نمایش می‌دهد.
+/// FA: یک کشور مستقل را در سیستم نمایش می‌دهد.
 /// </summary>
 public sealed class Country : AggregateRoot<CountryId>
 {
     /// <summary>
     /// EN: Initializes a new instance of the <see cref="Country"/> class.
-    /// FA: نمونه جدیدی از کلاس <see cref="Country"/> را ایجاد می‌کند.
+    /// FA: یک نمونه جدید از کلاس <see cref="Country"/> ایجاد می‌کند.
     /// </summary>
     /// <param name="id">
-    /// EN: Country identifier.
-    /// FA: شناسه کشور.
+    /// EN: Unique country identifier.
+    /// FA: شناسه یکتای کشور.
     /// </param>
     /// <param name="code">
     /// EN: ISO country code.
-    /// FA: کد استاندارد کشور.
+    /// FA: کد استاندارد ISO کشور.
     /// </param>
     /// <param name="name">
     /// EN: Country display name.
-    /// FA: نام کشور.
+    /// FA: نام نمایشی کشور.
+    /// </param>
+    /// <param name="timeZone">
+    /// EN: Default time zone associated with the country.
+    /// FA: منطقه زمانی پیش‌فرض مرتبط با کشور.
     /// </param>
     public Country(
         CountryId id,
         CountryCode code,
         string name,
         TimeZoneId timeZone)
+        : base(id)
     {
         ArgumentNullException.ThrowIfNull(code);
+        ArgumentNullException.ThrowIfNull(timeZone);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-        Id = id;
         Code = code;
         Name = name.Trim();
         TimeZone = timeZone;
@@ -55,32 +60,43 @@ public sealed class Country : AggregateRoot<CountryId>
     }
 
     /// <summary>
+    /// EN: Parameterless constructor for ORM frameworks.
+    /// FA: سازنده بدون پارامتر برای فریم‌ورک‌های ORM.
+    /// </summary>
+    private Country()
+    {
+        Code = default!;
+        Name = default!;
+        TimeZone = default!;
+    }
+
+    /// <summary>
     /// EN: Gets the ISO country code.
-    /// FA: کد استاندارد کشور را دریافت می‌کند.
+    /// FA: کد استاندارد ISO کشور را دریافت می‌کند.
     /// </summary>
     public CountryCode Code { get; }
 
     /// <summary>
-    /// EN: Gets the country name.
-    /// FA: نام کشور را دریافت می‌کند.
+    /// EN: Gets the country display name.
+    /// FA: نام نمایشی کشور را دریافت می‌کند.
     /// </summary>
     public string Name { get; private set; }
 
     /// <summary>
-    /// EN: Gets the default time zone.
+    /// EN: Gets the default time zone of the country.
     /// FA: منطقه زمانی پیش‌فرض کشور را دریافت می‌کند.
     /// </summary>
     public TimeZoneId TimeZone { get; }
 
     /// <summary>
-    /// EN: Gets the creation date.
-    /// FA: تاریخ ایجاد را دریافت می‌کند.
+    /// EN: Gets the date and time when the country was created.
+    /// FA: تاریخ و زمان ایجاد کشور را دریافت می‌کند.
     /// </summary>
     public DateTimeOffset CreatedOn { get; }
 
     /// <summary>
     /// EN: Gets a value indicating whether the country is active.
-    /// FA: مشخص می‌کند کشور فعال است یا خیر.
+    /// FA: مشخص می‌کند که کشور فعال است یا خیر.
     /// </summary>
     public bool IsActive { get; private set; }
 
@@ -96,18 +112,55 @@ public sealed class Country : AggregateRoot<CountryId>
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-        Name = name.Trim();
+        string normalizedName = name.Trim();
+
+        if (Name == normalizedName)
+            return;
+
+        Name = normalizedName;
     }
 
     /// <summary>
     /// EN: Activates the country.
     /// FA: کشور را فعال می‌کند.
     /// </summary>
-    public void Activate() => IsActive = true;
+    public void Activate()
+    {
+        if (IsActive)
+            return;
+
+        IsActive = true;
+    }
 
     /// <summary>
     /// EN: Deactivates the country.
     /// FA: کشور را غیرفعال می‌کند.
     /// </summary>
-    public void Deactivate() => IsActive = false;
+    public void Deactivate()
+    {
+        if (!IsActive)
+            return;
+
+        IsActive = false;
+    }
+
+    /// <summary>
+    /// EN: Creates a new country aggregate.
+    /// FA: یک Aggregate جدید برای کشور ایجاد می‌کند.
+    /// </summary>
+    public static Country Create(
+        CountryCode code,
+        string name,
+        TimeZoneId timeZone)
+    {
+        ArgumentNullException.ThrowIfNull(code);
+        ArgumentNullException.ThrowIfNull(timeZone);
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+
+        return new Country(
+            CountryId.New(),
+            code,
+            name,
+            timeZone);
+    }
 }

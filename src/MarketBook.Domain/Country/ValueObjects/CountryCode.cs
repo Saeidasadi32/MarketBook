@@ -36,7 +36,7 @@ public sealed record CountryCode
         value = value.Trim().ToUpperInvariant();
 
         if (!Regex.IsMatch(value))
-            throw new ArgumentException("Invalid country code.", nameof(value));
+            throw new ArgumentException("Country code must contain exactly two letters.", nameof(value));
 
         Value = value;
     }

@@ -54,8 +54,16 @@ public sealed record ExchangeCode
     public static ExchangeCode FromString(string value)
         => new(value);
 
+    /// <summary>
+    /// EN: Returns the exchange code as text.
+    /// FA: کد بورس را به‌صورت متنی برمی‌گرداند.
+    /// </summary>
     public override string ToString() => Value;
 
+    /// <summary>
+    /// EN: Implicitly converts an exchange code to string.
+    /// FA: کد بورس را به‌صورت ضمنی به رشته تبدیل می‌کند.
+    /// </summary>
     public static implicit operator string(ExchangeCode code)
     {
         ArgumentNullException.ThrowIfNull(code);

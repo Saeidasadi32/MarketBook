@@ -26,35 +26,36 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
     /// FA: نمونه جدیدی از کلاس <see cref="Instrument"/> را ایجاد می‌کند.
     /// </summary>
     /// <param name="id">
-    /// EN: Instrument identifier.
-    /// FA: شناسه ابزار مالی.
+    /// EN: Unique identifier of the instrument.
+    /// FA: شناسه یکتای ابزار مالی.
     /// </param>
     /// <param name="name">
     /// EN: Instrument display name.
     /// FA: نام نمایشی ابزار مالی.
     /// </param>
     /// <param name="assetClass">
-    /// EN: Asset class of the instrument.
-    /// FA: کلاس دارایی ابزار مالی.
+    /// EN: High-level asset class of the instrument.
+    /// FA: کلاس اصلی دارایی ابزار مالی.
     /// </param>
     /// <param name="type">
-    /// EN: Instrument type.
-    /// FA: نوع ابزار مالی.
+    /// EN: Specific type of the instrument.
+    /// FA: نوع مشخص ابزار مالی.
     /// </param>
     /// <param name="category">
-    /// EN: Instrument category.
-    /// FA: گروه ابزار مالی.
+    /// EN: High-level category of the instrument.
+    /// FA: گروه اصلی ابزار مالی.
     /// </param>
-    /// <exception cref="DomainException">
-    /// EN: Thrown when any of the required parameters are invalid.
-    /// FA: زمانی که هر یک از پارامترهای ضروری نامعتبر باشند پرتاب می‌شود.
-    /// </exception>
+    /// <param name="isin">
+    /// EN: Optional International Securities Identification Number.
+    /// FA: شناسه بین‌المللی اوراق بهادار که می‌تواند اختیاری باشد.
+    /// </param>
     public Instrument(
         InstrumentId id,
         InstrumentName name,
         AssetClass assetClass,
         InstrumentType type,
-        InstrumentCategory category)
+        InstrumentCategory category,
+        Isin? isin)
         : base(id)
     {
         ArgumentNullException.ThrowIfNull(name);
@@ -65,6 +66,7 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
         AssetClass = assetClass;
         Type = type;
         Category = category;
+        Isin = isin;
 
         CreatedOn = DateTimeOffset.UtcNow;
         IsActive = true;
@@ -86,32 +88,50 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
     public InstrumentName Name { get; private set; } = default!;
 
     /// <summary>
-    /// EN: Gets the asset class.
-    /// FA: کلاس دارایی را دریافت می‌کند.
+    /// EN: Gets the high-level asset class.
+    /// FA: کلاس اصلی دارایی را دریافت می‌کند.
     /// </summary>
     public AssetClass AssetClass { get; private set; } = default!;
 
     /// <summary>
-    /// EN: Gets the instrument type.
-    /// FA: نوع ابزار مالی را دریافت می‌کند.
+    /// EN: Gets the specific instrument type.
+    /// FA: نوع مشخص ابزار مالی را دریافت می‌کند.
     /// </summary>
-    public InstrumentType Type { get; private set; } = default!;
+    public InstrumentType Type { get; private set; }
 
     /// <summary>
-    /// EN: Gets the instrument category.
-    /// FA: گروه ابزار مالی را دریافت می‌کند.
+    /// EN: Gets the high-level instrument category.
+    /// FA: گروه اصلی ابزار مالی را دریافت می‌کند.
     /// </summary>
     public InstrumentCategory Category { get; private set; } = default!;
 
     /// <summary>
-    /// EN: Gets the International Securities Identification Number (ISIN).
-    /// FA: شناسه بین‌المللی اوراق بهادار (ISIN) را دریافت می‌کند.
+    /// EN: Gets the optional International Securities Identification Number.
+    /// FA: شناسه بین‌المللی اوراق بهادار اختیاری را دریافت می‌کند.
     /// </summary>
     public Isin? Isin { get; private set; }
 
     /// <summary>
-    /// EN: Gets the creation date and time.
-    /// FA: تاریخ و زمان ایجاد را دریافت می‌کند.
+    /// EN: Gets the instrument industry classification.
+    /// FA: طبقه‌بندی صنعت ابزار مالی را دریافت می‌کند.
+    /// </summary>
+    public IndustryCategory? Industry { get; private set; }
+
+    /// <summary>
+    /// EN: Gets the economic sector of the instrument.
+    /// FA: بخش اقتصادی ابزار مالی را دریافت می‌کند.
+    /// </summary>
+    public Sector.ValueObjects.Sector? Sector { get; private set; }
+
+    /// <summary>
+    /// EN: Gets the corporate aliases associated with the instrument.
+    /// FA: نام‌های جایگزین شرکتی مرتبط با ابزار مالی را دریافت می‌کند.
+    /// </summary>
+    public CorporateAliases? CorporateAliases { get; private set; }
+
+    /// <summary>
+    /// EN: Gets the creation date and time of the instrument.
+    /// FA: تاریخ و زمان ایجاد ابزار مالی را دریافت می‌کند.
     /// </summary>
     public DateTimeOffset CreatedOn { get; }
 
@@ -129,58 +149,157 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
     /// EN: New instrument name.
     /// FA: نام جدید ابزار مالی.
     /// </param>
-    /// <exception cref="DomainException">
-    /// EN: Thrown when the name is null or empty.
-    /// FA: زمانی که نام null یا خالی باشد پرتاب می‌شود.
-    /// </exception>
     public void Rename(InstrumentName name)
     {
         ArgumentNullException.ThrowIfNull(name);
-
-        if (string.IsNullOrWhiteSpace(name.Value))
-        {
-            throw new DomainException(
-                new Error(
-                    "Instrument.Name.Empty",
-                    "Instrument name cannot be empty."));
-        }
 
         if (Name == name)
             return;
 
         Name = name;
+
         Raise(new InstrumentRenamedEvent(Id, name));
     }
 
     /// <summary>
-    /// EN: Assigns or changes the ISIN.
-    /// FA: شناسه ISIN را تعیین یا تغییر می‌دهد.
+    /// EN: Assigns or changes the instrument ISIN.
+    /// FA: شناسه ISIN ابزار مالی را تعیین یا تغییر می‌دهد.
     /// </summary>
     /// <param name="isin">
-    /// EN: ISIN value.
-    /// FA: مقدار ISIN.
+    /// EN: New ISIN value.
+    /// FA: مقدار جدید ISIN.
     /// </param>
-    /// <exception cref="DomainException">
-    /// EN: Thrown when the ISIN is null or invalid.
-    /// FA: زمانی که ISIN null یا نامعتبر باشد پرتاب می‌شود.
-    /// </exception>
     public void SetIsin(Isin isin)
     {
         ArgumentNullException.ThrowIfNull(isin);
-
-        if (string.IsNullOrWhiteSpace(isin.Value))
-        {
-            throw new DomainException(
-                new Error(
-                    "Instrument.Isin.Invalid",
-                    "ISIN cannot be empty."));
-        }
 
         if (Isin == isin)
             return;
 
         Isin = isin;
+
         Raise(new InstrumentIsinChangedEvent(Id, isin));
+    }
+
+    /// <summary>
+    /// EN: Sets the industry classification of the instrument.
+    /// FA: طبقه‌بندی صنعت ابزار مالی را تعیین می‌کند.
+    /// </summary>
+    /// <param name="industry">
+    /// EN: Instrument industry.
+    /// FA: صنعت ابزار مالی.
+    /// </param>
+    public void SetIndustry(IndustryCategory industry)
+    {
+        ArgumentNullException.ThrowIfNull(industry);
+
+        if (Industry == industry)
+            return;
+
+        Industry = industry;
+
+        Raise(new InstrumentIndustryChangedEvent(
+            Id,
+            industry,
+            Sector));
+    }
+
+    /// <summary>
+    /// EN: Sets the industry and economic sector of the instrument.
+    /// FA: صنعت و بخش اقتصادی ابزار مالی را تعیین می‌کند.
+    /// </summary>
+    /// <param name="industry">
+    /// EN: Instrument industry.
+    /// FA: صنعت ابزار مالی.
+    /// </param>
+    /// <param name="sector">
+    /// EN: Instrument economic sector.
+    /// FA: بخش اقتصادی ابزار مالی.
+    /// </param>
+    public void SetIndustryAndSector(
+        IndustryCategory industry,
+        Sector.ValueObjects.Sector sector)
+    {
+        ArgumentNullException.ThrowIfNull(industry);
+        ArgumentNullException.ThrowIfNull(sector);
+
+        if (Industry == industry && Sector == sector)
+            return;
+
+        Industry = industry;
+        Sector = sector;
+
+        Raise(new InstrumentIndustryChangedEvent(
+            Id,
+            industry,
+            sector));
+    }
+
+    /// <summary>
+    /// EN: Adds a corporate alias to the instrument.
+    /// FA: یک نام جایگزین شرکتی به ابزار مالی اضافه می‌کند.
+    /// </summary>
+    /// <param name="alias">
+    /// EN: Corporate alias to add.
+    /// FA: نام جایگزین شرکتی برای افزودن.
+    /// </param>
+    public void AddCorporateAlias(string alias)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(alias);
+
+        CorporateAliases ??= new CorporateAliases();
+
+        if (CorporateAliases.Contains(alias))
+            return;
+
+        CorporateAliases.Add(alias);
+
+        Raise(new InstrumentAliasAddedEvent(Id, alias));
+    }
+
+    /// <summary>
+    /// EN: Removes a corporate alias from the instrument.
+    /// FA: یک نام جایگزین شرکتی را از ابزار مالی حذف می‌کند.
+    /// </summary>
+    /// <param name="alias">
+    /// EN: Corporate alias to remove.
+    /// FA: نام جایگزین شرکتی برای حذف.
+    /// </param>
+    public void RemoveCorporateAlias(string alias)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(alias);
+
+        if (CorporateAliases is null)
+            return;
+
+        if (!CorporateAliases.Remove(alias))
+            return;
+
+        Raise(new InstrumentAliasRemovedEvent(Id, alias));
+    }
+
+    /// <summary>
+    /// EN: Replaces the corporate aliases of the instrument.
+    /// FA: مجموعه نام‌های جایگزین شرکتی ابزار مالی را جایگزین می‌کند.
+    /// </summary>
+    /// <param name="aliases">
+    /// EN: New corporate aliases.
+    /// FA: نام‌های جایگزین شرکتی جدید.
+    /// </param>
+    public void SetCorporateAliases(IEnumerable<string> aliases)
+    {
+        ArgumentNullException.ThrowIfNull(aliases);
+
+        var newAliases = new CorporateAliases(aliases);
+
+        if (CorporateAliases == newAliases)
+            return;
+
+        CorporateAliases = newAliases;
+
+        Raise(new InstrumentAliasesSetEvent(
+            Id,
+            newAliases));
     }
 
     /// <summary>
@@ -193,6 +312,7 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
             return;
 
         IsActive = true;
+
         Raise(new InstrumentActivatedEvent(Id));
     }
 
@@ -206,114 +326,64 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
             return;
 
         IsActive = false;
+
         Raise(new InstrumentDeactivatedEvent(Id));
     }
 
     /// <summary>
+    /// EN: Creates a new instrument with a generated identifier.
+    /// FA: یک ابزار مالی جدید با شناسه تولیدشده ایجاد می‌کند.
+    /// </summary>
+    /// <param name="name">
+    /// EN: Instrument display name.
+    /// FA: نام نمایشی ابزار مالی.
+    /// </param>
+    /// <param name="assetClass">
+    /// EN: High-level asset class.
+    /// FA: کلاس اصلی دارایی.
+    /// </param>
+    /// <param name="type">
+    /// EN: Specific instrument type.
+    /// FA: نوع مشخص ابزار مالی.
+    /// </param>
+    /// <param name="category">
+    /// EN: High-level instrument category.
+    /// FA: گروه اصلی ابزار مالی.
+    /// </param>
+    /// <param name="isin">
+    /// EN: Optional ISIN.
+    /// FA: ISIN اختیاری.
+    /// </param>
+    /// <returns>
+    /// EN: A newly created instrument.
+    /// FA: ابزار مالی جدید ایجادشده.
+    /// </returns>
+    public static Instrument Create(
+        InstrumentName name,
+        AssetClass assetClass,
+        InstrumentType type,
+        InstrumentCategory category,
+        Isin? isin = null)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(assetClass);
+        ArgumentNullException.ThrowIfNull(category);
+
+        return new Instrument(
+            InstrumentId.New(),
+            name,
+            assetClass,
+            type,
+            category,
+            isin);
+    }
+
+    /// <summary>
     /// EN: Returns a string representation of the instrument.
-    /// FA: نمایش رشته‌ای از ابزار مالی را برمی‌گرداند.
+    /// FA: نمایش رشته‌ای ابزار مالی را برمی‌گرداند.
     /// </summary>
     public override string ToString()
         => $"{Name} ({Type}) - {AssetClass}";
-
-    /// <summary>
-    /// EN: Gets the industry.
-    /// FA: صنعت را دریافت می‌کند.
-    /// </summary>
-    public Industry.ValueObjects.IndustryCategory? Industry { get; private set; }
-
-    /// <summary>
-    /// EN: Gets the sector.
-    /// FA: بخش اقتصادی را دریافت می‌کند.
-    /// </summary>
-    public Sector.ValueObjects.Sector? Sector { get; private set; }
-
-    /// <summary>
-    /// EN: Gets the corporate aliases.
-    /// FA: نام‌های جایگزین شرکت را دریافت می‌کند.
-    /// </summary>
-    public CorporateAliases? CorporateAliases { get; private set; }
-
-    /// <summary>
-    /// EN: Sets the industry.
-    /// FA: صنعت را تنظیم می‌کند.
-    /// </summary>
-    public void SetIndustry(Industry.ValueObjects.IndustryCategory industry)
-    {
-        ArgumentNullException.ThrowIfNull(industry);
-
-        if (Industry == industry)
-            return;
-
-        Industry = industry;
-        Raise(new InstrumentIndustrySetEvent(Id, industry));
-    }
-
-    /// <summary>
-    /// EN: Sets the industry and sector.
-    /// FA: صنعت و بخش اقتصادی را تنظیم می‌کند.
-    /// </summary>
-    public void SetIndustryAndSector(Industry.ValueObjects.IndustryCategory industry, Sector.ValueObjects.Sector sector)
-    {
-        ArgumentNullException.ThrowIfNull(industry);
-        ArgumentNullException.ThrowIfNull(sector);
-
-        if (Industry == industry && Sector == sector)
-            return;
-
-        Industry = industry;
-        Sector = sector;
-        Raise(new InstrumentIndustryChangedEvent(Id, industry, sector));
-    }
-
-    /// <summary>
-    /// EN: Adds a corporate alias.
-    /// FA: یک نام جایگزین برای شرکت اضافه می‌کند.
-    /// </summary>
-    public void AddCorporateAlias(string alias)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(alias);
-
-        CorporateAliases ??= new CorporateAliases();
-
-        if (CorporateAliases.Contains(alias))
-            return;
-
-        CorporateAliases.Add(alias);
-        Raise(new InstrumentAliasAddedEvent(Id, alias));
-    }
-
-    /// <summary>
-    /// EN: Removes a corporate alias.
-    /// FA: یک نام جایگزین برای شرکت حذف می‌کند.
-    /// </summary>
-    public void RemoveCorporateAlias(string alias)
-    {
-        if (CorporateAliases is null)
-            return;
-
-        if (CorporateAliases.Remove(alias))
-        {
-            Raise(new InstrumentAliasRemovedEvent(Id, alias));
-        }
-    }
-
-    /// <summary>
-    /// EN: Sets multiple corporate aliases.
-    /// FA: چندین نام جایگزین برای شرکت تنظیم می‌کند.
-    /// </summary>
-    public void SetCorporateAliases(IEnumerable<string> aliases)
-    {
-        ArgumentNullException.ThrowIfNull(aliases);
-
-        var newAliases = new CorporateAliases(aliases);
-
-        if (CorporateAliases == newAliases)
-            return;
-
-        CorporateAliases = newAliases;
-        Raise(new InstrumentAliasesSetEvent(Id, newAliases));
-    }
 }
 
 /// <summary>
@@ -325,7 +395,7 @@ public sealed record InstrumentRenamedEvent(
     InstrumentName NewName) : DomainEvent;
 
 /// <summary>
-/// EN: Domain event raised when an instrument's ISIN is changed.
+/// EN: Domain event raised when an instrument ISIN is changed.
 /// FA: رویداد دامنه زمانی که ISIN ابزار مالی تغییر می‌کند.
 /// </summary>
 public sealed record InstrumentIsinChangedEvent(
@@ -346,29 +416,35 @@ public sealed record InstrumentActivatedEvent(
 public sealed record InstrumentDeactivatedEvent(
     InstrumentId InstrumentId) : DomainEvent;
 
-// Domain Events جدید
+/// <summary>
+/// EN: Domain event raised when an instrument industry classification changes.
+/// FA: رویداد دامنه زمانی که طبقه‌بندی صنعت ابزار مالی تغییر می‌کند.
+/// </summary>
 public sealed record InstrumentIndustryChangedEvent(
     InstrumentId InstrumentId,
-    Industry.ValueObjects.IndustryCategory NewIndustry,
-    Sector.ValueObjects.Sector NewSector) : DomainEvent;
+    IndustryCategory NewIndustry,
+    Sector.ValueObjects.Sector? NewSector) : DomainEvent;
 
+/// <summary>
+/// EN: Domain event raised when a corporate alias is added to an instrument.
+/// FA: رویداد دامنه زمانی که یک نام جایگزین شرکتی به ابزار مالی اضافه می‌شود.
+/// </summary>
 public sealed record InstrumentAliasAddedEvent(
     InstrumentId InstrumentId,
     string Alias) : DomainEvent;
 
+/// <summary>
+/// EN: Domain event raised when a corporate alias is removed from an instrument.
+/// FA: رویداد دامنه زمانی که یک نام جایگزین شرکتی از ابزار مالی حذف می‌شود.
+/// </summary>
 public sealed record InstrumentAliasRemovedEvent(
     InstrumentId InstrumentId,
     string Alias) : DomainEvent;
 
+/// <summary>
+/// EN: Domain event raised when the corporate aliases of an instrument are replaced.
+/// FA: رویداد دامنه زمانی که نام‌های جایگزین شرکتی ابزار مالی جایگزین می‌شوند.
+/// </summary>
 public sealed record InstrumentAliasesSetEvent(
-    InstrumentId InstrumentId,
-    CorporateAliases Aliases) : DomainEvent;
-
-// Domain Events جدید
-public sealed record InstrumentIndustrySetEvent(
-    InstrumentId InstrumentId,
-    Industry.ValueObjects.IndustryCategory Industry) : DomainEvent;
-
-public sealed record InstrumentAliasesUpdatedEvent(
     InstrumentId InstrumentId,
     CorporateAliases Aliases) : DomainEvent;

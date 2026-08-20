@@ -48,10 +48,10 @@ public sealed partial record MarketCode
     public string Value { get; }
 
     /// <summary>
-    /// EN: Converts the value object to string.
-    /// FA: مقدار شیء را به رشته تبدیل می‌کند.
+    /// EN: Converts the market code to its string representation.
+    /// FA: کد بازار را به نمایش رشته‌ای تبدیل می‌کند.
     /// </summary>
-    public string ToStringValue()
+    public override string ToString()
         => Value;
 
     /// <summary>
@@ -61,9 +61,10 @@ public sealed partial record MarketCode
     public static MarketCode FromString(string value)
         => new(value);
 
-    /// <inheritdoc />
-    public override string ToString() => Value;
-
+    /// <summary>
+    /// EN: Converts the market code implicitly to a string.
+    /// FA: کد بازار را به‌صورت ضمنی به رشته تبدیل می‌کند.
+    /// </summary>
     public static implicit operator string(MarketCode code)
     {
         ArgumentNullException.ThrowIfNull(code);

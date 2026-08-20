@@ -66,7 +66,7 @@ public readonly record struct Money :
     }
 
     public override string ToString()
-        => Value.ToString("N2");
+        => Value.ToString("N2", CultureInfo.InvariantCulture);
 
     public static Money operator +(Money left, Money right)
         => new(left.Value + right.Value);

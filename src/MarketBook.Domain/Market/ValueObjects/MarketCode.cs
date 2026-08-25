@@ -19,7 +19,7 @@ namespace MarketBook.Domain.Market.ValueObjects;
 public sealed partial record MarketCode
 {
     private static readonly Regex CodeRegex =
-        new(@"^[A-Z0-9_-]{2,20}$", RegexOptions.Compiled);
+        new(@"^[A-Z0-9_-]{2,20}$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     /// <summary>
     /// EN: Initializes a new instance of the <see cref="MarketCode"/> class.
@@ -71,4 +71,11 @@ public sealed partial record MarketCode
 
         return code.Value;
     }
+
+    /// <summary>
+    /// EN: Converts a string explicitly to a market code.
+    /// FA: یک رشته را به‌صورت صریح به کد بازار تبدیل می‌کند.
+    /// </summary>
+    public static explicit operator MarketCode(string value)
+        => new(value);
 }

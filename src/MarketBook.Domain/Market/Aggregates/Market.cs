@@ -74,7 +74,7 @@ public sealed class Market : AggregateRoot<MarketId>
     /// EN: Gets the unique code of the market.
     /// FA: کد یکتای بازار را دریافت می‌کند.
     /// </summary>
-    public MarketCode Code { get; private set; }
+    public MarketCode Code { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets the identifier of the associated exchange, when applicable.
@@ -86,7 +86,7 @@ public sealed class Market : AggregateRoot<MarketId>
     /// EN: Gets the display name of the market.
     /// FA: نام نمایشی بازار را دریافت می‌کند.
     /// </summary>
-    public string Name { get; private set; }
+    public string Name { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets the creation timestamp of the market.
@@ -112,7 +112,7 @@ public sealed class Market : AggregateRoot<MarketId>
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-        var normalizedName = name.Trim();
+        string normalizedName = name.Trim();
 
         if (Name == normalizedName)
             return;
@@ -132,6 +132,9 @@ public sealed class Market : AggregateRoot<MarketId>
     public void AssignExchange(ExchangeId exchangeId)
     {
         ArgumentNullException.ThrowIfNull(exchangeId);
+
+        if (ExchangeId == exchangeId)
+            return;
 
         ExchangeId = exchangeId;
     }
@@ -175,7 +178,8 @@ public sealed class Market : AggregateRoot<MarketId>
     /// </summary>
     public static Market Create(
         MarketCode code,
-        string name)
+        string name,
+        ExchangeId? exchangeId = null)
     {
         ArgumentNullException.ThrowIfNull(code);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -183,6 +187,7 @@ public sealed class Market : AggregateRoot<MarketId>
         return new Market(
             MarketId.New(),
             code,
-            name);
+            name,
+            exchangeId);
     }
 }

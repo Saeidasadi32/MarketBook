@@ -29,7 +29,7 @@ public static class ExchangeMappings
 
         return new ExchangeResponse(
             exchange.Id.Value.ToString(),
-            exchange.CountryId.Value.ToString(),
+            exchange.CountryId?.Value.ToString(),
             exchange.Code.Value,
             exchange.Name,
             exchange.CreatedOn,

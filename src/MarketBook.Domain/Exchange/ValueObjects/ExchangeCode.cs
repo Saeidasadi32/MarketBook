@@ -8,60 +8,67 @@
 // Licensed under the MIT License.
 // -----------------------------------------------------------------------------
 
-using MarketBook.Domain.Country.ValueObjects;
 using System.Text.RegularExpressions;
 
 namespace MarketBook.Domain.Exchange.ValueObjects;
 
 /// <summary>
-/// EN: Represents an exchange code.
-/// FA: کد یک بورس یا صرافی را نمایش می‌دهد.
+/// EN: Represents the unique business code of an exchange.
+/// FA: کد تجاری یکتای یک بورس یا بستر معاملاتی را نمایش می‌دهد.
 /// </summary>
-public sealed record ExchangeCode
+public sealed partial record ExchangeCode
 {
-    private static readonly Regex Regex =
-        new(@"^[A-Z0-9_-]{2,20}$", RegexOptions.Compiled);
+    private static readonly Regex CodeRegex =
+        new(
+            @"^[A-Z0-9_-]{2,20}$",
+            RegexOptions.Compiled);
 
+    /// <summary>
+    /// EN: Initializes a new instance of the <see cref="ExchangeCode"/> class.
+    /// FA: یک نمونه جدید از کلاس <see cref="ExchangeCode"/> ایجاد می‌کند.
+    /// </summary>
+    /// <param name="value">
+    /// EN: Exchange business code.
+    /// FA: کد تجاری بورس یا بستر معاملاتی.
+    /// </param>
     public ExchangeCode(string value)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
 
         value = value.Trim().ToUpperInvariant();
 
-        if (!Regex.IsMatch(value))
-            throw new ArgumentException("Invalid exchange code.", nameof(value));
+        if (!CodeRegex.IsMatch(value))
+        {
+            throw new ArgumentException(
+                "Invalid exchange code.",
+                nameof(value));
+        }
 
         Value = value;
     }
 
     /// <summary>
-    /// EN: Gets exchange code.
-    /// FA: کد بورس را دریافت می‌کند.
+    /// EN: Gets the normalized exchange code.
+    /// FA: کد نرمال‌شده بورس را دریافت می‌کند.
     /// </summary>
     public string Value { get; }
 
     /// <summary>
-    /// EN: Converts Exchange code to string.
-    /// FA: کد بورس را به رشته تبدیل می‌کند.
+    /// EN: Converts the exchange code to its string representation.
+    /// FA: کد بورس را به نمایش رشته‌ای تبدیل می‌کند.
     /// </summary>
-    public string ToStringValue()
+    public override string ToString()
         => Value;
 
     /// <summary>
-    /// EN: Creates a Exchange code from string.
-    /// FA: کد بورس را از رشته ایجاد می‌کند.
+    /// EN: Creates an exchange code from a string.
+    /// FA: یک کد بورس را از رشته ایجاد می‌کند.
     /// </summary>
     public static ExchangeCode FromString(string value)
         => new(value);
 
     /// <summary>
-    /// EN: Returns the exchange code as text.
-    /// FA: کد بورس را به‌صورت متنی برمی‌گرداند.
-    /// </summary>
-    public override string ToString() => Value;
-
-    /// <summary>
-    /// EN: Implicitly converts an exchange code to string.
+    /// EN: Converts an exchange code implicitly to a string.
     /// FA: کد بورس را به‌صورت ضمنی به رشته تبدیل می‌کند.
     /// </summary>
     public static implicit operator string(ExchangeCode code)
@@ -70,4 +77,11 @@ public sealed record ExchangeCode
 
         return code.Value;
     }
+
+    /// <summary>
+    /// EN: Converts a string explicitly to an exchange code.
+    /// FA: یک رشته را به‌صورت صریح به کد بورس تبدیل می‌کند.
+    /// </summary>
+    public static explicit operator ExchangeCode(string value)
+        => new(value);
 }

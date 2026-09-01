@@ -22,18 +22,6 @@ internal static class ApiErrorMapper
     /// EN: Converts a domain error into an HTTP action result.
     /// FA: یک خطای دامنه را به نتیجه مناسب HTTP تبدیل می‌کند.
     /// </summary>
-    /// <param name="controller">
-    /// EN: The controller used to create the HTTP response.
-    /// FA: کنترلری که برای ایجاد پاسخ HTTP استفاده می‌شود.
-    /// </param>
-    /// <param name="error">
-    /// EN: The domain error to map.
-    /// FA: خطای دامنه‌ای که باید نگاشت شود.
-    /// </param>
-    /// <returns>
-    /// EN: An HTTP action result containing RFC 7807 Problem Details.
-    /// FA: نتیجه HTTP شامل Problem Details مطابق RFC 7807.
-    /// </returns>
     public static IActionResult ToActionResult(
         ControllerBase controller,
         Error error)
@@ -43,10 +31,13 @@ internal static class ApiErrorMapper
 
         int statusCode = error.Code switch
         {
+            "Exchange.CountryNotFound" =>
+                StatusCodes.Status404NotFound,
+
             _ when error.Code.EndsWith(
                 ".NotFound",
                 StringComparison.Ordinal) =>
-                    StatusCodes.Status404NotFound,
+                StatusCodes.Status404NotFound,
 
             _ when error.Code.Contains(
                 ".Duplicate",
@@ -57,9 +48,10 @@ internal static class ApiErrorMapper
                 error.Code.Contains(
                     ".Conflict",
                     StringComparison.Ordinal) =>
-                    StatusCodes.Status409Conflict,
+                StatusCodes.Status409Conflict,
 
-            _ => StatusCodes.Status400BadRequest
+            _ =>
+                StatusCodes.Status400BadRequest
         };
 
         ProblemDetails problemDetails = new()
@@ -80,16 +72,8 @@ internal static class ApiErrorMapper
 
     /// <summary>
     /// EN: Gets the standard HTTP title for the specified status code.
-    /// FA: عنوان استاندارد HTTP متناظر با کد وضعیت مشخص‌شده را برمی‌گرداند.
+    /// FA: عنوان استاندارد HTTP متناظر با کد وضعیت HTTP را برمی‌گرداند.
     /// </summary>
-    /// <param name="statusCode">
-    /// EN: HTTP status code.
-    /// FA: کد وضعیت HTTP.
-    /// </param>
-    /// <returns>
-    /// EN: Human-readable HTTP status title.
-    /// FA: عنوان قابل نمایش کد وضعیت HTTP.
-    /// </returns>
     private static string GetTitle(int statusCode)
         => statusCode switch
         {

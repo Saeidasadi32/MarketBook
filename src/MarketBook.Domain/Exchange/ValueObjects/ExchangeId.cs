@@ -14,35 +14,41 @@ using NUlid;
 namespace MarketBook.Domain.Exchange.ValueObjects;
 
 /// <summary>
-/// EN: Represents the unique identifier of a Exchange.
-/// FA: شناسه یکتای Exchange را نمایش می‌دهد.
+/// EN: Represents the strongly typed unique identifier of an exchange.
+/// FA: شناسه یکتای Strongly Typed یک بورس یا بستر معاملاتی را نمایش می‌دهد.
 /// </summary>
 public sealed record ExchangeId : EntityId
 {
     /// <summary>
     /// EN: Initializes a new instance of the <see cref="ExchangeId"/> class.
-    /// FA: نمونه جدیدی از کلاس <see cref="ExchangeId"/> را ایجاد می‌کند.
+    /// FA: یک نمونه جدید از <see cref="ExchangeId"/> ایجاد می‌کند.
     /// </summary>
-    /// <param name="value">Underlying ULID value.</param>
-    private ExchangeId(Ulid value) : base(value)
+    /// <param name="value">
+    /// EN: Underlying ULID value.
+    /// FA: مقدار ULID پایه.
+    /// </param>
+    private ExchangeId(Ulid value)
+        : base(value)
     {
-}
-
-/// <summary>
-/// EN: Creates a new unique identifier.
-/// FA: یک شناسه یکتای جدید ایجاد می‌کند.
-/// </summary>
-public static ExchangeId New () => new(Ulid.NewUlid());
-
-/// <summary>
-/// EN: Creates an identifier from an existing ULID.
-/// FA: یک شناسه از یک ULID موجود ایجاد می‌کند.
-/// </summary>
-public static ExchangeId FromUlid (Ulid value) => new(value);
+    }
 
     /// <summary>
-    /// EN: Parses a ULID string into an identifier.
-    /// FA: رشته ULID را به شناسه تبدیل می‌کند.
+    /// EN: Creates a new unique exchange identifier.
+    /// FA: یک شناسه یکتای جدید برای بورس ایجاد می‌کند.
+    /// </summary>
+    public static ExchangeId New()
+        => new(Ulid.NewUlid());
+
+    /// <summary>
+    /// EN: Creates an exchange identifier from an existing ULID.
+    /// FA: یک شناسه بورس را از ULID موجود ایجاد می‌کند.
+    /// </summary>
+    public static ExchangeId FromUlid(Ulid value)
+        => new(value);
+
+    /// <summary>
+    /// EN: Parses a ULID string into an exchange identifier.
+    /// FA: یک رشته ULID را به شناسه بورس تبدیل می‌کند.
     /// </summary>
     public static ExchangeId Parse(string value)
     {
@@ -58,12 +64,15 @@ public static ExchangeId FromUlid (Ulid value) => new(value);
     }
 
     /// <summary>
-    /// EN: Attempts to parse a ULID string.
-    /// FA: تلاش می‌کند رشته ULID را به شناسه تبدیل کند.
+    /// EN: Attempts to parse a ULID string into an exchange identifier.
+    /// FA: تلاش می‌کند یک رشته ULID را به شناسه بورس تبدیل کند.
     /// </summary>
-    public static bool TryParse(string? value, out ExchangeId? result)
+    public static bool TryParse(
+        string? value,
+        out ExchangeId? result)
     {
-        if (!string.IsNullOrWhiteSpace(value) && Ulid.TryParse(value, out var ulid))
+        if (!string.IsNullOrWhiteSpace(value) &&
+            Ulid.TryParse(value, out Ulid ulid))
         {
             result = new(ulid);
             return true;
@@ -74,9 +83,9 @@ public static ExchangeId FromUlid (Ulid value) => new(value);
     }
 
     /// <summary>
-    /// EN: Explicit conversion from string.
-    /// FA: تبدیل صریح از رشته.
+    /// EN: Explicitly converts a string to an exchange identifier.
+    /// FA: یک رشته را به‌صورت صریح به شناسه بورس تبدیل می‌کند.
     /// </summary>
-    public static explicit operator ExchangeId(string value) => Parse(value);
-
+    public static explicit operator ExchangeId(string value)
+        => Parse(value);
 }

@@ -64,7 +64,7 @@ internal sealed class ExchangeConfiguration
             .HasConversion(countryIdConverter)
             .HasMaxLength(26)
             .IsUnicode(false)
-            .IsRequired();
+            .IsRequired(false);
 
         builder.Property(exchange => exchange.Code)
             .HasConversion(codeConverter)

@@ -18,7 +18,7 @@ namespace MarketBook.Application.Features.Exchanges.Commands.CreateExchange;
 /// FA: فرمان ایجاد یک بورس را نمایش می‌دهد.
 /// </summary>
 public sealed record CreateExchangeCommand(
-    string CountryId,
+    string? CountryId,
     string Code,
     string Name)
     : ICommand<Result<ExchangeId>>;

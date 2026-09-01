@@ -81,6 +81,23 @@ internal sealed class ExchangeRepository : IExchangeRepository
     }
 
     /// <inheritdoc />
+    public Task<bool> ExistsAsync(
+    ExchangeCode code,
+    ExchangeId excludingId,
+    CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(code);
+        ArgumentNullException.ThrowIfNull(excludingId);
+
+        return _context.Set<Exchange>()
+            .AnyAsync(
+                exchange =>
+                    exchange.Code == code &&
+                    exchange.Id != excludingId,
+                cancellationToken);
+    }
+
+    /// <inheritdoc />
     public async Task AddAsync(
         Exchange exchange,
         CancellationToken cancellationToken = default)
@@ -91,6 +108,15 @@ internal sealed class ExchangeRepository : IExchangeRepository
             .AddAsync(
                 exchange,
                 cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public void Update(Exchange exchange)
+    {
+        ArgumentNullException.ThrowIfNull(exchange);
+
+        _context.Set<Exchange>()
+            .Update(exchange);
     }
 
     /// <inheritdoc />

@@ -10,6 +10,7 @@
 
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Market.ValueObjects;
+using MarketBook.Domain.Venue.Enums;
 using MarketBook.Domain.Venue.ValueObjects;
 
 namespace MarketBook.Domain.Venue.Aggregates;
@@ -46,7 +47,8 @@ public sealed class Venue : AggregateRoot<VenueId>
         VenueId id,
         MarketId marketId,
         VenueCode code,
-        string name)
+        string name,
+        VenueType type)
         : base(id)
     {
         ArgumentNullException.ThrowIfNull(marketId);
@@ -56,6 +58,7 @@ public sealed class Venue : AggregateRoot<VenueId>
         MarketId = marketId;
         Code = code;
         Name = name.Trim();
+        Type = type;
 
         CreatedOn = DateTimeOffset.UtcNow;
         IsActive = true;
@@ -91,6 +94,12 @@ public sealed class Venue : AggregateRoot<VenueId>
     public string Name { get; private set; }
 
     /// <summary>
+    /// EN: Gets the type of the trading venue.
+    /// FA: نوع بستر معاملاتی را دریافت می‌کند.
+    /// </summary>
+    public VenueType Type { get; private set; }
+
+    /// <summary>
     /// EN: Gets the creation timestamp of the venue.
     /// FA: زمان ایجاد بستر معاملاتی را دریافت می‌کند.
     /// </summary>
@@ -114,12 +123,13 @@ public sealed class Venue : AggregateRoot<VenueId>
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-        var normalizedName = name.Trim();
+        string normalizedName = name.Trim();
 
         if (Name == normalizedName)
             return;
 
         Name = normalizedName;
+        Raise(new VenueRenamedEvent(Id, normalizedName));
     }
 
     /// <summary>
@@ -132,6 +142,8 @@ public sealed class Venue : AggregateRoot<VenueId>
             return;
 
         IsActive = true;
+
+        Raise(new VenueActivatedEvent(Id));
     }
 
     /// <summary>
@@ -144,6 +156,8 @@ public sealed class Venue : AggregateRoot<VenueId>
             return;
 
         IsActive = false;
+
+        Raise(new VenueDeactivatedEvent(Id));
     }
 
     /// <summary>
@@ -153,7 +167,8 @@ public sealed class Venue : AggregateRoot<VenueId>
     public static Venue Create(
         MarketId marketId,
         VenueCode code,
-        string name)
+        string name,
+        VenueType type)
     {
         ArgumentNullException.ThrowIfNull(marketId);
         ArgumentNullException.ThrowIfNull(code);
@@ -163,6 +178,28 @@ public sealed class Venue : AggregateRoot<VenueId>
             VenueId.New(),
             marketId,
             code,
-            name);
+            name,
+            type);
     }
 }
+/// <summary>
+/// EN: Raised when a trading venue is renamed.
+/// FA: زمانی که نام بستر معاملاتی تغییر می‌کند منتشر می‌شود.
+/// </summary>
+public sealed record VenueRenamedEvent(
+    VenueId VenueId,
+    string NewName) : DomainEvent;
+
+/// <summary>
+/// EN: Raised when a trading venue becomes active.
+/// FA: زمانی که بستر معاملاتی فعال می‌شود منتشر می‌شود.
+/// </summary>
+public sealed record VenueActivatedEvent(
+    VenueId VenueId) : DomainEvent;
+
+/// <summary>
+/// EN: Raised when a trading venue becomes inactive.
+/// FA: زمانی که بستر معاملاتی غیرفعال می‌شود منتشر می‌شود.
+/// </summary>
+public sealed record VenueDeactivatedEvent(
+    VenueId VenueId) : DomainEvent;

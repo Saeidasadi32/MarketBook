@@ -12,7 +12,6 @@ using MarketBook.Domain.Common;
 using MarketBook.Domain.Currency.ValueObjects;
 using MarketBook.Domain.Instrument.ValueObjects;
 using MarketBook.Domain.Listing.ValueObjects;
-using MarketBook.Domain.Market.ValueObjects;
 using MarketBook.Domain.Venue.ValueObjects;
 
 namespace MarketBook.Domain.Listing.Aggregates;
@@ -31,7 +30,7 @@ public sealed class Listing : AggregateRoot<ListingId>
         ListingId id,
         InstrumentId instrumentId,
         VenueId venueId,
-        CurrencyId currencyId,
+        CurrencyId quoteCurrencyId,
         TradingSymbol tradingSymbol,
         decimal tickSize,
         byte pricePrecision)
@@ -39,7 +38,7 @@ public sealed class Listing : AggregateRoot<ListingId>
     {
         ArgumentNullException.ThrowIfNull(instrumentId);
         ArgumentNullException.ThrowIfNull(venueId);
-        ArgumentNullException.ThrowIfNull(currencyId);
+        ArgumentNullException.ThrowIfNull(quoteCurrencyId);
         ArgumentNullException.ThrowIfNull(tradingSymbol);
 
         if (tickSize <= 0)
@@ -47,9 +46,20 @@ public sealed class Listing : AggregateRoot<ListingId>
                 nameof(tickSize),
                 "Tick size must be greater than zero.");
 
+        /// <summary>
+        /// EN: Validates that the configured price precision is supported by the decimal type.
+        /// FA: بررسی می‌کند که دقت قیمت در محدوده پشتیبانی‌شده توسط نوع decimal باشد.
+        /// </summary>
+        if (pricePrecision > 28)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(pricePrecision),
+                "Price precision must be between 0 and 28.");
+        }
+
         InstrumentId = instrumentId;
         VenueId = venueId;
-        CurrencyId = currencyId;
+        QuoteCurrencyId = quoteCurrencyId;
         TradingSymbol = tradingSymbol;
         TickSize = tickSize;
         PricePrecision = pricePrecision;
@@ -88,10 +98,10 @@ public sealed class Listing : AggregateRoot<ListingId>
     public TradingSymbol TradingSymbol { get; private set; } = default!;
 
     /// <summary>
-    /// EN: Gets the currency identifier.
-    /// FA: شناسه ارز را دریافت می‌کند.
+    /// EN: Gets the quote currency used to express the listing price.
+    /// FA: ارز مظنه‌ای را دریافت می‌کند که قیمت پذیرش معاملاتی با آن بیان می‌شود.
     /// </summary>
-    public CurrencyId CurrencyId { get; private set; } = default!;
+    public CurrencyId QuoteCurrencyId { get; private set; } = default!;
 
     /// <summary>
     /// EN: Gets the minimum price increment.
@@ -207,7 +217,10 @@ public sealed class Listing : AggregateRoot<ListingId>
     /// </summary>
     /// <param name="instrumentId"></param>
     /// <param name="venueId"></param>
-    /// <param name="currencyId"></param>
+    /// <param name="quoteCurrencyId">
+    /// EN: Identifier of the quote currency used for pricing the listing.
+    /// FA: شناسه ارز مظنه‌ای مورد استفاده برای قیمت‌گذاری پذیرش معاملاتی.
+    /// </param>
     /// <param name="tradingSymbol"></param>
     /// <param name="tickSize"></param>
     /// <param name="pricePrecision"></param>
@@ -215,7 +228,7 @@ public sealed class Listing : AggregateRoot<ListingId>
     public static Listing Create(
         InstrumentId instrumentId,
         VenueId venueId,
-        CurrencyId currencyId,
+        CurrencyId quoteCurrencyId,
         TradingSymbol tradingSymbol,
         decimal tickSize,
         byte pricePrecision)
@@ -224,7 +237,7 @@ public sealed class Listing : AggregateRoot<ListingId>
             ListingId.New(),
             instrumentId,
             venueId,
-            currencyId,
+            quoteCurrencyId,
             tradingSymbol,
             tickSize,
             pricePrecision);

@@ -44,12 +44,42 @@ public interface IExchangeRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// EN: Checks whether an exchange code already exists
+    /// for an exchange other than the specified exchange.
+    /// FA: بررسی می‌کند آیا کد بورس برای بورسی غیر از بورس مشخص‌شده
+    /// از قبل وجود دارد یا خیر.
+    /// </summary>
+    /// <param name="code">
+    /// EN: Exchange business code.
+    /// FA: کد تجاری بورس.
+    /// </param>
+    /// <param name="excludingId">
+    /// EN: Exchange identifier to exclude from the duplicate check.
+    /// FA: شناسه بورسی که باید از بررسی تکراری بودن مستثنا شود.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// EN: Cancellation token.
+    /// FA: توکن لغو عملیات.
+    /// </param>
+    Task<bool> ExistsAsync(
+        ExchangeCode code,
+        ExchangeId excludingId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// EN: Adds an exchange.
     /// FA: یک بورس اضافه می‌کند.
     /// </summary>
     Task AddAsync(
         Exchange exchange,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// EN: Updates an existing exchange.
+    /// FA: یک بورس موجود را به‌روزرسانی می‌کند.
+    /// </summary>
+    /// <param name="exchange"></param>
+    void Update(Exchange exchange);
 
     /// <summary>
     /// EN: Removes an exchange.

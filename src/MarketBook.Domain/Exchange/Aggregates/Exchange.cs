@@ -15,16 +15,34 @@ using MarketBook.Domain.Exchange.ValueObjects;
 namespace MarketBook.Domain.Exchange.Aggregates;
 
 /// <summary>
-/// EN: Represents an exchange that provides one or more trading markets.
-/// FA: یک بورس یا بستر معاملاتی را نمایش می‌دهد که می‌تواند یک یا چند بازار معاملاتی ارائه کند.
+/// EN: Represents an exchange or trading platform that provides one or more
+/// trading markets.
+/// FA: یک بورس یا بستر معاملاتی را نمایش می‌دهد که می‌تواند یک یا چند
+/// بازار معاملاتی ارائه کند.
 /// </summary>
 public sealed class Exchange : AggregateRoot<ExchangeId>
 {
     /// <summary>
     /// EN: Initializes a new instance of the <see cref="Exchange"/> class.
-    /// FA: نمونه جدیدی از کلاس <see cref="Exchange"/> را ایجاد می‌کند.
+    /// FA: یک نمونه جدید از کلاس <see cref="Exchange"/> ایجاد می‌کند.
     /// </summary>
-    public Exchange(
+    /// <param name="id">
+    /// EN: Unique exchange identifier.
+    /// FA: شناسه یکتای بورس یا بستر معاملاتی.
+    /// </param>
+    /// <param name="code">
+    /// EN: Unique exchange business code.
+    /// FA: کد تجاری یکتای بورس یا بستر معاملاتی.
+    /// </param>
+    /// <param name="name">
+    /// EN: Display name of the exchange.
+    /// FA: نام نمایشی بورس یا بستر معاملاتی.
+    /// </param>
+    /// <param name="countryId">
+    /// EN: Optional country associated with the exchange.
+    /// FA: کشور مرتبط با بورس در صورت وجود؛ برای بسترهای جهانی اختیاری است.
+    /// </param>
+    public Exchange( 
         ExchangeId id,
         ExchangeCode code,
         string name,
@@ -53,28 +71,28 @@ public sealed class Exchange : AggregateRoot<ExchangeId>
     }
 
     /// <summary>
-    /// EN: Gets the unique exchange code.
-    /// FA: کد یکتای بورس یا بستر معاملاتی را دریافت می‌کند.
+    /// EN: Gets the unique exchange business code.
+    /// FA: کد تجاری یکتای بورس یا بستر معاملاتی را دریافت می‌کند.
     /// </summary>
-    public ExchangeCode Code { get; private set; }
+    public ExchangeCode Code { get; private set; } = default!;
 
     /// <summary>
-    /// EN: Gets the exchange display name.
+    /// EN: Gets the display name of the exchange.
     /// FA: نام نمایشی بورس یا بستر معاملاتی را دریافت می‌کند.
     /// </summary>
-    public string Name { get; private set; }
+    public string Name { get; private set; } = default!;
 
     /// <summary>
-    /// EN: Gets the country associated with the exchange, when applicable.
-    /// FA: کشور مرتبط با بورس یا بستر معاملاتی را در صورت وجود دریافت می‌کند.
+    /// EN: Gets the associated country identifier, when applicable.
+    /// FA: شناسه کشور مرتبط را در صورت وجود دریافت می‌کند.
     /// </summary>
     public CountryId? CountryId { get; private set; }
 
     /// <summary>
-    /// EN: Gets the exchange creation timestamp.
+    /// EN: Gets the creation timestamp of the exchange.
     /// FA: زمان ایجاد بورس یا بستر معاملاتی را دریافت می‌کند.
     /// </summary>
-    public DateTimeOffset CreatedOn { get; private set; }
+    public DateTimeOffset CreatedOn { get; }
 
     /// <summary>
     /// EN: Gets whether the exchange is currently active.
@@ -83,27 +101,27 @@ public sealed class Exchange : AggregateRoot<ExchangeId>
     public bool IsActive { get; private set; }
 
     /// <summary>
-    /// EN: Changes the exchange display name.
-    /// FA: نام نمایشی بورس یا بستر معاملاتی را تغییر می‌دهد.
+    /// EN: Renames the exchange.
+    /// FA: نام بورس یا بستر معاملاتی را تغییر می‌دهد.
     /// </summary>
     /// <param name="name">
-    /// EN: The new exchange name.
-    /// FA: نام جدید بورس یا بستر معاملاتی.
+    /// EN: New exchange display name.
+    /// FA: نام نمایشی جدید بورس.
     /// </param>
     public void Rename(string name)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-        name = name.Trim();
+        string normalizedName = name.Trim();
 
-        if (Name == name)
+        if (Name == normalizedName)
             return;
 
-        Name = name;
+        Name = normalizedName;
 
         Raise(new ExchangeRenamedEvent(
             Id,
-            name));
+            normalizedName));
     }
 
     /// <summary>
@@ -111,7 +129,7 @@ public sealed class Exchange : AggregateRoot<ExchangeId>
     /// FA: بورس یا بستر معاملاتی را به یک کشور مرتبط می‌کند.
     /// </summary>
     /// <param name="countryId">
-    /// EN: The country identifier.
+    /// EN: Country identifier.
     /// FA: شناسه کشور.
     /// </param>
     public void AssignCountry(CountryId countryId)
@@ -172,7 +190,7 @@ public sealed class Exchange : AggregateRoot<ExchangeId>
 
     /// <summary>
     /// EN: Creates a new exchange aggregate.
-    /// FA: یک Aggregate جدید برای بورس ایجاد می‌کند.
+    /// FA: یک Aggregate جدید برای بورس یا بستر معاملاتی ایجاد می‌کند.
     /// </summary>
     public static Exchange Create(
         ExchangeCode code,
@@ -188,8 +206,26 @@ public sealed class Exchange : AggregateRoot<ExchangeId>
             name,
             countryId);
     }
+    /// <summary>
+    /// EN: Changes the business code of the exchange.
+    /// FA: کد تجاری بورس یا بستر معاملاتی را تغییر می‌دهد.
+    /// </summary>
+    /// <param name="code">
+    /// EN: New exchange business code.
+    /// FA: کد تجاری جدید بورس.
+    /// </param>
+    public void ChangeCode(ExchangeCode code)
+    {
+        ArgumentNullException.ThrowIfNull(code);
+
+        if (Code == code)
+            return;
+
+        Code = code;
+    }
 }
-// <summary>
+
+/// <summary>
 /// EN: Raised when an exchange is renamed.
 /// FA: زمانی که نام بورس تغییر می‌کند منتشر می‌شود.
 /// </summary>

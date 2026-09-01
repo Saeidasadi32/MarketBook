@@ -60,15 +60,34 @@ public sealed class CreateExchangeCommandHandler
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        if (!CountryId.TryParse(
-                request.CountryId,
-                out CountryId? countryId) ||
-            countryId is null)
+        CountryId? countryId = null;
+
+        if (!string.IsNullOrWhiteSpace(request.CountryId))
         {
-            return Result<ExchangeId>.Fail(
-                new Error(
-                    "Exchange.InvalidCountryId",
-                    "The specified country identifier is invalid."));
+            if (!CountryId.TryParse(
+                    request.CountryId,
+                    out CountryId? parsedCountryId) ||
+                parsedCountryId is null)
+            {
+                return Result<ExchangeId>.Fail(
+                    new Error(
+                        "Exchange.InvalidCountryId",
+                        "The specified country identifier is invalid."));
+            }
+
+            countryId = parsedCountryId;
+
+            Country? country = await _countryRepository.GetByIdAsync(
+                countryId,
+                cancellationToken);
+
+            if (country is null)
+            {
+                return Result<ExchangeId>.Fail(
+                    new Error(
+                        "Exchange.CountryNotFound",
+                        "The specified country was not found."));
+            }
         }
 
         ExchangeCode code;
@@ -93,18 +112,6 @@ public sealed class CreateExchangeCommandHandler
                     "Exchange name is required."));
         }
 
-        Country? country = await _countryRepository.GetByIdAsync(
-            countryId,
-            cancellationToken);
-
-        if (country is null)
-        {
-            return Result<ExchangeId>.Fail(
-                new Error(
-                    "Exchange.CountryNotFound",
-                    "The specified country was not found."));
-        }
-
         if (await _exchangeRepository.ExistsAsync(
                 code,
                 cancellationToken))
@@ -117,9 +124,9 @@ public sealed class CreateExchangeCommandHandler
 
         Exchange exchange = new(
             ExchangeId.New(),
-            countryId,
             code,
-            request.Name);
+            request.Name,
+            countryId);
 
         await _exchangeRepository.AddAsync(
             exchange,

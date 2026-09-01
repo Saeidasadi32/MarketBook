@@ -106,6 +106,7 @@ public sealed class Currency : AggregateRoot<CurrencyId>
     /// </summary>
     public bool IsActive { get; private set; }
 
+
     /// <summary>
     /// EN: Changes the display name of the currency.
     /// FA: نام نمایشی ارز را تغییر می‌دهد.
@@ -118,7 +119,12 @@ public sealed class Currency : AggregateRoot<CurrencyId>
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-        Name = name.Trim();
+        string normalizedName = name.Trim();
+
+        if (Name == normalizedName)
+            return;
+
+        Name = normalizedName;
     }
 
     /// <summary>
@@ -143,5 +149,40 @@ public sealed class Currency : AggregateRoot<CurrencyId>
             return;
 
         IsActive = false;
+    }
+
+    /// <summary>
+    /// EN: Creates a new currency aggregate with a generated identifier.
+    /// FA: یک Aggregate جدید برای ارز با شناسه تولیدشده ایجاد می‌کند.
+    /// </summary>
+    /// <param name="code">
+    /// EN: Standard currency code.
+    /// FA: کد استاندارد ارز.
+    /// </param>
+    /// <param name="name">
+    /// EN: Display name of the currency.
+    /// FA: نام نمایشی ارز.
+    /// </param>
+    /// <param name="decimalPlaces">
+    /// EN: Number of supported decimal places.
+    /// FA: تعداد ارقام اعشاری قابل پشتیبانی.
+    /// </param>
+    /// <returns>
+    /// EN: A newly created currency.
+    /// FA: ارز جدید ایجادشده.
+    /// </returns>
+    public static Currency Create(
+        CurrencyCode code,
+        string name,
+        byte decimalPlaces)
+    {
+        ArgumentNullException.ThrowIfNull(code);
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+
+        return new Currency(
+            CurrencyId.New(),
+            code,
+            name,
+            decimalPlaces);
     }
 }

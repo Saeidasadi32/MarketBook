@@ -15,7 +15,7 @@ namespace MarketBook.Application.Features.Exchanges.Responses;
 /// </summary>
 public sealed record ExchangeResponse(
     string Id,
-    string CountryId,
+    string? CountryId,
     string Code,
     string Name,
     DateTimeOffset CreatedOn,

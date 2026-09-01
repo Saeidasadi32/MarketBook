@@ -61,4 +61,11 @@ public sealed record CurrencyCode
 
         return code.Value;
     }
+
+    /// <summary>
+    /// EN: Converts a string explicitly to a currency code.
+    /// FA: یک رشته را به‌صورت صریح به کد ارز تبدیل می‌کند.
+    /// </summary>
+    public static explicit operator CurrencyCode(string value)
+        => new(value);
 }

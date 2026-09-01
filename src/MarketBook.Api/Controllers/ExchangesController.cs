@@ -10,6 +10,7 @@
 using MarketBook.Api.Common;
 using MarketBook.Application.Common.Pagination;
 using MarketBook.Application.Features.Exchanges.Commands.CreateExchange;
+using MarketBook.Application.Features.Exchanges.Commands.UpdateExchange;
 using MarketBook.Application.Features.Exchanges.Queries.GetExchangeById;
 using MarketBook.Application.Features.Exchanges.Queries.GetExchanges;
 using MarketBook.Application.Features.Exchanges.Responses;
@@ -89,6 +90,62 @@ public sealed class ExchangesController : ControllerBase
             {
                 id
             });
+    }
+
+    /// <summary>
+    /// EN: Updates an existing exchange.
+    /// FA: یک بورس موجود را به‌روزرسانی می‌کند.
+    /// </summary>
+    /// <param name="id">
+    /// EN: Exchange identifier.
+    /// FA: شناسه بورس.
+    /// </param>
+    /// <param name="request">
+    /// EN: Exchange update command.
+    /// FA: فرمان به‌روزرسانی بورس.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// EN: Cancellation token.
+    /// FA: توکن لغو عملیات.
+    /// </param>
+    /// <returns>
+    /// EN: The identifier of the updated exchange.
+    /// FA: شناسه بورس به‌روزرسانی‌شده.
+    /// </returns>
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> Update(
+        string id,
+        [FromBody] UpdateExchangeRequest request,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(id);
+        ArgumentNullException.ThrowIfNull(request);
+
+        UpdateExchangeCommand command = new(
+            id,
+            request.Code,
+            request.Name,
+            request.CountryId);
+
+        Result<ExchangeId> result = await _sender
+            .Send(command, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (result.IsFailure)
+        {
+            return ApiErrorMapper.ToActionResult(
+                this,
+                result.Error);
+        }
+
+        return Ok(new
+        {
+            id = result.Value!.Value.ToString()
+        });
     }
 
     /// <summary>

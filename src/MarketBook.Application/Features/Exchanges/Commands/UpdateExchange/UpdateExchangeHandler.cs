@@ -18,28 +18,46 @@ using MediatR;
 namespace MarketBook.Application.Features.Exchanges.Commands.UpdateExchange;
 
 /// <summary>
-/// EN: Handles exchange update requests.
-/// FA: درخواست‌های به‌روزرسانی بورس را پردازش می‌کند.
+/// EN: Handles requests to update an existing exchange.
+/// FA: درخواست‌های به‌روزرسانی یک بورس موجود را پردازش می‌کند.
 /// </summary>
-public sealed class UpdateExchangeCommandHandler
-    : IRequestHandler<UpdateExchangeCommand, Result<ExchangeId>>
+public sealed class UpdateExchangeHandler
+    : IRequestHandler<
+        UpdateExchangeCommand,
+        Result<ExchangeId>>
 {
     private readonly IExchangeRepository _exchangeRepository;
     private readonly ICountryRepository _countryRepository;
+    private readonly IApplicationDbContext _dbContext;
 
     /// <summary>
     /// EN: Initializes a new instance of the handler.
     /// FA: نمونه جدیدی از Handler را ایجاد می‌کند.
     /// </summary>
-    public UpdateExchangeCommandHandler(
+    /// <param name="exchangeRepository">
+    /// EN: Exchange repository.
+    /// FA: Repository مربوط به بورس.
+    /// </param>
+    /// <param name="countryRepository">
+    /// EN: Country repository.
+    /// FA: Repository مربوط به کشور.
+    /// </param>
+    /// <param name="dbContext">
+    /// EN: Application database context.
+    /// FA: کانتکست پایگاه داده برنامه.
+    /// </param>
+    public UpdateExchangeHandler(
         IExchangeRepository exchangeRepository,
-        ICountryRepository countryRepository)
+        ICountryRepository countryRepository,
+        IApplicationDbContext dbContext)
     {
         ArgumentNullException.ThrowIfNull(exchangeRepository);
         ArgumentNullException.ThrowIfNull(countryRepository);
+        ArgumentNullException.ThrowIfNull(dbContext);
 
         _exchangeRepository = exchangeRepository;
         _countryRepository = countryRepository;
+        _dbContext = dbContext;
     }
 
     /// <inheritdoc />
@@ -49,10 +67,13 @@ public sealed class UpdateExchangeCommandHandler
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        if (!ExchangeId.TryParse(
-                request.Id,
-                out ExchangeId? exchangeId) ||
-            exchangeId is null)
+        ExchangeId? exchangeId = ExchangeId.TryParse(
+            request.Id,
+            out ExchangeId? parsedExchangeId)
+            ? parsedExchangeId
+            : null;
+
+        if (exchangeId is null)
         {
             return Result<ExchangeId>.Fail(
                 new Error(
@@ -87,6 +108,17 @@ public sealed class UpdateExchangeCommandHandler
                     "The specified exchange code is invalid."));
         }
 
+        if (await _exchangeRepository.ExistsAsync(
+                code,
+                exchangeId,
+                cancellationToken))
+        {
+            return Result<ExchangeId>.Fail(
+                new Error(
+                    "Exchange.DuplicateCode",
+                    "An exchange with the specified code already exists."));
+        }
+
         if (string.IsNullOrWhiteSpace(request.Name))
         {
             return Result<ExchangeId>.Fail(
@@ -95,22 +127,25 @@ public sealed class UpdateExchangeCommandHandler
                     "Exchange name is required."));
         }
 
-        CountryId? countryId = null;
+        exchange.ChangeCode(code);
+        exchange.Rename(request.Name);
 
-        if (!string.IsNullOrWhiteSpace(request.CountryId))
+        if (string.IsNullOrWhiteSpace(request.CountryId))
+        {
+            exchange.RemoveCountry();
+        }
+        else
         {
             if (!CountryId.TryParse(
                     request.CountryId,
-                    out CountryId? parsedCountryId) ||
-                parsedCountryId is null)
+                    out CountryId? countryId) ||
+                countryId is null)
             {
                 return Result<ExchangeId>.Fail(
                     new Error(
                         "Exchange.InvalidCountryId",
                         "The specified country identifier is invalid."));
             }
-
-            countryId = parsedCountryId;
 
             Country? country =
                 await _countryRepository.GetByIdAsync(
@@ -124,35 +159,14 @@ public sealed class UpdateExchangeCommandHandler
                         "Exchange.CountryNotFound",
                         "The specified country was not found."));
             }
-        }
 
-        Exchange? existingExchange =
-            await _exchangeRepository.GetByCodeAsync(
-                code,
-                cancellationToken);
-
-        if (existingExchange is not null &&
-            existingExchange.Id != exchange.Id)
-        {
-            return Result<ExchangeId>.Fail(
-                new Error(
-                    "Exchange.DuplicateCode",
-                    "An exchange with the specified code already exists."));
-        }
-
-        exchange.ChangeCode(code);
-        exchange.Rename(request.Name);
-
-        if (countryId is null)
-        {
-            exchange.RemoveCountry();
-        }
-        else
-        {
             exchange.AssignCountry(countryId);
         }
 
         _exchangeRepository.Update(exchange);
+
+        await _dbContext.SaveChangesAsync(
+            cancellationToken);
 
         return Result<ExchangeId>.Success(exchange.Id);
     }

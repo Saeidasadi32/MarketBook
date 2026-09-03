@@ -40,10 +40,14 @@ internal sealed class ExchangeConfiguration
                 id => id.Value.ToString(),
                 value => ExchangeId.Parse(value));
 
-        ValueConverter<CountryId, string> countryIdConverter =
+        ValueConverter<CountryId?, string?> countryIdConverter =
             new(
-                id => id.Value.ToString(),
-                value => CountryId.Parse(value));
+                countryId => countryId == null
+                    ? null
+                    : countryId.Value.ToString(),
+                value => value == null
+                    ? null
+                    : CountryId.Parse(value));
 
         ValueConverter<ExchangeCode, string> codeConverter =
             new(

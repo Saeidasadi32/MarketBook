@@ -106,7 +106,7 @@ public sealed class MarketRepository : IMarketRepository
     {
         IQueryable<Market> query = _dbContext.Set<Market>()
             .AsNoTracking()
-            .OrderBy(market => market.Code.Value);
+            .OrderBy(market => market.Code);
 
         int totalCount =
             await query.CountAsync(cancellationToken);

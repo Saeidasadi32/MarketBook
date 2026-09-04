@@ -1,5 +1,7 @@
 using MarketBook.Api.Common;
 using MarketBook.Application.Features.Markets.Commands.CreateMarket;
+using MarketBook.Application.Features.Markets.Queries.GetAllMarkets;
+using MarketBook.Application.Features.Markets.Queries.GetMarketById;
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Market.ValueObjects;
 using MediatR;
@@ -90,6 +92,68 @@ public sealed class MarketsController : ControllerBase
                 {
                     id = result.Value.Value.ToString()
                 });
+        }
+
+        return ApiErrorMapper.ToActionResult(
+            this,
+            result.Error);
+    }
+
+    /// <summary>
+    /// EN: Retrieves a market by its identifier.
+    /// FA: یک بازار را بر اساس شناسه آن دریافت می‌کند.
+    /// </summary>
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(GetMarketByIdResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetById(
+        string id,
+        CancellationToken cancellationToken)
+    {
+        GetMarketByIdQuery query = new(id);
+
+        Result<GetMarketByIdResponse> result =
+            await _sender.Send(
+                query,
+                cancellationToken);
+
+        if (result.IsSuccess)
+        {
+            return Ok(result.Value);
+        }
+
+        return ApiErrorMapper.ToActionResult(
+            this,
+            result.Error);
+    }
+
+    /// <summary>
+    /// EN: Retrieves a paginated list of markets.
+    /// FA: فهرست صفحه‌بندی‌شده بازارها را دریافت می‌کند.
+    /// </summary>
+    [HttpGet]
+    [ProducesResponseType(
+        typeof(GetAllMarketsResponse),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
+    {
+        GetAllMarketsQuery query = new(
+            page,
+            pageSize);
+
+        Result<GetAllMarketsResponse> result =
+            await _sender.Send(
+                query,
+                cancellationToken);
+
+        if (result.IsSuccess)
+        {
+            return Ok(result.Value);
         }
 
         return ApiErrorMapper.ToActionResult(

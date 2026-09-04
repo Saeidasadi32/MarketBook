@@ -39,21 +39,11 @@ public sealed class GetAllMarketsQueryHandler
 
         PageRequest pageRequest;
 
-        try
+        pageRequest = new()
         {
-            pageRequest = new()
-            {
-                Page = request.Page,
-                PageSize = request.PageSize
-            };
-        }
-        catch (ArgumentException)
-        {
-            return Result<GetAllMarketsResponse>.Fail(
-                new Error(
-                    "Market.InvalidPagination",
-                    "The specified pagination parameters are invalid."));
-        }
+            Page = request.Page,
+            PageSize = request.PageSize
+        };
 
         PagedResult<Market> result =
             await _marketRepository.GetPagedAsync(

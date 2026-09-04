@@ -60,14 +60,31 @@ public sealed class MarketRepository : IMarketRepository
 
     /// <inheritdoc />
     public async Task<bool> ExistsAsync(
-        MarketCode code,
-        CancellationToken cancellationToken = default)
+    MarketCode code,
+    CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(code);
 
         return await _dbContext.Set<Market>()
             .AnyAsync(
                 market => market.Code == code,
+                cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> ExistsAsync(
+        MarketCode code,
+        MarketId excludingId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(code);
+        ArgumentNullException.ThrowIfNull(excludingId);
+
+        return await _dbContext.Set<Market>()
+            .AnyAsync(
+                market =>
+                    market.Code == code &&
+                    market.Id != excludingId,
                 cancellationToken);
     }
 
@@ -101,9 +118,14 @@ public sealed class MarketRepository : IMarketRepository
 
     /// <inheritdoc />
     public async Task<PagedResult<Market>> GetPagedAsync(
-        PageRequest pageRequest,
-        CancellationToken cancellationToken = default)
+            PageRequest pageRequest,
+            CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(pageRequest);
+
+        int normalizedPage = pageRequest.NormalizedPage;
+        int normalizedPageSize = pageRequest.NormalizedPageSize;
+
         IQueryable<Market> query = _dbContext.Set<Market>()
             .AsNoTracking()
             .OrderBy(market => market.Code);
@@ -113,14 +135,14 @@ public sealed class MarketRepository : IMarketRepository
 
         List<Market> items =
             await query
-                .Skip(pageRequest.Skip)
-                .Take(pageRequest.PageSize)
+                .Skip((normalizedPage - 1) * normalizedPageSize)
+                .Take(normalizedPageSize)
                 .ToListAsync(cancellationToken);
 
         return new PagedResult<Market>(
             items,
-            pageRequest.Page,
-            pageRequest.PageSize,
+            normalizedPage,
+            normalizedPageSize,
             totalCount);
     }
 }

@@ -135,6 +135,9 @@ internal sealed class ExchangeRepository : IExchangeRepository
     {
         ArgumentNullException.ThrowIfNull(pageRequest);
 
+        int normalizedPage = pageRequest.NormalizedPage;
+        int normalizedPageSize = pageRequest.NormalizedPageSize;
+
         IQueryable<Exchange> query = _context.Set<Exchange>()
             .AsNoTracking()
             .OrderBy(exchange => exchange.Name);
@@ -143,14 +146,14 @@ internal sealed class ExchangeRepository : IExchangeRepository
             cancellationToken);
 
         List<Exchange> items = await query
-            .Skip(pageRequest.Skip)
-            .Take(pageRequest.NormalizedPageSize)
-            .ToListAsync(cancellationToken);
+                .Skip((normalizedPage - 1) * normalizedPageSize)
+                .Take(normalizedPageSize)
+                .ToListAsync(cancellationToken);
 
         return new PagedResult<Exchange>(
             items,
-            pageRequest.NormalizedPage,
-            pageRequest.NormalizedPageSize,
+            normalizedPage,
+            normalizedPageSize,
             totalCount);
     }
 }

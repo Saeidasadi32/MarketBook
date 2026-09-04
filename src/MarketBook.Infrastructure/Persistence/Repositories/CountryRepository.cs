@@ -88,6 +88,9 @@ internal sealed class CountryRepository : ICountryRepository
     {
         ArgumentNullException.ThrowIfNull(pageRequest);
 
+        int normalizedPage = pageRequest.NormalizedPage;
+        int normalizedPageSize = pageRequest.NormalizedPageSize;
+
         IQueryable<Country> query = _context.Set<Country>()
             .AsNoTracking()
             .OrderBy(country => country.Name);
@@ -96,14 +99,14 @@ internal sealed class CountryRepository : ICountryRepository
             cancellationToken);
 
         List<Country> items = await query
-            .Skip(pageRequest.Skip)
-            .Take(pageRequest.NormalizedPageSize)
-            .ToListAsync(cancellationToken);
+                .Skip((normalizedPage - 1) * normalizedPageSize)
+                .Take(normalizedPageSize)
+                .ToListAsync(cancellationToken);
 
         return new PagedResult<Country>(
             items,
-            pageRequest.NormalizedPage,
-            pageRequest.NormalizedPageSize,
+            normalizedPage,
+            normalizedPageSize,
             totalCount);
     }
 }

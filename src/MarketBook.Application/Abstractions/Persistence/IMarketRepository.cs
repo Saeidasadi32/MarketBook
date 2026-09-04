@@ -49,6 +49,13 @@ public interface IMarketRepository
     Task<Market?> GetByCodeAsync(
         MarketCode code,
         CancellationToken cancellationToken = default);
+    /// <summary>
+    /// EN: Determines whether a Market with the specified code exists.
+    /// FA: بررسی می‌کند آیا بازاری با کد مشخص‌شده وجود دارد یا خیر.
+    /// </summary>
+    Task<bool> ExistsAsync(
+        MarketCode code,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// EN: Determines whether a market with the specified code exists.
@@ -58,6 +65,7 @@ public interface IMarketRepository
     /// EN: Market code.
     /// FA: کد بازار.
     /// </param>
+    /// <param name="excludingId"></param>
     /// <param name="cancellationToken">
     /// EN: Cancellation token.
     /// FA: توکن لغو عملیات.
@@ -68,6 +76,7 @@ public interface IMarketRepository
     /// </returns>
     Task<bool> ExistsAsync(
         MarketCode code,
+        MarketId excludingId,
         CancellationToken cancellationToken = default);
 
     /// <summary>

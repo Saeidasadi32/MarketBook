@@ -46,6 +46,7 @@ public static class DependencyInjection
         services.AddScoped<ICountryRepository, CountryRepository>();
         services.AddScoped<IExchangeRepository, ExchangeRepository>();
         services.AddScoped<IMarketRepository, MarketRepository>();
+        services.AddScoped<IVenueRepository, VenueRepository>();
 
         services.AddSingleton(typeof(ILoggerAdapter<>), typeof(LoggerAdapter<>));
 

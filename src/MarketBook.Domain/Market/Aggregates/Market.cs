@@ -190,4 +190,24 @@ public sealed class Market : AggregateRoot<MarketId>
             name,
             exchangeId);
     }
+
+    /// <summary>
+    /// EN: Changes the code of the market.
+    /// FA: کد بازار را تغییر می‌دهد.
+    /// </summary>
+    /// <param name="code">
+    /// EN: New market code.
+    /// FA: کد جدید بازار.
+    /// </param>
+    public void ChangeCode(MarketCode code)
+    {
+        ArgumentNullException.ThrowIfNull(code);
+
+        if (Code == code)
+        {
+            return;
+        }
+
+        Code = code;
+    }
 }

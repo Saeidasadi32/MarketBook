@@ -1,5 +1,8 @@
+
 using MarketBook.Api.Common;
 using MarketBook.Application.Features.Markets.Commands.CreateMarket;
+using MarketBook.Application.Features.Markets.Commands.DeactivateMarket;
+using MarketBook.Application.Features.Markets.Commands.UpdateMarket;
 using MarketBook.Application.Features.Markets.Queries.GetAllMarkets;
 using MarketBook.Application.Features.Markets.Queries.GetMarketById;
 using MarketBook.Domain.Common;
@@ -91,6 +94,88 @@ public sealed class MarketsController : ControllerBase
                 new
                 {
                     id = result.Value.Value.ToString()
+                });
+        }
+
+        return ApiErrorMapper.ToActionResult(
+            this,
+            result.Error);
+    }
+
+    /// <summary>
+    /// EN: Updates an existing market.
+    /// FA: یک بازار موجود را به‌روزرسانی می‌کند.
+    /// </summary>
+    [HttpPut("{id}")]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> Update(
+        string id,
+        [FromBody] UpdateMarketRequest request,
+        CancellationToken cancellationToken)
+    {
+        UpdateMarketCommand command = new(
+            id,
+            request.Code,
+            request.Name,
+            request.ExchangeId);
+
+        Result<MarketId> result =
+            await _sender.Send(
+                command,
+                cancellationToken);
+
+        if (result.IsSuccess)
+        {
+            return Ok(
+                new
+                {
+                    id = result.Value!.Value.ToString()
+                });
+        }
+
+        return ApiErrorMapper.ToActionResult(
+            this,
+            result.Error);
+    }
+
+    // -----------------------------------------------------------------------------
+    // Project   : MarketBook (Intelligent Market Book System)
+    // Platform  : MarketBook Platform
+    // Layer     : API
+    // Namespace : MarketBook.Api.Controllers
+    //
+    // Copyright (c) Saeid Asadi. All rights reserved.
+    // Licensed under the MIT License.
+    // -----------------------------------------------------------------------------
+
+    /// <summary>
+    /// EN: Deactivates an existing market.
+    /// FA: یک بازار موجود را غیرفعال می‌کند.
+    /// </summary>
+    [HttpPatch("{id}/deactivate")]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Deactivate(
+        string id,
+        CancellationToken cancellationToken)
+    {
+        DeactivateMarketCommand command = new(id);
+
+        Result<MarketId> result =
+            await _sender.Send(
+                command,
+                cancellationToken);
+
+        if (result.IsSuccess)
+        {
+            return Ok(
+                new
+                {
+                    id = result.Value!.Value.ToString()
                 });
         }
 

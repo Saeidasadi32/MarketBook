@@ -61,6 +61,46 @@ namespace MarketBook.Infrastructure.Persistence.Migrations
                     b.ToTable("Countries", (string)null);
                 });
 
+
+            modelBuilder.Entity("MarketBook.Domain.Currency.Aggregates.Currency", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(26)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(26)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(3)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<byte>("DecimalPlaces")
+                        .HasColumnType("tinyint");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("Currencies", (string)null);
+                });
+
             modelBuilder.Entity("MarketBook.Domain.Exchange.Aggregates.Exchange", b =>
                 {
                     b.Property<string>("Id")
@@ -101,6 +141,58 @@ namespace MarketBook.Infrastructure.Persistence.Migrations
                     b.HasIndex("CountryId");
 
                     b.ToTable("Exchanges", (string)null);
+                });
+
+
+            modelBuilder.Entity("MarketBook.Domain.Instrument.Aggregates.Instrument", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(26)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(26)");
+
+                    b.Property<string>("AssetClass")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Isin")
+                        .HasMaxLength(12)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(12)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Isin")
+                        .IsUnique()
+                        .HasFilter("[Isin] IS NOT NULL");
+
+                    b.ToTable("Instruments", (string)null);
                 });
 
             modelBuilder.Entity("MarketBook.Domain.Market.Aggregates.Market", b =>

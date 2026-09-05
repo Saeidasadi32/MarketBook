@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Domain
@@ -14,31 +14,37 @@ using NUlid;
 namespace MarketBook.Domain.Instrument.ValueObjects;
 
 /// <summary>
-/// EN: Represents the unique identifier of a Instrument.
+/// EN: Represents the unique identifier of an Instrument.
 /// FA: شناسه یکتای Instrument را نمایش می‌دهد.
 /// </summary>
 public sealed record InstrumentId : EntityId
 {
     /// <summary>
-    /// EN: Initializes a new instance of the <see cref="InstrumentId"/> class.
-    /// FA: نمونه جدیدی از کلاس <see cref="InstrumentId"/> را ایجاد می‌کند.
+    /// EN: Initializes a new instrument identifier.
+    /// FA: یک شناسه جدید برای ابزار مالی ایجاد می‌کند.
     /// </summary>
-    /// <param name="value">Underlying ULID value.</param>
-    private InstrumentId(Ulid value) : base(value)
+    /// <param name="value">
+    /// EN: Underlying ULID value.
+    /// FA: مقدار ULID زیرساختی.
+    /// </param>
+    private InstrumentId(Ulid value)
+        : base(value)
     {
-}
+    }
 
-/// <summary>
-/// EN: Creates a new unique identifier.
-/// FA: یک شناسه یکتای جدید ایجاد می‌کند.
-/// </summary>
-public static InstrumentId New () => new(Ulid.NewUlid());
+    /// <summary>
+    /// EN: Creates a new unique identifier.
+    /// FA: یک شناسه یکتای جدید ایجاد می‌کند.
+    /// </summary>
+    public static InstrumentId New()
+        => new(Ulid.NewUlid());
 
-/// <summary>
-/// EN: Creates an identifier from an existing ULID.
-/// FA: یک شناسه از یک ULID موجود ایجاد می‌کند.
-/// </summary>
-public static InstrumentId FromUlid (Ulid value) => new(value);
+    /// <summary>
+    /// EN: Creates an identifier from an existing ULID.
+    /// FA: یک شناسه از یک ULID موجود ایجاد می‌کند.
+    /// </summary>
+    public static InstrumentId FromUlid(Ulid value)
+        => new(value);
 
     /// <summary>
     /// EN: Parses a ULID string into an identifier.
@@ -48,8 +54,10 @@ public static InstrumentId FromUlid (Ulid value) => new(value);
     {
         Guard.AgainstNullOrWhiteSpace(value, nameof(InstrumentId));
 
-        if (Ulid.TryParse(value, out var ulid))
-            return new(ulid);
+        if (Ulid.TryParse(value, out Ulid ulid))
+        {
+            return new InstrumentId(ulid);
+        }
 
         throw new DomainException(
             new Error(
@@ -61,11 +69,14 @@ public static InstrumentId FromUlid (Ulid value) => new(value);
     /// EN: Attempts to parse a ULID string.
     /// FA: تلاش می‌کند رشته ULID را به شناسه تبدیل کند.
     /// </summary>
-    public static bool TryParse(string? value, out InstrumentId? result)
+    public static bool TryParse(
+        string? value,
+        out InstrumentId? result)
     {
-        if (!string.IsNullOrWhiteSpace(value) && Ulid.TryParse(value, out var ulid))
+        if (!string.IsNullOrWhiteSpace(value) &&
+            Ulid.TryParse(value, out Ulid ulid))
         {
-            result = new(ulid);
+            result = new InstrumentId(ulid);
             return true;
         }
 
@@ -77,6 +88,6 @@ public static InstrumentId FromUlid (Ulid value) => new(value);
     /// EN: Explicit conversion from string.
     /// FA: تبدیل صریح از رشته.
     /// </summary>
-    public static explicit operator InstrumentId(string value) => Parse(value);
-
+    public static explicit operator InstrumentId(string value)
+        => Parse(value);
 }

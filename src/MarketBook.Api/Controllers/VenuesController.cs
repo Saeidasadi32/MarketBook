@@ -9,7 +9,12 @@
 // -----------------------------------------------------------------------------
 
 using MarketBook.Api.Common;
+using MarketBook.Application.Features.Venues.Commands.ActivateVenue;
 using MarketBook.Application.Features.Venues.Commands.CreateVenue;
+using MarketBook.Application.Features.Venues.Commands.DeactivateVenue;
+using MarketBook.Application.Features.Venues.Commands.UpdateVenue;
+using MarketBook.Application.Features.Venues.Queries.GetAllVenues;
+using MarketBook.Application.Features.Venues.Queries.GetVenueById;
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Venue.ValueObjects;
 using MediatR;
@@ -89,6 +94,200 @@ public sealed class VenuesController : ControllerBase
                 {
                     id = result.Value!.Value.ToString()
                 });
+        }
+
+        return ApiErrorMapper.ToActionResult(
+            this,
+            result.Error);
+    }
+
+    /// <summary>
+    /// Updates an existing venue.
+    /// <para>
+    /// یک محل معاملاتی موجود را به‌روزرسانی می‌کند.
+    /// </para>
+    /// </summary>
+    [HttpPut("{id}")]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Update(
+        string id,
+        [FromBody] UpdateVenueRequest request,
+        CancellationToken cancellationToken)
+    {
+        UpdateVenueCommand command = new(
+            id,
+            request.Name,
+            request.Type);
+
+        Result<VenueId> result =
+            await _sender.Send(
+                command,
+                cancellationToken);
+
+        if (result.IsSuccess)
+        {
+            return Ok(
+                new
+                {
+                    id = result.Value!.Value.ToString()
+                });
+        }
+
+        return ApiErrorMapper.ToActionResult(
+            this,
+            result.Error);
+    }
+
+    /// <summary>
+    /// EN: Deactivates an existing venue.
+    /// FA: یک محل معاملاتی موجود را غیرفعال می‌کند.
+    /// </summary>
+    /// <param name="id">
+    /// EN: Venue identifier.
+    /// FA: شناسه محل معاملاتی.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// EN: Cancellation token.
+    /// FA: توکن لغو عملیات.
+    /// </param>
+    /// <returns>
+    /// EN: HTTP response containing the deactivated venue identifier or an error.
+    /// FA: پاسخ HTTP شامل شناسه محل معاملاتی غیرفعال‌شده یا خطا.
+    /// </returns>
+    [HttpPatch("{id}/deactivate")]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Deactivate(
+        string id,
+        CancellationToken cancellationToken)
+    {
+        DeactivateVenueCommand command = new(id);
+
+        Result<VenueId> result =
+            await _sender.Send(
+                command,
+                cancellationToken);
+
+        if (result.IsSuccess)
+        {
+            return Ok(
+                new
+                {
+                    id = result.Value!.Value.ToString()
+                });
+        }
+
+        return ApiErrorMapper.ToActionResult(
+            this,
+            result.Error);
+    }
+
+    /// <summary>
+    /// EN: Activates an existing venue.
+    /// FA: یک محل معاملاتی موجود را فعال می‌کند.
+    /// </summary>
+    /// <param name="id">
+    /// EN: Venue identifier.
+    /// FA: شناسه محل معاملاتی.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// EN: Cancellation token.
+    /// FA: توکن لغو عملیات.
+    /// </param>
+    /// <returns>
+    /// EN: HTTP response containing the activated venue identifier or an error.
+    /// FA: پاسخ HTTP شامل شناسه محل معاملاتی فعال‌شده یا خطا.
+    /// </returns>
+    [HttpPatch("{id}/activate")]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Activate(
+        string id,
+        CancellationToken cancellationToken)
+    {
+        ActivateVenueCommand command = new(id);
+
+        Result<VenueId> result =
+            await _sender.Send(
+                command,
+                cancellationToken);
+
+        if (result.IsSuccess)
+        {
+            return Ok(
+                new
+                {
+                    id = result.Value!.Value.ToString()
+                });
+        }
+
+        return ApiErrorMapper.ToActionResult(
+            this,
+            result.Error);
+    }
+
+    /// <summary>
+    /// EN: Gets a trading venue by its identifier.
+    /// FA: یک بستر معاملاتی را بر اساس شناسه آن دریافت می‌کند.
+    /// </summary>
+    [HttpGet("{id}")]
+    [ProducesResponseType(
+        typeof(GetVenueByIdResponse),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetById(
+        string id,
+        CancellationToken cancellationToken)
+    {
+        GetVenueByIdQuery query = new(id);
+
+        Result<GetVenueByIdResponse> result =
+            await _sender.Send(
+                query,
+                cancellationToken);
+
+        if (result.IsSuccess)
+        {
+            return Ok(result.Value);
+        }
+
+        return ApiErrorMapper.ToActionResult(
+            this,
+            result.Error);
+    }
+
+    /// <summary>
+    /// EN: Gets a paged collection of trading venues.
+    /// FA: مجموعه‌ای صفحه‌بندی‌شده از بسترهای معاملاتی را دریافت می‌کند.
+    /// </summary>
+    [HttpGet]
+    [ProducesResponseType(
+    typeof(GetAllVenuesResponse),
+    StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetAll(
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 20,
+    CancellationToken cancellationToken = default)
+    {
+        GetAllVenuesQuery query =
+            new(
+                page,
+                pageSize);
+
+        Result<GetAllVenuesResponse> result =
+            await _sender.Send(
+                query,
+                cancellationToken);
+
+        if (result.IsSuccess)
+        {
+            return Ok(result.Value);
         }
 
         return ApiErrorMapper.ToActionResult(

@@ -133,6 +133,25 @@ public sealed class Venue : AggregateRoot<VenueId>
     }
 
     /// <summary>
+    /// Changes the venue type.
+    /// <para>
+    /// نوع محل معاملاتی را تغییر می‌دهد.
+    /// </para>
+    /// </summary>
+    public void ChangeType(VenueType type)
+    {
+        if (!Enum.IsDefined(typeof(VenueType), type))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(type),
+                type,
+                "The venue type is invalid.");
+        }
+
+        Type = type;
+    }
+
+    /// <summary>
     /// EN: Activates the venue.
     /// FA: بستر معاملاتی را فعال می‌کند.
     /// </summary>

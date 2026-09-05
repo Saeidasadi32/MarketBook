@@ -62,6 +62,14 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
         ArgumentNullException.ThrowIfNull(assetClass);
         ArgumentNullException.ThrowIfNull(category);
 
+        if (!Enum.IsDefined(typeof(InstrumentType), type))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(type),
+                type,
+                "The specified instrument type is invalid.");
+        }
+
         Name = name;
         AssetClass = assetClass;
         Type = type;
@@ -162,6 +170,66 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
     }
 
     /// <summary>
+    /// EN: Changes the high-level asset class.
+    /// FA: کلاس اصلی دارایی ابزار مالی را تغییر می‌دهد.
+    /// </summary>
+    /// <param name="assetClass">
+    /// EN: New asset class.
+    /// FA: کلاس دارایی جدید.
+    /// </param>
+    public void ChangeAssetClass(AssetClass assetClass)
+    {
+        ArgumentNullException.ThrowIfNull(assetClass);
+
+        if (AssetClass == assetClass)
+            return;
+
+        AssetClass = assetClass;
+    }
+
+    /// <summary>
+    /// EN: Changes the instrument type.
+    /// FA: نوع ابزار مالی را تغییر می‌دهد.
+    /// </summary>
+    /// <param name="type">
+    /// EN: New instrument type.
+    /// FA: نوع جدید ابزار مالی.
+    /// </param>
+    public void ChangeType(InstrumentType type)
+    {
+        if (!Enum.IsDefined(typeof(InstrumentType), type))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(type),
+                type,
+                "The specified instrument type is invalid.");
+        }
+
+        if (Type == type)
+            return;
+
+        Type = type;
+    }
+
+    /// <summary>
+    /// EN: Changes the high-level instrument category.
+    /// FA: گروه اصلی ابزار مالی را تغییر می‌دهد.
+    /// </summary>
+    /// <param name="category">
+    /// EN: New instrument category.
+    /// FA: گروه جدید ابزار مالی.
+    /// </param>
+    public void ChangeCategory(InstrumentCategory category)
+    {
+        ArgumentNullException.ThrowIfNull(category);
+
+        if (Category == category)
+            return;
+
+        Category = category;
+    }
+
+    /// <summary>
     /// EN: Assigns or changes the instrument ISIN.
     /// FA: شناسه ISIN ابزار مالی را تعیین یا تغییر می‌دهد.
     /// </summary>
@@ -179,6 +247,18 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
         Isin = isin;
 
         Raise(new InstrumentIsinChangedEvent(Id, isin));
+    }
+
+    /// <summary>
+    /// EN: Removes the instrument ISIN when one is assigned.
+    /// FA: در صورت وجود، ISIN ابزار مالی را حذف می‌کند.
+    /// </summary>
+    public void RemoveIsin()
+    {
+        if (Isin is null)
+            return;
+
+        Isin = null;
     }
 
     /// <summary>
@@ -290,7 +370,7 @@ public sealed class Instrument : AggregateRoot<InstrumentId>
     {
         ArgumentNullException.ThrowIfNull(aliases);
 
-        var newAliases = new CorporateAliases(aliases);
+        CorporateAliases newAliases = new(aliases);
 
         if (CorporateAliases == newAliases)
             return;

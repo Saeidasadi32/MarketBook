@@ -128,6 +128,41 @@ public sealed class Currency : AggregateRoot<CurrencyId>
     }
 
     /// <summary>
+    /// EN: Changes the standard currency code.
+    /// FA: کد استاندارد ارز را تغییر می‌دهد.
+    /// </summary>
+    /// <param name="code">EN: New currency code. FA: کد جدید ارز.</param>
+    public void ChangeCode(CurrencyCode code)
+    {
+        ArgumentNullException.ThrowIfNull(code);
+
+        if (Code == code)
+            return;
+
+        Code = code;
+    }
+
+    /// <summary>
+    /// EN: Changes the supported decimal places.
+    /// FA: تعداد ارقام اعشاری پشتیبانی‌شده را تغییر می‌دهد.
+    /// </summary>
+    /// <param name="decimalPlaces">EN: New decimal places value. FA: تعداد جدید ارقام اعشاری.</param>
+    public void ChangeDecimalPlaces(byte decimalPlaces)
+    {
+        if (decimalPlaces > 18)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(decimalPlaces),
+                "Decimal places must be between 0 and 18.");
+        }
+
+        if (DecimalPlaces == decimalPlaces)
+            return;
+
+        DecimalPlaces = decimalPlaces;
+    }
+
+    /// <summary>
     /// EN: Activates the currency.
     /// FA: ارز را فعال می‌کند.
     /// </summary>

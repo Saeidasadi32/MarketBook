@@ -1,3 +1,13 @@
+// -----------------------------------------------------------------------------
+// Project   : MarketBook (Intelligent Market Book System)
+// Platform  : MarketBook Platform
+// Layer     : API
+// Namespace : Global
+//
+// Copyright (c) Saeid Asadi. All rights reserved.
+// Licensed under the MIT License.
+// -----------------------------------------------------------------------------
+
 using MarketBook.Application;
 using MarketBook.Infrastructure;
 
@@ -61,3 +71,11 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+/// <summary>
+/// EN: Exposes the generated top-level Program type to integration tests.
+/// FA: نوع Program تولیدشده توسط top-level statements را برای تست‌های Integration در دسترس قرار می‌دهد.
+/// </summary>
+public partial class Program
+{
+}

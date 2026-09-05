@@ -35,7 +35,7 @@ internal static class ApiErrorMapper
                 StatusCodes.Status404NotFound,
 
             _ when error.Code.EndsWith(
-                ".NotFound",
+                "NotFound",
                 StringComparison.Ordinal) =>
                 StatusCodes.Status404NotFound,
 

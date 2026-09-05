@@ -17,14 +17,14 @@ using MarketBook.Domain.Venue.ValueObjects;
 namespace MarketBook.Domain.Listing.Aggregates;
 
 /// <summary>
-/// EN: Represents a tradable listing of an instrument on a market.
-/// FA: نمایش‌دهنده پذیرش یک ابزار مالی در یک بازار مشخص است.
+/// EN: Represents a tradable listing of an instrument on a concrete venue.
+/// FA: یک پذیرش قابل معامله از ابزار مالی را در یک Venue مشخص نمایش می‌دهد.
 /// </summary>
 public sealed class Listing : AggregateRoot<ListingId>
 {
     /// <summary>
-    /// EN: Initializes a new instance of the <see cref="Listing"/> class.
-    /// FA: نمونه جدیدی از کلاس <see cref="Listing"/> را ایجاد می‌کند.
+    /// EN: Initializes a listing with its immutable identity links and pricing attributes.
+    /// FA: Listing را با ارتباطات هویتی ثابت و ویژگی‌های قیمت‌گذاری مقداردهی می‌کند.
     /// </summary>
     public Listing(
         ListingId id,
@@ -41,21 +41,7 @@ public sealed class Listing : AggregateRoot<ListingId>
         ArgumentNullException.ThrowIfNull(quoteCurrencyId);
         ArgumentNullException.ThrowIfNull(tradingSymbol);
 
-        if (tickSize <= 0)
-            throw new ArgumentOutOfRangeException(
-                nameof(tickSize),
-                "Tick size must be greater than zero.");
-
-        /// <summary>
-        /// EN: Validates that the configured price precision is supported by the decimal type.
-        /// FA: بررسی می‌کند که دقت قیمت در محدوده پشتیبانی‌شده توسط نوع decimal باشد.
-        /// </summary>
-        if (pricePrecision > 28)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(pricePrecision),
-                "Price precision must be between 0 and 28.");
-        }
+        ValidatePricing(tickSize, pricePrecision);
 
         InstrumentId = instrumentId;
         VenueId = venueId;
@@ -76,18 +62,17 @@ public sealed class Listing : AggregateRoot<ListingId>
     /// </summary>
     private Listing()
     {
-        // For ORM
     }
 
     /// <summary>
-    /// EN: Gets the related instrument identifier.
-    /// FA: شناسه ابزار مالی را دریافت می‌کند.
+    /// EN: Gets the instrument identifier. This link is immutable after creation.
+    /// FA: شناسه ابزار مالی را دریافت می‌کند؛ این ارتباط پس از ایجاد ثابت است.
     /// </summary>
     public InstrumentId InstrumentId { get; private set; } = default!;
 
     /// <summary>
-    /// EN: Gets the concrete trading venue.
-    /// FA: بستر مشخص اجرای معامله.
+    /// EN: Gets the venue identifier. This link is immutable after creation.
+    /// FA: شناسه Venue را دریافت می‌کند؛ این ارتباط پس از ایجاد ثابت است.
     /// </summary>
     public VenueId VenueId { get; private set; } = default!;
 
@@ -98,8 +83,8 @@ public sealed class Listing : AggregateRoot<ListingId>
     public TradingSymbol TradingSymbol { get; private set; } = default!;
 
     /// <summary>
-    /// EN: Gets the quote currency used to express the listing price.
-    /// FA: ارز مظنه‌ای را دریافت می‌کند که قیمت پذیرش معاملاتی با آن بیان می‌شود.
+    /// EN: Gets the quote currency used for listing prices.
+    /// FA: ارز مظنه مورد استفاده برای قیمت‌های Listing را دریافت می‌کند.
     /// </summary>
     public CurrencyId QuoteCurrencyId { get; private set; } = default!;
 
@@ -107,52 +92,100 @@ public sealed class Listing : AggregateRoot<ListingId>
     /// EN: Gets the minimum price increment.
     /// FA: حداقل گام تغییر قیمت را دریافت می‌کند.
     /// </summary>
-    public decimal TickSize { get; }
+    public decimal TickSize { get; private set; }
 
     /// <summary>
     /// EN: Gets the supported price precision.
     /// FA: دقت قیمت را دریافت می‌کند.
     /// </summary>
-    public byte PricePrecision { get; }
+    public byte PricePrecision { get; private set; }
 
     /// <summary>
-    /// EN: Gets whether this is the primary listing.
-    /// FA: مشخص می‌کند این پذیرش، پذیرش اصلی است یا خیر.
+    /// EN: Gets whether this is the primary listing of the instrument.
+    /// FA: مشخص می‌کند آیا این Listing پذیرش اصلی Instrument است یا خیر.
     /// </summary>
     public bool IsPrimary { get; private set; }
 
     /// <summary>
-    /// EN: Gets the creation date.
-    /// FA: تاریخ ایجاد را دریافت می‌کند.
+    /// EN: Gets the creation timestamp.
+    /// FA: زمان ایجاد را دریافت می‌کند.
     /// </summary>
-    public DateTimeOffset CreatedOn { get; private set; } = default!;
+    public DateTimeOffset CreatedOn { get; private set; }
 
     /// <summary>
     /// EN: Gets whether the listing is active.
-    /// FA: مشخص می‌کند پذیرش فعال است یا خیر.
+    /// FA: مشخص می‌کند Listing فعال است یا خیر.
     /// </summary>
     public bool IsActive { get; private set; }
 
     /// <summary>
-    /// EN: Gets the timestamp when the listing became active.
-    /// FA: زمان فعال شدن پذیرش معاملاتی را دریافت می‌کند.
+    /// EN: Gets the most recent activation timestamp.
+    /// FA: آخرین زمان فعال شدن Listing را دریافت می‌کند.
     /// </summary>
     public DateTimeOffset? ActivatedOn { get; private set; }
 
     /// <summary>
-    /// EN: Gets the timestamp when the listing became inactive.
-    /// FA: زمان غیرفعال شدن پذیرش معاملاتی را دریافت می‌کند.
+    /// EN: Gets the most recent deactivation timestamp.
+    /// FA: آخرین زمان غیرفعال شدن Listing را دریافت می‌کند.
     /// </summary>
     public DateTimeOffset? DeactivatedOn { get; private set; }
 
     /// <summary>
+    /// EN: Changes the venue-scoped trading symbol.
+    /// FA: نماد معاملاتی Listing را در محدوده Venue تغییر می‌دهد.
+    /// </summary>
+    public void ChangeTradingSymbol(TradingSymbol tradingSymbol)
+    {
+        ArgumentNullException.ThrowIfNull(tradingSymbol);
+
+        if (TradingSymbol == tradingSymbol)
+        {
+            return;
+        }
+
+        TradingSymbol = tradingSymbol;
+    }
+
+    /// <summary>
+    /// EN: Changes the quote currency.
+    /// FA: ارز مظنه Listing را تغییر می‌دهد.
+    /// </summary>
+    public void ChangeQuoteCurrency(CurrencyId quoteCurrencyId)
+    {
+        ArgumentNullException.ThrowIfNull(quoteCurrencyId);
+
+        if (QuoteCurrencyId == quoteCurrencyId)
+        {
+            return;
+        }
+
+        QuoteCurrencyId = quoteCurrencyId;
+    }
+
+    /// <summary>
+    /// EN: Changes tick size and price precision together.
+    /// FA: TickSize و PricePrecision را به‌صورت هم‌زمان تغییر می‌دهد.
+    /// </summary>
+    public void ChangePricing(
+        decimal tickSize,
+        byte pricePrecision)
+    {
+        ValidatePricing(tickSize, pricePrecision);
+
+        TickSize = tickSize;
+        PricePrecision = pricePrecision;
+    }
+
+    /// <summary>
     /// EN: Marks this listing as the primary listing.
-    /// FA: این پذیرش را به عنوان پذیرش اصلی تعیین می‌کند.
+    /// FA: این Listing را به‌عنوان پذیرش اصلی تعیین می‌کند.
     /// </summary>
     public void MakePrimary()
     {
         if (IsPrimary)
+        {
             return;
+        }
 
         IsPrimary = true;
         Raise(new ListingMadePrimaryEvent(Id));
@@ -165,7 +198,9 @@ public sealed class Listing : AggregateRoot<ListingId>
     public void RemovePrimary()
     {
         if (!IsPrimary)
+        {
             return;
+        }
 
         IsPrimary = false;
         Raise(new ListingPrimaryRemovedEvent(Id));
@@ -173,12 +208,14 @@ public sealed class Listing : AggregateRoot<ListingId>
 
     /// <summary>
     /// EN: Activates the listing.
-    /// FA: پذیرش را فعال می‌کند.
+    /// FA: Listing را فعال می‌کند.
     /// </summary>
     public void Activate()
     {
         if (IsActive)
+        {
             return;
+        }
 
         IsActive = true;
         ActivatedOn = DateTimeOffset.UtcNow;
@@ -189,12 +226,14 @@ public sealed class Listing : AggregateRoot<ListingId>
 
     /// <summary>
     /// EN: Deactivates the listing.
-    /// FA: پذیرش را غیرفعال می‌کند.
+    /// FA: Listing را غیرفعال می‌کند.
     /// </summary>
     public void Deactivate()
     {
         if (!IsActive)
+        {
             return;
+        }
 
         IsActive = false;
         DeactivatedOn = DateTimeOffset.UtcNow;
@@ -203,28 +242,24 @@ public sealed class Listing : AggregateRoot<ListingId>
     }
 
     /// <summary>
-    /// EN: Rounds a price to the listing's precision and tick size.
-    /// FA: قیمت را بر اساس دقت و گام تغییر قیمت گرد می‌کند.
+    /// EN: Rounds a price using the listing tick size and precision.
+    /// FA: قیمت را بر اساس TickSize و PricePrecision مربوط به Listing گرد می‌کند.
     /// </summary>
     public decimal RoundPrice(decimal price)
     {
-        decimal rounded = Math.Round(price / TickSize) * TickSize;
-        return Math.Round(rounded, PricePrecision, MidpointRounding.AwayFromZero);
+        decimal rounded =
+            Math.Round(price / TickSize) * TickSize;
+
+        return Math.Round(
+            rounded,
+            PricePrecision,
+            MidpointRounding.AwayFromZero);
     }
 
     /// <summary>
-    /// 
+    /// EN: Creates a listing with a generated identifier.
+    /// FA: یک Listing با شناسه تولیدشده ایجاد می‌کند.
     /// </summary>
-    /// <param name="instrumentId"></param>
-    /// <param name="venueId"></param>
-    /// <param name="quoteCurrencyId">
-    /// EN: Identifier of the quote currency used for pricing the listing.
-    /// FA: شناسه ارز مظنه‌ای مورد استفاده برای قیمت‌گذاری پذیرش معاملاتی.
-    /// </param>
-    /// <param name="tradingSymbol"></param>
-    /// <param name="tickSize"></param>
-    /// <param name="pricePrecision"></param>
-    /// <returns></returns>
     public static Listing Create(
         InstrumentId instrumentId,
         VenueId venueId,
@@ -242,28 +277,51 @@ public sealed class Listing : AggregateRoot<ListingId>
             tickSize,
             pricePrecision);
     }
+
+    private static void ValidatePricing(
+        decimal tickSize,
+        byte pricePrecision)
+    {
+        if (tickSize <= 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(tickSize),
+                "Tick size must be greater than zero.");
+        }
+
+        if (pricePrecision > 28)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(pricePrecision),
+                "Price precision must be between 0 and 28.");
+        }
+    }
 }
 
 /// <summary>
 /// EN: Domain event raised when a listing becomes primary.
-/// FA: رویداد دامنه زمانی که پذیرش به اصلی تبدیل می‌شود.
+/// FA: رویداد دامنه هنگام اصلی شدن Listing.
 /// </summary>
-public sealed record ListingMadePrimaryEvent(ListingId ListingId) : DomainEvent;
+public sealed record ListingMadePrimaryEvent(
+    ListingId ListingId) : DomainEvent;
 
 /// <summary>
-/// EN: Domain event raised when primary flag is removed.
-/// FA: رویداد دامنه زمانی که وضعیت اصلی حذف می‌شود.
+/// EN: Domain event raised when the primary flag is removed.
+/// FA: رویداد دامنه هنگام حذف وضعیت اصلی Listing.
 /// </summary>
-public sealed record ListingPrimaryRemovedEvent(ListingId ListingId) : DomainEvent;
+public sealed record ListingPrimaryRemovedEvent(
+    ListingId ListingId) : DomainEvent;
 
 /// <summary>
 /// EN: Domain event raised when a listing is activated.
-/// FA: رویداد دامنه زمانی که پذیرش فعال می‌شود.
+/// FA: رویداد دامنه هنگام فعال شدن Listing.
 /// </summary>
-public sealed record ListingActivatedEvent(ListingId ListingId) : DomainEvent;
+public sealed record ListingActivatedEvent(
+    ListingId ListingId) : DomainEvent;
 
 /// <summary>
 /// EN: Domain event raised when a listing is deactivated.
-/// FA: رویداد دامنه زمانی که پذیرش غیرفعال می‌شود.
+/// FA: رویداد دامنه هنگام غیرفعال شدن Listing.
 /// </summary>
-public sealed record ListingDeactivatedEvent(ListingId ListingId) : DomainEvent;
+public sealed record ListingDeactivatedEvent(
+    ListingId ListingId) : DomainEvent;

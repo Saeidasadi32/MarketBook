@@ -11,7 +11,8 @@ Status date: 2026-09-05
 | Market | Yes | Yes | Yes | Yes | Yes | Passed |
 | Venue | Yes | Yes | Yes | Yes | Yes | Passed |
 | Currency | Yes | Yes | Yes | Yes | Yes | Automated integration tests passed |
-| Instrument | Yes | Yes | Yes | Yes | Yes | Pending build/test on user environment |
+| Instrument | Yes | Yes | Yes | Yes | Yes | Automated integration tests passed |
+| Listing | Yes | Yes | Yes | Yes | Yes | Pending build/test on user environment |
 
 Venue manual verification covers successful and error cases for Create, GetById, GetAll/pagination, Update, Activate, and Deactivate. Currency automated integration tests pass against the isolated SQL Server test database. Instrument is implemented end-to-end in this patch and awaits build/test verification on the user environment.
 
@@ -19,7 +20,6 @@ Venue manual verification covers successful and error cases for Create, GetById,
 
 The source tree currently contains Domain types for areas including:
 
-- Listing
 - Calendar
 - MarketData
 - Portfolio

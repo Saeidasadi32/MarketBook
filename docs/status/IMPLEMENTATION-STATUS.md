@@ -12,7 +12,8 @@ Status date: 2026-09-05
 | Venue | Yes | Yes | Yes | Yes | Yes | Passed |
 | Currency | Yes | Yes | Yes | Yes | Yes | Automated integration tests passed |
 | Instrument | Yes | Yes | Yes | Yes | Yes | Automated integration tests passed |
-| Listing | Yes | Yes | Yes | Yes | Yes | Pending build/test on user environment |
+| Listing | Yes | Yes | Yes | Yes | Yes | Automated integration tests passed |
+| TradingCalendar / TradingSession | Yes | Yes | Yes | Yes | Yes | Pending build/test on user environment |
 
 Venue manual verification covers successful and error cases for Create, GetById, GetAll/pagination, Update, Activate, and Deactivate. Currency automated integration tests pass against the isolated SQL Server test database. Instrument is implemented end-to-end in this patch and awaits build/test verification on the user environment.
 
@@ -20,7 +21,6 @@ Venue manual verification covers successful and error cases for Create, GetById,
 
 The source tree currently contains Domain types for areas including:
 
-- Calendar
 - MarketData
 - Portfolio
 - Watchlist
@@ -58,9 +58,14 @@ Remaining test priorities:
 - Direct MediatR `IRequest<T>` and custom `ICommand`/`IQuery` abstractions coexist. Standardize later through one ADR rather than piecemeal edits.
 - XML documentation style is not fully uniform across older and newer files.
 - Some Domain areas are prototypes and may require invariant review before persistence.
-- TradingCalendar currently assumes Saturday/Sunday weekends; this is not globally correct for every market and should become market/calendar configuration before production use.
+- TradingCalendar weekend behavior is now persisted configuration and is covered by a regression integration test; Saturday/Sunday are no longer hard-coded.
 - Listing documentation previously referred directly to Market while code references Venue; documentation has been aligned to the current model in this snapshot.
 
 ## Build verification note
 
 This reviewed package was based on the user-provided snapshot that had already been reported as building successfully. The review environment used to prepare these documentation updates did not contain the .NET SDK, so no additional `dotnet build` was executed here. No production C# behavior was changed as part of this review package.
+
+
+## MarketPrice / Price Limits
+
+Implementation patch prepared: Domain, Application, EF persistence, API, migration, integration tests. Pending user-environment verification.

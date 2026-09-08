@@ -67,7 +67,7 @@ Implemented slice:
 
 Automated SQL Server integration tests are passing for the Currency slice.
 
-### 2. Instrument — implemented, pending user-environment verification
+### 2. Instrument — implemented and integration-tested
 
 Reason: Listing requires `InstrumentId`.
 
@@ -84,7 +84,7 @@ Implemented slice:
 
 Industry, Sector, and CorporateAliases remain Domain capabilities but are intentionally not persisted in this first Instrument slice.
 
-### 3. Listing
+### 3. Listing — implemented and integration-tested
 
 Listing depends on:
 
@@ -106,13 +106,22 @@ Target slice:
 
 ## Phase 3 — Trading calendar and market structure details
 
-Candidates:
+### TradingCalendar / TradingSession — implemented, pending user-environment verification
 
-- TradingCalendar
-- TradingSession
-- MarketPrice / price limits
+Implemented:
 
-Trading-calendar weekend behavior must be made configurable before supporting markets whose weekends are not Saturday/Sunday.
+- yearly calendar per Market
+- configurable weekend days (no Saturday/Sunday hard-code)
+- regular weekly TradingSession open/close times
+- holiday and half-day date exceptions
+- day evaluation endpoint
+- Create / GetById / GetAll / Update
+- Activate / Deactivate
+- EF mapping, migration, relational constraints, and integration tests
+
+Implemented next:
+
+- MarketPrice / price limits — implementation patch prepared; pending user-environment verification
 
 ## Phase 4 — Market data
 

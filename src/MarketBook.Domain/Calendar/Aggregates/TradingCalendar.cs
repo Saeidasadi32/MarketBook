@@ -8,6 +8,8 @@
 // Licensed under the MIT License.
 // -----------------------------------------------------------------------------
 
+using MarketBook.Domain.Calendar.Entities;
+using MarketBook.Domain.Calendar.Enums;
 using MarketBook.Domain.Calendar.ValueObjects;
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Market.ValueObjects;
@@ -15,38 +17,38 @@ using MarketBook.Domain.Market.ValueObjects;
 namespace MarketBook.Domain.Calendar.Aggregates;
 
 /// <summary>
-/// EN: Represents a trading calendar for a market.
-/// FA: تقویم معاملاتی یک بازار را نمایش می‌دهد.
+/// EN: Represents the yearly trading calendar and regular sessions of a market.
+/// FA: تقویم معاملاتی سالانه و Sessionهای عادی یک بازار را نمایش می‌دهد.
 /// </summary>
 public sealed class TradingCalendar : AggregateRoot<TradingCalendarId>
 {
-    private readonly HashSet<DateOnly> _holidays = [];
-    private readonly HashSet<DateOnly> _halfDays = [];
+    private readonly List<CalendarDateException> _dateExceptions = [];
+    private readonly List<TradingSession> _sessions = [];
 
     /// <summary>
-    /// EN: Initializes a new instance of the <see cref="TradingCalendar"/> class.
-    /// FA: نمونه جدیدی از کلاس <see cref="TradingCalendar"/> را ایجاد می‌کند.
+    /// EN: Initializes a trading calendar with configurable weekend days.
+    /// FA: تقویم معاملاتی را با روزهای آخرهفته قابل تنظیم ایجاد می‌کند.
     /// </summary>
     public TradingCalendar(
         TradingCalendarId id,
         MarketId marketId,
-        int year)
+        int year,
+        TradingWeekDays weekendDays)
         : base(id)
     {
-        MarketId = marketId ?? throw new ArgumentNullException(nameof(marketId));
+        ArgumentNullException.ThrowIfNull(marketId);
+        ValidateYear(year);
+        ValidateWeekendDays(weekendDays);
 
+        MarketId = marketId;
         Year = year;
+        WeekendDays = weekendDays;
         CreatedOn = DateTimeOffset.UtcNow;
         IsActive = true;
     }
 
-    /// <summary>
-    /// EN: Parameterless constructor for ORM frameworks.
-    /// FA: سازنده بدون پارامتر برای فریم‌ورک‌های ORM.
-    /// </summary>
     private TradingCalendar()
     {
-        // For ORM
     }
 
     /// <summary>
@@ -54,149 +56,215 @@ public sealed class TradingCalendar : AggregateRoot<TradingCalendarId>
     /// FA: شناسه بازار را دریافت می‌کند.
     /// </summary>
     public MarketId MarketId { get; private set; } = default!;
+
     /// <summary>
-    /// EN: Gets the calendar year.
-    /// FA: سال تقویم را دریافت می‌کند.
+    /// EN: Gets the Gregorian calendar year.
+    /// FA: سال میلادی تقویم را دریافت می‌کند.
     /// </summary>
     public int Year { get; private set; }
 
     /// <summary>
-    /// EN: Gets the creation date.
-    /// FA: تاریخ ایجاد را دریافت می‌کند.
+    /// EN: Gets the configured non-trading weekend days.
+    /// FA: روزهای آخرهفته غیرمعاملاتی پیکربندی‌شده را دریافت می‌کند.
+    /// </summary>
+    public TradingWeekDays WeekendDays { get; private set; }
+
+    /// <summary>
+    /// EN: Gets the creation timestamp.
+    /// FA: زمان ایجاد را دریافت می‌کند.
     /// </summary>
     public DateTimeOffset CreatedOn { get; private set; }
 
     /// <summary>
-    /// EN: Gets a value indicating whether the calendar is active.
+    /// EN: Gets whether the calendar is active.
     /// FA: مشخص می‌کند تقویم فعال است یا خیر.
     /// </summary>
     public bool IsActive { get; private set; }
 
     /// <summary>
-    /// EN: Gets all holidays.
-    /// FA: همه تعطیلات را دریافت می‌کند.
+    /// EN: Gets date-specific holidays and half-days.
+    /// FA: تعطیلات و نیمه‌روزهای تاریخ‌محور را دریافت می‌کند.
     /// </summary>
-    public IReadOnlySet<DateOnly> Holidays => _holidays;
+    public IReadOnlyCollection<CalendarDateException> DateExceptions
+        => _dateExceptions.AsReadOnly();
 
     /// <summary>
-    /// EN: Gets all half-day trading days.
-    /// FA: همه روزهای معاملاتی نیمه‌روز را دریافت می‌کند.
+    /// EN: Gets regular weekly trading sessions.
+    /// FA: Sessionهای معاملاتی عادی هفتگی را دریافت می‌کند.
     /// </summary>
-    public IReadOnlySet<DateOnly> HalfDays => _halfDays;
+    public IReadOnlyCollection<TradingSession> Sessions
+        => _sessions.AsReadOnly();
 
     /// <summary>
-    /// EN: Adds a holiday.
-    /// FA: یک تعطیلی اضافه می‌کند.
+    /// EN: Changes the market-specific weekend configuration.
+    /// FA: تنظیم روزهای آخرهفته بازار را تغییر می‌دهد.
     /// </summary>
-    public void AddHoliday(DateOnly date, string? description = null)
+    public void ChangeWeekendDays(TradingWeekDays weekendDays)
     {
-        if (_holidays.Add(date))
+        ValidateWeekendDays(weekendDays);
+        WeekendDays = weekendDays;
+    }
+
+    /// <summary>
+    /// EN: Replaces the regular weekly trading sessions.
+    /// FA: Sessionهای معاملاتی عادی هفتگی را جایگزین می‌کند.
+    /// </summary>
+    public void ReplaceSessions(IEnumerable<TradingSession> sessions)
+    {
+        ArgumentNullException.ThrowIfNull(sessions);
+
+        List<TradingSession> normalizedSessions = sessions.ToList();
+
+        if (normalizedSessions
+            .GroupBy(session => session.DayOfWeek)
+            .Any(group => group.Count() > 1))
         {
-            Raise(new HolidayAddedEvent(Id, date, description));
+            throw new ArgumentException(
+                "Only one regular trading session per week day is supported.",
+                nameof(sessions));
+        }
+
+        if (normalizedSessions.Any(
+            session => IsWeekend(session.DayOfWeek)))
+        {
+            throw new ArgumentException(
+                "A regular trading session cannot be configured on a weekend day.",
+                nameof(sessions));
+        }
+
+        _sessions.Clear();
+        _sessions.AddRange(normalizedSessions);
+    }
+
+    /// <summary>
+    /// EN: Adds or replaces a holiday.
+    /// FA: یک تعطیلی را اضافه یا جایگزین می‌کند.
+    /// </summary>
+    public void AddHoliday(
+        DateOnly date,
+        string? description = null)
+    {
+        ValidateDate(date);
+        RemoveDateException(date);
+
+        _dateExceptions.Add(
+            new CalendarDateException(
+                date,
+                true,
+                false,
+                description));
+
+        Raise(new HolidayAddedEvent(Id, date, description));
+    }
+
+    /// <summary>
+    /// EN: Adds or replaces a half-day.
+    /// FA: یک نیمه‌روز را اضافه یا جایگزین می‌کند.
+    /// </summary>
+    public void AddHalfDay(
+        DateOnly date,
+        string? description = null)
+    {
+        ValidateDate(date);
+
+        if (IsWeekend(date.DayOfWeek))
+        {
+            throw new ArgumentException(
+                "A half-day cannot be configured on a weekend date.",
+                nameof(date));
+        }
+
+        RemoveDateException(date);
+
+        _dateExceptions.Add(
+            new CalendarDateException(
+                date,
+                false,
+                true,
+                description));
+
+        Raise(new HalfDayAddedEvent(Id, date, description));
+    }
+
+    /// <summary>
+    /// EN: Removes any holiday or half-day exception for a date.
+    /// FA: هر استثنای تعطیلی یا نیمه‌روز را برای یک تاریخ حذف می‌کند.
+    /// </summary>
+    public void RemoveDateException(DateOnly date)
+    {
+        CalendarDateException? existing =
+            _dateExceptions.SingleOrDefault(item => item.Date == date);
+
+        if (existing is not null)
+        {
+            _dateExceptions.Remove(existing);
         }
     }
 
     /// <summary>
-    /// EN: Removes a holiday.
-    /// FA: یک تعطیلی را حذف می‌کند.
-    /// </summary>
-    public void RemoveHoliday(DateOnly date)
-    {
-        if (_holidays.Remove(date))
-        {
-            Raise(new HolidayRemovedEvent(Id, date));
-        }
-    }
-
-    /// <summary>
-    /// EN: Adds a half-day trading day.
-    /// FA: یک روز معاملاتی نیمه‌روز اضافه می‌کند.
-    /// </summary>
-    public void AddHalfDay(DateOnly date, string? description = null)
-    {
-        if (_halfDays.Add(date))
-        {
-            Raise(new HalfDayAddedEvent(Id, date, description));
-        }
-    }
-
-    /// <summary>
-    /// EN: Removes a half-day trading day.
-    /// FA: یک روز معاملاتی نیمه‌روز را حذف می‌کند.
-    /// </summary>
-    public void RemoveHalfDay(DateOnly date)
-    {
-        if (_halfDays.Remove(date))
-        {
-            Raise(new HalfDayRemovedEvent(Id, date));
-        }
-    }
-
-    /// <summary>
-    /// EN: Determines whether a date is a trading day.
-    /// FA: مشخص می‌کند که یک تاریخ روز معاملاتی است یا خیر.
+    /// EN: Determines whether the specified date is a trading day.
+    /// FA: مشخص می‌کند تاریخ موردنظر روز معاملاتی است یا خیر.
     /// </summary>
     public bool IsTradingDay(DateOnly date)
     {
         if (date.Year != Year)
+        {
             return false;
+        }
 
-        if (_holidays.Contains(date))
+        CalendarDateException? exception =
+            _dateExceptions.SingleOrDefault(item => item.Date == date);
+
+        if (exception?.IsHoliday == true)
+        {
             return false;
+        }
 
-        // Weekends (Saturday and Sunday)
-        if (date.DayOfWeek == DayOfWeek.Saturday ||
-            date.DayOfWeek == DayOfWeek.Sunday)
-            return false;
-
-        return true;
+        return !IsWeekend(date.DayOfWeek);
     }
 
     /// <summary>
-    /// EN: Determines whether a date is a half-day.
-    /// FA: مشخص می‌کند که یک تاریخ روز نیمه‌روز است یا خیر.
+    /// EN: Determines whether the specified date is a half-day.
+    /// FA: مشخص می‌کند تاریخ موردنظر نیمه‌روز است یا خیر.
     /// </summary>
     public bool IsHalfDay(DateOnly date)
-        => _halfDays.Contains(date);
+        => _dateExceptions.Any(
+            item => item.Date == date && item.IsHalfDay);
 
     /// <summary>
-    /// EN: Gets the next trading day.
-    /// FA: روز معاملاتی بعدی را دریافت می‌کند.
+    /// EN: Gets the regular session for a date when it is a trading day.
+    /// FA: در صورت معاملاتی بودن تاریخ، Session عادی آن روز را دریافت می‌کند.
+    /// </summary>
+    public TradingSession? GetSession(DateOnly date)
+    {
+        if (!IsTradingDay(date))
+        {
+            return null;
+        }
+
+        return _sessions.SingleOrDefault(
+            session => session.DayOfWeek == date.DayOfWeek);
+    }
+
+    /// <summary>
+    /// EN: Gets the next trading day inside this yearly calendar.
+    /// FA: روز معاملاتی بعدی را در محدوده همین تقویم سالانه دریافت می‌کند.
     /// </summary>
     public DateOnly? GetNextTradingDay(DateOnly fromDate)
     {
         DateOnly date = fromDate.AddDays(1);
-        int maxAttempts = 365;
 
-        while (maxAttempts-- > 0)
+        while (date.Year == Year)
         {
             if (IsTradingDay(date))
+            {
                 return date;
+            }
 
             date = date.AddDays(1);
         }
 
         return null;
-    }
-
-    /// <summary>
-    /// EN: Gets all trading days in the year.
-    /// FA: همه روزهای معاملاتی سال را دریافت می‌کند.
-    /// </summary>
-    public IEnumerable<DateOnly> GetTradingDays()
-    {
-        for (int month = 1; month <= 12; month++)
-        {
-            int daysInMonth = DateTime.DaysInMonth(Year, month);
-            for (int day = 1; day <= daysInMonth; day++)
-            {
-                DateOnly date = new(Year, month, day);
-                if (IsTradingDay(date))
-                {
-                    yield return date;
-                }
-            }
-        }
     }
 
     /// <summary>
@@ -206,7 +274,9 @@ public sealed class TradingCalendar : AggregateRoot<TradingCalendarId>
     public void Activate()
     {
         if (IsActive)
+        {
             return;
+        }
 
         IsActive = true;
         Raise(new CalendarActivatedEvent(Id));
@@ -219,34 +289,120 @@ public sealed class TradingCalendar : AggregateRoot<TradingCalendarId>
     public void Deactivate()
     {
         if (!IsActive)
+        {
             return;
+        }
 
         IsActive = false;
         Raise(new CalendarDeactivatedEvent(Id));
     }
+
+    /// <summary>
+    /// EN: Creates a new yearly trading calendar.
+    /// FA: یک تقویم معاملاتی سالانه جدید ایجاد می‌کند.
+    /// </summary>
+    public static TradingCalendar Create(
+        MarketId marketId,
+        int year,
+        TradingWeekDays weekendDays)
+        => new(
+            TradingCalendarId.New(),
+            marketId,
+            year,
+            weekendDays);
+
+    private bool IsWeekend(DayOfWeek dayOfWeek)
+    {
+        TradingWeekDays flag = dayOfWeek switch
+        {
+            DayOfWeek.Sunday => TradingWeekDays.Sunday,
+            DayOfWeek.Monday => TradingWeekDays.Monday,
+            DayOfWeek.Tuesday => TradingWeekDays.Tuesday,
+            DayOfWeek.Wednesday => TradingWeekDays.Wednesday,
+            DayOfWeek.Thursday => TradingWeekDays.Thursday,
+            DayOfWeek.Friday => TradingWeekDays.Friday,
+            DayOfWeek.Saturday => TradingWeekDays.Saturday,
+            _ => TradingWeekDays.None
+        };
+
+        return WeekendDays.HasFlag(flag);
+    }
+
+    private void ValidateDate(DateOnly date)
+    {
+        if (date.Year != Year)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(date),
+                "The date must belong to the calendar year.");
+        }
+    }
+
+    private static void ValidateYear(int year)
+    {
+        if (year < 1900 || year > 2200)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(year),
+                "Calendar year must be between 1900 and 2200.");
+        }
+    }
+
+    private static void ValidateWeekendDays(TradingWeekDays weekendDays)
+    {
+        TradingWeekDays allDays =
+            TradingWeekDays.Sunday |
+            TradingWeekDays.Monday |
+            TradingWeekDays.Tuesday |
+            TradingWeekDays.Wednesday |
+            TradingWeekDays.Thursday |
+            TradingWeekDays.Friday |
+            TradingWeekDays.Saturday;
+
+        if ((weekendDays & ~allDays) != TradingWeekDays.None)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(weekendDays),
+                "Weekend days contain unsupported flags.");
+        }
+
+        if (weekendDays == allDays)
+        {
+            throw new ArgumentException(
+                "At least one week day must remain available for trading.",
+                nameof(weekendDays));
+        }
+    }
 }
 
-// Domain Events
+/// <summary>
+/// EN: Raised when a holiday is configured.
+/// FA: هنگام ثبت تعطیلی ایجاد می‌شود.
+/// </summary>
 public sealed record HolidayAddedEvent(
     TradingCalendarId CalendarId,
     DateOnly Date,
     string? Description) : DomainEvent;
 
-public sealed record HolidayRemovedEvent(
-    TradingCalendarId CalendarId,
-    DateOnly Date) : DomainEvent;
-
+/// <summary>
+/// EN: Raised when a half-day is configured.
+/// FA: هنگام ثبت نیمه‌روز ایجاد می‌شود.
+/// </summary>
 public sealed record HalfDayAddedEvent(
     TradingCalendarId CalendarId,
     DateOnly Date,
     string? Description) : DomainEvent;
 
-public sealed record HalfDayRemovedEvent(
-    TradingCalendarId CalendarId,
-    DateOnly Date) : DomainEvent;
-
+/// <summary>
+/// EN: Raised when a calendar is activated.
+/// FA: هنگام فعال شدن تقویم ایجاد می‌شود.
+/// </summary>
 public sealed record CalendarActivatedEvent(
     TradingCalendarId CalendarId) : DomainEvent;
 
+/// <summary>
+/// EN: Raised when a calendar is deactivated.
+/// FA: هنگام غیرفعال شدن تقویم ایجاد می‌شود.
+/// </summary>
 public sealed record CalendarDeactivatedEvent(
     TradingCalendarId CalendarId) : DomainEvent;

@@ -1,7 +1,11 @@
 // -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
-// Platform  : Infrastructure
+// Platform  : MarketBook Platform
+// Layer     : Infrastructure
 // Namespace : MarketBook.Infrastructure
+//
+// Copyright (c) Saeid Asadi. All rights reserved.
+// Licensed under the MIT License.
 // -----------------------------------------------------------------------------
 
 using MarketBook.Application.Abstractions.Logging;
@@ -14,18 +18,17 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MarketBook.Infrastructure;
-
 /// <summary>
 /// EN: Provides dependency injection registration for Infrastructure services.
 /// FA: ثبت وابستگی‌های لایه Infrastructure را فراهم می‌کند.
 /// </summary>
 public static class DependencyInjection
 {
-    /// <summary>
-    /// EN: Registers Infrastructure services and persistence components.
-    /// FA: سرویس‌ها و اجزای ماندگاری لایه Infrastructure را ثبت می‌کند.
-    /// </summary>
-    public static IServiceCollection AddInfrastructure(
+/// <summary>
+/// EN: Registers Infrastructure services and persistence components.
+/// FA: سرویس‌ها و اجزای ماندگاری لایه Infrastructure را ثبت می‌کند.
+/// </summary>
+public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
         IConfiguration configuration)
     {
@@ -50,6 +53,8 @@ public static class DependencyInjection
         services.AddScoped<ICurrencyRepository, CurrencyRepository>();
         services.AddScoped<IInstrumentRepository, InstrumentRepository>();
         services.AddScoped<IListingRepository, ListingRepository>();
+        services.AddScoped<ITradingCalendarRepository, TradingCalendarRepository>();
+        services.AddScoped<IMarketPriceRepository, MarketPriceRepository>();
 
         services.AddSingleton(typeof(ILoggerAdapter<>), typeof(LoggerAdapter<>));
 

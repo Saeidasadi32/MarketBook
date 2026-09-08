@@ -11,6 +11,7 @@
 using MarketBook.Api.Common;
 using MarketBook.Application.Features.PortfolioTransactions.Commands.CreatePortfolioTransaction;
 using MarketBook.Application.Features.PortfolioTransactions.Queries.GetPortfolioPositions;
+using MarketBook.Application.Features.PortfolioTransactions.Queries.GetPortfolioRealizedPnl;
 using MarketBook.Application.Features.PortfolioTransactions.Queries.GetPortfolioTransactionById;
 using MarketBook.Application.Features.PortfolioTransactions.Queries.GetPortfolioTransactions;
 using MarketBook.Domain.Common;
@@ -105,6 +106,30 @@ public sealed class PortfolioTransactionsController : ControllerBase
         Result<GetPortfolioPositionsResponse> result =
             await _sender.Send(
                 new GetPortfolioPositionsQuery(portfolioId),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Reconstructs realized portfolio profit/loss from the immutable trade ledger.
+    /// FA: سود/زیان تحقق‌یافته پرتفوی را از دفتر تغییرناپذیر معاملات بازسازی می‌کند.
+    /// </summary>
+    [HttpGet("realized-pnl")]
+    public async Task<IActionResult> GetRealizedPnl(
+        [FromQuery] string portfolioId,
+        [FromQuery] string? listingId = null,
+        [FromQuery] int costBasisMethod = 1,
+        CancellationToken cancellationToken = default)
+    {
+        Result<GetPortfolioRealizedPnlResponse> result =
+            await _sender.Send(
+                new GetPortfolioRealizedPnlQuery(
+                    portfolioId,
+                    listingId,
+                    costBasisMethod),
                 cancellationToken);
 
         return result.IsSuccess

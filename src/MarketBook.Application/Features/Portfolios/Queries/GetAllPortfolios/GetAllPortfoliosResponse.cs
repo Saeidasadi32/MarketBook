@@ -19,6 +19,7 @@ public sealed record PortfolioListItemResponse(
     string Id,
     string InvestorId,
     string Name,
+    string? BaseCurrencyId,
     DateTimeOffset CreatedOn,
     bool IsActive);
 

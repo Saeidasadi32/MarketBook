@@ -19,5 +19,6 @@ public sealed record GetPortfolioByIdResponse(
     string Id,
     string InvestorId,
     string Name,
+    string? BaseCurrencyId,
     DateTimeOffset CreatedOn,
     bool IsActive);

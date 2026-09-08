@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Tests
@@ -472,6 +472,7 @@ public async Task ResetPortfolioTransactionsAsync()
         await dbContext.Set<Venue>().ExecuteDeleteAsync();
         await dbContext.Set<Market>().ExecuteDeleteAsync();
         await dbContext.Set<Instrument>().ExecuteDeleteAsync();
+        await dbContext.Set<FxRate>().ExecuteDeleteAsync();
         await dbContext.Set<Currency>().ExecuteDeleteAsync();
     }
 

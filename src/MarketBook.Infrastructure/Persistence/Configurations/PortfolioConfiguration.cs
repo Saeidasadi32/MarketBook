@@ -9,6 +9,8 @@
 // -----------------------------------------------------------------------------
 
 
+using MarketBook.Domain.Currency.Aggregates;
+using MarketBook.Domain.Currency.ValueObjects;
 using MarketBook.Domain.Investor.Aggregates;
 using MarketBook.Domain.Investor.ValueObjects;
 using MarketBook.Domain.Portfolio.Aggregates;
@@ -66,6 +68,16 @@ public sealed class PortfolioConfiguration : IEntityTypeConfiguration<Portfolio>
             .IsUnicode()
             .IsRequired();
 
+        ValueConverter<CurrencyId?, string?> baseCurrencyIdConverter = new(
+            id => id == null ? null : id.Value.ToString(),
+            value => value == null ? null : CurrencyId.Parse(value));
+
+        builder.Property(item => item.BaseCurrencyId)
+            .HasConversion(baseCurrencyIdConverter)
+            .HasMaxLength(26)
+            .IsUnicode(false)
+            .IsRequired(false);
+
         builder.Property(item => item.CreatedOn)
             .IsRequired();
 
@@ -79,6 +91,15 @@ public sealed class PortfolioConfiguration : IEntityTypeConfiguration<Portfolio>
             .WithMany()
             .HasForeignKey(item => item.InvestorId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<Currency>()
+            .WithMany()
+            .HasForeignKey(item => item.BaseCurrencyId)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
+
+        builder.HasIndex(item => item.BaseCurrencyId)
+            .HasDatabaseName("IX_Portfolios_BaseCurrencyId");
 
         builder.HasIndex(item => new
             {

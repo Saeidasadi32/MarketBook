@@ -70,6 +70,7 @@ public sealed class GetPortfolioByIdHandler
             portfolio.Id.Value.ToString(),
             portfolio.InvestorId.Value.ToString(),
             portfolio.Name.Value,
+            portfolio.BaseCurrencyId?.Value.ToString(),
             portfolio.CreatedOn,
             portfolio.IsActive);
 

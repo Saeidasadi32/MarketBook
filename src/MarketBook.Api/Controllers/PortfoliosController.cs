@@ -13,6 +13,7 @@ using MarketBook.Api.Common;
 using MarketBook.Application.Features.Portfolios.Commands.ActivatePortfolio;
 using MarketBook.Application.Features.Portfolios.Commands.CreatePortfolio;
 using MarketBook.Application.Features.Portfolios.Commands.DeactivatePortfolio;
+using MarketBook.Application.Features.Portfolios.Commands.SetPortfolioBaseCurrency;
 using MarketBook.Application.Features.Portfolios.Commands.UpdatePortfolio;
 using MarketBook.Application.Features.Portfolios.Queries.GetAllPortfolios;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioById;
@@ -77,6 +78,28 @@ public sealed class PortfoliosController : ControllerBase
         Result<PortfolioId> result = await _sender.Send(
             new UpdatePortfolioCommand(id, request.Name),
             cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(new { id = result.Value!.Value.ToString() })
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Sets the reporting/base currency of a portfolio.
+    /// FA: ارز پایه/گزارش‌دهی یک پرتفوی را تنظیم می‌کند.
+    /// </summary>
+    [HttpPatch("{id}/base-currency")]
+    public async Task<IActionResult> SetBaseCurrency(
+        string id,
+        [FromBody] SetPortfolioBaseCurrencyRequest request,
+        CancellationToken cancellationToken)
+    {
+        Result<PortfolioId> result =
+            await _sender.Send(
+                new SetPortfolioBaseCurrencyCommand(
+                    id,
+                    request.CurrencyId),
+                cancellationToken);
 
         return result.IsSuccess
             ? Ok(new { id = result.Value!.Value.ToString() })

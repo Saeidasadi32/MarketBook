@@ -78,6 +78,7 @@ public sealed class GetAllPortfoliosHandler
                 item.Id.Value.ToString(),
                 item.InvestorId.Value.ToString(),
                 item.Name.Value,
+                item.BaseCurrencyId?.Value.ToString(),
                 item.CreatedOn,
                 item.IsActive))
             .ToList();

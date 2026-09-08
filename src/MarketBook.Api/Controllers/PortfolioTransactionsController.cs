@@ -14,6 +14,7 @@ using MarketBook.Application.Features.PortfolioTransactions.Queries.GetPortfolio
 using MarketBook.Application.Features.PortfolioTransactions.Queries.GetPortfolioRealizedPnl;
 using MarketBook.Application.Features.PortfolioTransactions.Queries.GetPortfolioValuation;
 using MarketBook.Application.Features.PortfolioTransactions.Queries.GetPortfolioTotalPnl;
+using MarketBook.Application.Features.PortfolioTransactions.Queries.GetPortfolioTranslatedTotalPnl;
 using MarketBook.Application.Features.PortfolioTransactions.Queries.GetPortfolioTransactionById;
 using MarketBook.Application.Features.PortfolioTransactions.Queries.GetPortfolioTransactions;
 using MarketBook.Domain.Common;
@@ -108,6 +109,28 @@ public sealed class PortfolioTransactionsController : ControllerBase
         Result<GetPortfolioPositionsResponse> result =
             await _sender.Send(
                 new GetPortfolioPositionsQuery(portfolioId),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Returns portfolio P/L translated into the configured portfolio base currency.
+    /// FA: سود/زیان پرتفوی را پس از ترجمه به ارز پایه تنظیم‌شده برمی‌گرداند.
+    /// </summary>
+    [HttpGet("translated-pnl")]
+    public async Task<IActionResult> GetTranslatedPnl(
+        [FromQuery] string portfolioId,
+        [FromQuery] string? listingId = null,
+        CancellationToken cancellationToken = default)
+    {
+        Result<GetPortfolioTranslatedTotalPnlResponse> result =
+            await _sender.Send(
+                new GetPortfolioTranslatedTotalPnlQuery(
+                    portfolioId,
+                    listingId),
                 cancellationToken);
 
         return result.IsSuccess

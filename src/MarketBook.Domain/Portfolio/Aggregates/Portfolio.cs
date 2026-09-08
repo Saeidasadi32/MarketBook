@@ -11,6 +11,7 @@
 
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Common.ValueObjects;
+using MarketBook.Domain.Currency.ValueObjects;
 using MarketBook.Domain.Financial.ValueObjects;
 using MarketBook.Domain.Investor.ValueObjects;
 using MarketBook.Domain.Portfolio.Entities;
@@ -70,6 +71,12 @@ public sealed class Portfolio : AggregateRoot<PortfolioId>
     public PortfolioName Name { get; private set; }
 
     /// <summary>
+    /// EN: Gets the optional reporting/base currency for portfolio-level translation.
+    /// FA: ارز پایه/گزارش‌دهی اختیاری پرتفوی برای ترجمه مقادیر سطح پرتفوی را دریافت می‌کند.
+    /// </summary>
+    public CurrencyId? BaseCurrencyId { get; private set; }
+
+    /// <summary>
     /// EN: Gets creation date.
     /// FA: تاریخ ایجاد را دریافت می‌کند.
     /// </summary>
@@ -107,6 +114,23 @@ public sealed class Portfolio : AggregateRoot<PortfolioId>
         ArgumentNullException.ThrowIfNull(name);
 
         return new Portfolio(PortfolioId.New(), investorId, name);
+    }
+
+    /// <summary>
+    /// EN: Sets the portfolio reporting/base currency.
+    /// FA: ارز پایه/گزارش‌دهی پرتفوی را تنظیم می‌کند.
+    /// </summary>
+    /// <param name="currencyId">EN: Active currency identifier. FA: شناسه ارز فعال.</param>
+    public void SetBaseCurrency(CurrencyId currencyId)
+    {
+        ArgumentNullException.ThrowIfNull(currencyId);
+
+        if (BaseCurrencyId == currencyId)
+        {
+            return;
+        }
+
+        BaseCurrencyId = currencyId;
     }
 
     /// <summary>

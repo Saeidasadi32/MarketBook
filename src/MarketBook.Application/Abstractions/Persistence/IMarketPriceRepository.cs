@@ -24,6 +24,9 @@ Task<bool> ExistsAsync(ListingId listingId,DateOnly tradingDate,CancellationToke
 Task AddAsync(MarketPrice marketPrice,CancellationToken cancellationToken=default);
 /// <summary>EN: Marks a record modified. FA: رکورد را تغییرکرده علامت می‌زند.</summary>
 void Update(MarketPrice marketPrice);
+
+/// <summary>EN: Gets the latest available market price for a Listing. FA: آخرین قیمت بازار موجود برای یک Listing را دریافت می‌کند.</summary>
+Task<MarketPrice?> GetLatestByListingIdAsync(ListingId listingId,CancellationToken cancellationToken=default);
 /// <summary>EN: Gets paged records. FA: رکوردهای صفحه‌بندی‌شده را دریافت می‌کند.</summary>
 Task<PagedResult<MarketPrice>> GetPagedAsync(PageRequest pageRequest,CancellationToken cancellationToken=default);
 }

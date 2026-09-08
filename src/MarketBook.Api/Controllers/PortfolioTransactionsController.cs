@@ -12,6 +12,7 @@ using MarketBook.Api.Common;
 using MarketBook.Application.Features.PortfolioTransactions.Commands.CreatePortfolioTransaction;
 using MarketBook.Application.Features.PortfolioTransactions.Queries.GetPortfolioPositions;
 using MarketBook.Application.Features.PortfolioTransactions.Queries.GetPortfolioRealizedPnl;
+using MarketBook.Application.Features.PortfolioTransactions.Queries.GetPortfolioValuation;
 using MarketBook.Application.Features.PortfolioTransactions.Queries.GetPortfolioTransactionById;
 using MarketBook.Application.Features.PortfolioTransactions.Queries.GetPortfolioTransactions;
 using MarketBook.Domain.Common;
@@ -106,6 +107,28 @@ public sealed class PortfolioTransactionsController : ControllerBase
         Result<GetPortfolioPositionsResponse> result =
             await _sender.Send(
                 new GetPortfolioPositionsQuery(portfolioId),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Values current open portfolio positions with the latest available market prices.
+    /// FA: موقعیت‌های باز جاری پرتفوی را با آخرین قیمت‌های بازار موجود ارزش‌گذاری می‌کند.
+    /// </summary>
+    [HttpGet("valuation")]
+    public async Task<IActionResult> GetValuation(
+        [FromQuery] string portfolioId,
+        [FromQuery] string? listingId = null,
+        CancellationToken cancellationToken = default)
+    {
+        Result<GetPortfolioValuationResponse> result =
+            await _sender.Send(
+                new GetPortfolioValuationQuery(
+                    portfolioId,
+                    listingId),
                 cancellationToken);
 
         return result.IsSuccess

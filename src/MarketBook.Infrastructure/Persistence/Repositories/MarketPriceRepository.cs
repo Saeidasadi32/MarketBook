@@ -22,4 +22,6 @@ public async Task AddAsync(MarketPrice marketPrice,CancellationToken cancellatio
 /// <inheritdoc/>
 public void Update(MarketPrice marketPrice)=>_dbContext.Set<MarketPrice>().Update(marketPrice);
 /// <inheritdoc/>
+public Task<MarketPrice?> GetLatestByListingIdAsync(ListingId listingId,CancellationToken cancellationToken=default)=>_dbContext.Set<MarketPrice>().AsNoTracking().Where(item=>item.ListingId==listingId).OrderByDescending(item=>item.TradingDate).ThenByDescending(item=>item.CreatedOn).FirstOrDefaultAsync(cancellationToken);
+/// <inheritdoc/>
 public async Task<PagedResult<MarketPrice>> GetPagedAsync(PageRequest pageRequest,CancellationToken cancellationToken=default){int page=pageRequest.NormalizedPage;int pageSize=pageRequest.NormalizedPageSize;IQueryable<MarketPrice> query=_dbContext.Set<MarketPrice>().AsNoTracking().OrderByDescending(item=>item.TradingDate).ThenByDescending(item=>item.CreatedOn);int total=await query.CountAsync(cancellationToken);List<MarketPrice> items=await query.Skip((page-1)*pageSize).Take(pageSize).ToListAsync(cancellationToken);return new PagedResult<MarketPrice>(items,page,pageSize,total);}}

@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Tests
@@ -29,14 +29,14 @@ using Microsoft.Extensions.DependencyInjection;
 namespace MarketBook.Integration.Tests.Infrastructure;
 /// <summary>
 /// EN: Provides the shared API client and isolated SQL Server database for integration tests.
-/// FA: Client مشترک API و دیتابیس مجزای SQL Server را برای تست‌های Integration فراهم می‌کند.
+/// FA: Client Ù…Ø´ØªØ±Ú© API Ùˆ Ø¯ÛŒØªØ§Ø¨ÛŒØ³ Ù…Ø¬Ø²Ø§ÛŒ SQL Server Ø±Ø§ Ø¨Ø±Ø§ÛŒ ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ Integration ÙØ±Ø§Ù‡Ù… Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
 /// </summary>
 public sealed class IntegrationTestFixture : IAsyncLifetime
 {
     private readonly MarketBookApiFactory _factory;
 /// <summary>
 /// EN: Initializes a new integration-test fixture.
-/// FA: یک Fixture جدید برای تست‌های Integration ایجاد می‌کند.
+/// FA: ÛŒÚ© Fixture Ø¬Ø¯ÛŒØ¯ Ø¨Ø±Ø§ÛŒ ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ Integration Ø§ÛŒØ¬Ø§Ø¯ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
 /// </summary>
 public IntegrationTestFixture()
     {
@@ -51,12 +51,12 @@ public IntegrationTestFixture()
     }
 /// <summary>
 /// EN: Gets the HTTP client connected to the in-memory MarketBook API.
-/// FA: Client متصل به API درون‌حافظه‌ای مارکت‌بوک را دریافت می‌کند.
+/// FA: Client Ù…ØªØµÙ„ Ø¨Ù‡ API Ø¯Ø±ÙˆÙ†â€ŒØ­Ø§ÙØ¸Ù‡â€ŒØ§ÛŒ Ù…Ø§Ø±Ú©Øªâ€ŒØ¨ÙˆÚ© Ø±Ø§ Ø¯Ø±ÛŒØ§ÙØª Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
 /// </summary>
 public HttpClient Client { get; }
 /// <summary>
 /// EN: Creates and migrates the isolated integration-test database before the test collection starts.
-/// FA: پیش از شروع مجموعه تست، دیتابیس مجزای Integration را ایجاد کرده و Migrationها را اعمال می‌کند.
+/// FA: Ù¾ÛŒØ´ Ø§Ø² Ø´Ø±ÙˆØ¹ Ù…Ø¬Ù…ÙˆØ¹Ù‡ ØªØ³ØªØŒ Ø¯ÛŒØªØ§Ø¨ÛŒØ³ Ù…Ø¬Ø²Ø§ÛŒ Integration Ø±Ø§ Ø§ÛŒØ¬Ø§Ø¯ Ú©Ø±Ø¯Ù‡ Ùˆ MigrationÙ‡Ø§ Ø±Ø§ Ø§Ø¹Ù…Ø§Ù„ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
 /// </summary>
 public async Task InitializeAsync()
     {
@@ -71,7 +71,7 @@ public async Task InitializeAsync()
     }
 /// <summary>
 /// EN: Removes all currencies so each endpoint scenario can start from a deterministic state.
-/// FA: همه ارزها را حذف می‌کند تا هر سناریوی Endpoint از وضعیت قطعی و تمیز آغاز شود.
+/// FA: Ù‡Ù…Ù‡ Ø§Ø±Ø²Ù‡Ø§ Ø±Ø§ Ø­Ø°Ù Ù…ÛŒâ€ŒÚ©Ù†Ø¯ ØªØ§ Ù‡Ø± Ø³Ù†Ø§Ø±ÛŒÙˆÛŒ Endpoint Ø§Ø² ÙˆØ¶Ø¹ÛŒØª Ù‚Ø·Ø¹ÛŒ Ùˆ ØªÙ…ÛŒØ² Ø¢ØºØ§Ø² Ø´ÙˆØ¯.
 /// </summary>
 public async Task ResetCurrenciesAsync()
     {
@@ -82,6 +82,7 @@ public async Task ResetCurrenciesAsync()
 
         EnsureSafeTestDatabase(dbContext);
 
+        await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
         await dbContext.Set<DailyTradeStatistics>().ExecuteDeleteAsync();
         await dbContext.Set<MarketPrice>().ExecuteDeleteAsync();
         await dbContext.Set<Listing>().ExecuteDeleteAsync();
@@ -89,7 +90,7 @@ public async Task ResetCurrenciesAsync()
     }
 /// <summary>
 /// EN: Removes all instruments so each endpoint scenario starts from a deterministic state.
-/// FA: همه ابزارهای مالی را حذف می‌کند تا هر سناریوی Endpoint از وضعیت قطعی و تمیز آغاز شود.
+/// FA: Ù‡Ù…Ù‡ Ø§Ø¨Ø²Ø§Ø±Ù‡Ø§ÛŒ Ù…Ø§Ù„ÛŒ Ø±Ø§ Ø­Ø°Ù Ù…ÛŒâ€ŒÚ©Ù†Ø¯ ØªØ§ Ù‡Ø± Ø³Ù†Ø§Ø±ÛŒÙˆÛŒ Endpoint Ø§Ø² ÙˆØ¶Ø¹ÛŒØª Ù‚Ø·Ø¹ÛŒ Ùˆ ØªÙ…ÛŒØ² Ø¢ØºØ§Ø² Ø´ÙˆØ¯.
 /// </summary>
 public async Task ResetInstrumentsAsync()
     {
@@ -100,6 +101,7 @@ public async Task ResetInstrumentsAsync()
 
         EnsureSafeTestDatabase(dbContext);
 
+        await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
         await dbContext.Set<DailyTradeStatistics>().ExecuteDeleteAsync();
         await dbContext.Set<MarketPrice>().ExecuteDeleteAsync();
         await dbContext.Set<Listing>().ExecuteDeleteAsync();
@@ -107,7 +109,7 @@ public async Task ResetInstrumentsAsync()
     }
 /// <summary>
 /// EN: Resets tables used by Listing endpoint scenarios while respecting foreign-key order.
-/// FA: جدول‌های مورد استفاده سناریوهای Listing را با رعایت ترتیب کلیدهای خارجی پاک‌سازی می‌کند.
+/// FA: Ø¬Ø¯ÙˆÙ„â€ŒÙ‡Ø§ÛŒ Ù…ÙˆØ±Ø¯ Ø§Ø³ØªÙØ§Ø¯Ù‡ Ø³Ù†Ø§Ø±ÛŒÙˆÙ‡Ø§ÛŒ Listing Ø±Ø§ Ø¨Ø§ Ø±Ø¹Ø§ÛŒØª ØªØ±ØªÛŒØ¨ Ú©Ù„ÛŒØ¯Ù‡Ø§ÛŒ Ø®Ø§Ø±Ø¬ÛŒ Ù¾Ø§Ú©â€ŒØ³Ø§Ø²ÛŒ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
 /// </summary>
 public async Task ResetListingsAsync()
     {
@@ -118,6 +120,7 @@ public async Task ResetListingsAsync()
 
         EnsureSafeTestDatabase(dbContext);
 
+        await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
         await dbContext.Set<DailyTradeStatistics>().ExecuteDeleteAsync();
         await dbContext.Set<MarketPrice>().ExecuteDeleteAsync();
         await dbContext.Set<Listing>().ExecuteDeleteAsync();
@@ -129,7 +132,7 @@ public async Task ResetListingsAsync()
     }
 /// <summary>
 /// EN: Creates active persistence dependencies required by Listing endpoint tests.
-/// FA: وابستگی‌های فعال مورد نیاز تست‌های Endpoint مربوط به Listing را ایجاد می‌کند.
+/// FA: ÙˆØ§Ø¨Ø³ØªÚ¯ÛŒâ€ŒÙ‡Ø§ÛŒ ÙØ¹Ø§Ù„ Ù…ÙˆØ±Ø¯ Ù†ÛŒØ§Ø² ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ Endpoint Ù…Ø±Ø¨ÙˆØ· Ø¨Ù‡ Listing Ø±Ø§ Ø§ÛŒØ¬Ø§Ø¯ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
 /// </summary>
 internal async Task<ListingTestSeed> CreateListingSeedAsync()
     {
@@ -180,7 +183,7 @@ internal async Task<ListingTestSeed> CreateListingSeedAsync()
     }
 /// <summary>
 /// EN: Resets trading-calendar test data before parent markets.
-/// FA: داده‌های تست تقویم معاملاتی را پیش از Marketهای والد پاک‌سازی می‌کند.
+/// FA: Ø¯Ø§Ø¯Ù‡â€ŒÙ‡Ø§ÛŒ ØªØ³Øª ØªÙ‚ÙˆÛŒÙ… Ù…Ø¹Ø§Ù…Ù„Ø§ØªÛŒ Ø±Ø§ Ù¾ÛŒØ´ Ø§Ø² MarketÙ‡Ø§ÛŒ ÙˆØ§Ù„Ø¯ Ù¾Ø§Ú©â€ŒØ³Ø§Ø²ÛŒ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
 /// </summary>
 public async Task ResetTradingCalendarsAsync()
     {
@@ -191,6 +194,7 @@ public async Task ResetTradingCalendarsAsync()
 
         EnsureSafeTestDatabase(dbContext);
 
+        await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
         await dbContext.Set<DailyTradeStatistics>().ExecuteDeleteAsync();
         await dbContext.Set<MarketPrice>().ExecuteDeleteAsync();
         await dbContext.Set<Listing>().ExecuteDeleteAsync();
@@ -200,7 +204,7 @@ public async Task ResetTradingCalendarsAsync()
     }
 /// <summary>
 /// EN: Creates an active market for trading-calendar tests.
-/// FA: یک Market فعال برای تست‌های تقویم معاملاتی ایجاد می‌کند.
+/// FA: ÛŒÚ© Market ÙØ¹Ø§Ù„ Ø¨Ø±Ø§ÛŒ ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ ØªÙ‚ÙˆÛŒÙ… Ù…Ø¹Ø§Ù…Ù„Ø§ØªÛŒ Ø§ÛŒØ¬Ø§Ø¯ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
 /// </summary>
 internal async Task<string> CreateTradingCalendarMarketAsync()
     {
@@ -225,12 +229,13 @@ internal async Task<string> CreateTradingCalendarMarketAsync()
 
         return market.Id.Value.ToString();
     }
-/// <summary>EN: Resets MarketPrice data and Listing dependencies. FA: داده‌های MarketPrice و وابستگی‌های Listing را پاک‌سازی می‌کند.</summary>
+/// <summary>EN: Resets MarketPrice data and Listing dependencies. FA: Ø¯Ø§Ø¯Ù‡â€ŒÙ‡Ø§ÛŒ MarketPrice Ùˆ ÙˆØ§Ø¨Ø³ØªÚ¯ÛŒâ€ŒÙ‡Ø§ÛŒ Listing Ø±Ø§ Ù¾Ø§Ú©â€ŒØ³Ø§Ø²ÛŒ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.</summary>
 public async Task ResetMarketPricesAsync()
     {
         using IServiceScope scope = _factory.Services.CreateScope();
         ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         EnsureSafeTestDatabase(dbContext);
+        await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
         await dbContext.Set<DailyTradeStatistics>().ExecuteDeleteAsync();
         await dbContext.Set<MarketPrice>().ExecuteDeleteAsync();
         await dbContext.Set<Listing>().ExecuteDeleteAsync();
@@ -240,7 +245,7 @@ public async Task ResetMarketPricesAsync()
         await dbContext.Set<Instrument>().ExecuteDeleteAsync();
         await dbContext.Set<Currency>().ExecuteDeleteAsync();
     }
-/// <summary>EN: Creates an active Listing for MarketPrice tests. FA: یک Listing فعال برای تست‌های MarketPrice ایجاد می‌کند.</summary>
+/// <summary>EN: Creates an active Listing for MarketPrice tests. FA: ÛŒÚ© Listing ÙØ¹Ø§Ù„ Ø¨Ø±Ø§ÛŒ ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ MarketPrice Ø§ÛŒØ¬Ø§Ø¯ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.</summary>
 internal async Task<string> CreateMarketPriceListingAsync()
     {
         ListingTestSeed seed = await CreateListingSeedAsync();
@@ -254,7 +259,7 @@ internal async Task<string> CreateMarketPriceListingAsync()
     }
 /// <summary>
 /// EN: Resets daily trade-statistics data and Listing dependencies.
-/// FA: داده‌های آمار معاملات روزانه و وابستگی‌های Listing را پاک‌سازی می‌کند.
+/// FA: Ø¯Ø§Ø¯Ù‡â€ŒÙ‡Ø§ÛŒ Ø¢Ù…Ø§Ø± Ù…Ø¹Ø§Ù…Ù„Ø§Øª Ø±ÙˆØ²Ø§Ù†Ù‡ Ùˆ ÙˆØ§Ø¨Ø³ØªÚ¯ÛŒâ€ŒÙ‡Ø§ÛŒ Listing Ø±Ø§ Ù¾Ø§Ú©â€ŒØ³Ø§Ø²ÛŒ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
 /// </summary>
 public async Task ResetDailyTradeStatisticsAsync()
     {
@@ -265,6 +270,7 @@ public async Task ResetDailyTradeStatisticsAsync()
 
         EnsureSafeTestDatabase(dbContext);
 
+        await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
         await dbContext.Set<DailyTradeStatistics>().ExecuteDeleteAsync();
         await dbContext.Set<MarketPrice>().ExecuteDeleteAsync();
         await dbContext.Set<Listing>().ExecuteDeleteAsync();
@@ -277,7 +283,7 @@ public async Task ResetDailyTradeStatisticsAsync()
 
 /// <summary>
 /// EN: Creates an active Listing for daily trade-statistics tests.
-/// FA: یک Listing فعال برای تست‌های آمار معاملات روزانه ایجاد می‌کند.
+/// FA: ÛŒÚ© Listing ÙØ¹Ø§Ù„ Ø¨Ø±Ø§ÛŒ ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ Ø¢Ù…Ø§Ø± Ù…Ø¹Ø§Ù…Ù„Ø§Øª Ø±ÙˆØ²Ø§Ù†Ù‡ Ø§ÛŒØ¬Ø§Ø¯ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
 /// </summary>
 internal async Task<string> CreateDailyTradeStatisticsListingAsync()
     {
@@ -305,8 +311,60 @@ internal async Task<string> CreateDailyTradeStatisticsListingAsync()
     }
 
 /// <summary>
+/// EN: Resets intraday price ticks and their Listing dependencies.
+/// FA: TickÙ‡Ø§ÛŒ Ù‚ÛŒÙ…Øª Ø¯Ø±ÙˆÙ†â€ŒØ±ÙˆØ²ÛŒ Ùˆ ÙˆØ§Ø¨Ø³ØªÚ¯ÛŒâ€ŒÙ‡Ø§ÛŒ Listing Ø±Ø§ Ù¾Ø§Ú©â€ŒØ³Ø§Ø²ÛŒ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
+/// </summary>
+public async Task ResetIntradayPriceTicksAsync()
+    {
+        using IServiceScope scope = _factory.Services.CreateScope();
+
+        ApplicationDbContext dbContext =
+            scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        EnsureSafeTestDatabase(dbContext);
+
+        await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
+        await dbContext.Set<DailyTradeStatistics>().ExecuteDeleteAsync();
+        await dbContext.Set<MarketPrice>().ExecuteDeleteAsync();
+        await dbContext.Set<Listing>().ExecuteDeleteAsync();
+        await dbContext.Set<TradingCalendar>().ExecuteDeleteAsync();
+        await dbContext.Set<Venue>().ExecuteDeleteAsync();
+        await dbContext.Set<Market>().ExecuteDeleteAsync();
+        await dbContext.Set<Instrument>().ExecuteDeleteAsync();
+        await dbContext.Set<Currency>().ExecuteDeleteAsync();
+    }
+
+/// <summary>
+/// EN: Creates an active Listing for intraday price-tick tests.
+/// FA: ÛŒÚ© Listing ÙØ¹Ø§Ù„ Ø¨Ø±Ø§ÛŒ ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ Tick Ù‚ÛŒÙ…Øª Ø¯Ø±ÙˆÙ†â€ŒØ±ÙˆØ²ÛŒ Ø§ÛŒØ¬Ø§Ø¯ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
+/// </summary>
+internal async Task<string> CreateIntradayPriceTickListingAsync()
+    {
+        ListingTestSeed seed = await CreateListingSeedAsync();
+
+        using IServiceScope scope = _factory.Services.CreateScope();
+
+        ApplicationDbContext dbContext =
+            scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        EnsureSafeTestDatabase(dbContext);
+
+        Listing listing = Listing.Create(
+            InstrumentId.Parse(seed.InstrumentId),
+            VenueId.Parse(seed.VenueId),
+            CurrencyId.Parse(seed.QuoteCurrencyId),
+            new MarketBook.Domain.Listing.ValueObjects.TradingSymbol("IPTICK"),
+            1m,
+            0);
+
+        await dbContext.Set<Listing>().AddAsync(listing);
+        await dbContext.SaveChangesAsync();
+
+        return listing.Id.Value.ToString();
+    }
+/// <summary>
 /// EN: Deletes the isolated database and disposes test resources after the collection finishes.
-/// FA: پس از پایان مجموعه تست، دیتابیس مجزا را حذف کرده و منابع تست را آزاد می‌کند.
+/// FA: Ù¾Ø³ Ø§Ø² Ù¾Ø§ÛŒØ§Ù† Ù…Ø¬Ù…ÙˆØ¹Ù‡ ØªØ³ØªØŒ Ø¯ÛŒØªØ§Ø¨ÛŒØ³ Ù…Ø¬Ø²Ø§ Ø±Ø§ Ø­Ø°Ù Ú©Ø±Ø¯Ù‡ Ùˆ Ù…Ù†Ø§Ø¨Ø¹ ØªØ³Øª Ø±Ø§ Ø¢Ø²Ø§Ø¯ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
 /// </summary>
 public async Task DisposeAsync()
     {
@@ -339,9 +397,10 @@ public async Task DisposeAsync()
 }
 /// <summary>
 /// EN: Carries identifiers of dependencies seeded for a Listing integration-test scenario.
-/// FA: شناسه وابستگی‌های Seed شده برای سناریوی تست Integration مربوط به Listing را نگه می‌دارد.
+/// FA: Ø´Ù†Ø§Ø³Ù‡ ÙˆØ§Ø¨Ø³ØªÚ¯ÛŒâ€ŒÙ‡Ø§ÛŒ Seed Ø´Ø¯Ù‡ Ø¨Ø±Ø§ÛŒ Ø³Ù†Ø§Ø±ÛŒÙˆÛŒ ØªØ³Øª Integration Ù…Ø±Ø¨ÙˆØ· Ø¨Ù‡ Listing Ø±Ø§ Ù†Ú¯Ù‡ Ù…ÛŒâ€ŒØ¯Ø§Ø±Ø¯.
 /// </summary>
 internal sealed record ListingTestSeed(
     string InstrumentId,
     string VenueId,
     string QuoteCurrencyId);
+

@@ -55,5 +55,12 @@ public sealed class PortfolioCashTransactionConfiguration : IEntityTypeConfigura
             .HasDatabaseName("IX_PortfolioCashTransactions_Portfolio_OccurredOn_Id");
         builder.HasIndex(item => new { item.PortfolioId, item.CurrencyId, item.OccurredOn, item.Id })
             .HasDatabaseName("IX_PortfolioCashTransactions_Portfolio_Currency_OccurredOn_Id");
+
+        // EN: Prevents a source transaction from being settled more than once.
+        // FA: از تسویه بیش از یک‌باره یک تراکنش منبع جلوگیری می‌کند.
+        builder.HasIndex(item => new { item.ReferenceType, item.ReferenceId })
+            .IsUnique()
+            .HasFilter("[ReferenceType] IS NOT NULL AND [ReferenceId] IS NOT NULL")
+            .HasDatabaseName("UX_PortfolioCashTransactions_Reference");
     }
 }

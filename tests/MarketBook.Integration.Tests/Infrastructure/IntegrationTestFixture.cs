@@ -84,6 +84,7 @@ public async Task ResetCurrenciesAsync()
 
         EnsureSafeTestDatabase(dbContext);
 
+        await dbContext.Set<PortfolioCashTransaction>().ExecuteDeleteAsync();
         await dbContext.Set<PortfolioTransaction>().ExecuteDeleteAsync();
         await dbContext.Set<OrderBookSnapshot>().ExecuteDeleteAsync();
         await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
@@ -105,6 +106,7 @@ public async Task ResetInstrumentsAsync()
 
         EnsureSafeTestDatabase(dbContext);
 
+        await dbContext.Set<PortfolioCashTransaction>().ExecuteDeleteAsync();
         await dbContext.Set<PortfolioTransaction>().ExecuteDeleteAsync();
         await dbContext.Set<OrderBookSnapshot>().ExecuteDeleteAsync();
         await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
@@ -126,6 +128,7 @@ public async Task ResetListingsAsync()
 
         EnsureSafeTestDatabase(dbContext);
 
+        await dbContext.Set<PortfolioCashTransaction>().ExecuteDeleteAsync();
         await dbContext.Set<PortfolioTransaction>().ExecuteDeleteAsync();
         await dbContext.Set<OrderBookSnapshot>().ExecuteDeleteAsync();
         await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
@@ -202,6 +205,7 @@ public async Task ResetTradingCalendarsAsync()
 
         EnsureSafeTestDatabase(dbContext);
 
+        await dbContext.Set<PortfolioCashTransaction>().ExecuteDeleteAsync();
         await dbContext.Set<PortfolioTransaction>().ExecuteDeleteAsync();
         await dbContext.Set<OrderBookSnapshot>().ExecuteDeleteAsync();
         await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
@@ -245,6 +249,7 @@ public async Task ResetMarketPricesAsync()
         using IServiceScope scope = _factory.Services.CreateScope();
         ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         EnsureSafeTestDatabase(dbContext);
+        await dbContext.Set<PortfolioCashTransaction>().ExecuteDeleteAsync();
         await dbContext.Set<PortfolioTransaction>().ExecuteDeleteAsync();
         await dbContext.Set<OrderBookSnapshot>().ExecuteDeleteAsync();
         await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
@@ -282,6 +287,7 @@ public async Task ResetDailyTradeStatisticsAsync()
 
         EnsureSafeTestDatabase(dbContext);
 
+        await dbContext.Set<PortfolioCashTransaction>().ExecuteDeleteAsync();
         await dbContext.Set<PortfolioTransaction>().ExecuteDeleteAsync();
         await dbContext.Set<OrderBookSnapshot>().ExecuteDeleteAsync();
         await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
@@ -337,6 +343,7 @@ public async Task ResetIntradayPriceTicksAsync()
 
         EnsureSafeTestDatabase(dbContext);
 
+        await dbContext.Set<PortfolioCashTransaction>().ExecuteDeleteAsync();
         await dbContext.Set<PortfolioTransaction>().ExecuteDeleteAsync();
         await dbContext.Set<OrderBookSnapshot>().ExecuteDeleteAsync();
         await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
@@ -388,6 +395,7 @@ public async Task ResetOrderBookSnapshotsAsync()
         using IServiceScope scope = _factory.Services.CreateScope();
         ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         EnsureSafeTestDatabase(dbContext);
+        await dbContext.Set<PortfolioCashTransaction>().ExecuteDeleteAsync();
         await dbContext.Set<PortfolioTransaction>().ExecuteDeleteAsync();
         await dbContext.Set<OrderBookSnapshot>().ExecuteDeleteAsync();
         await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
@@ -432,6 +440,7 @@ public async Task ResetInvestorsAsync()
 
         EnsureSafeTestDatabase(dbContext);
 
+        await dbContext.Set<PortfolioCashTransaction>().ExecuteDeleteAsync();
         await dbContext.Set<PortfolioTransaction>().ExecuteDeleteAsync();
         await dbContext.Set<Portfolio>().ExecuteDeleteAsync();
         await dbContext.Set<Investor>().ExecuteDeleteAsync();
@@ -449,12 +458,14 @@ public async Task ResetPortfolioTransactionsAsync()
 
         EnsureSafeTestDatabase(dbContext);
 
+        await dbContext.Set<PortfolioCashTransaction>().ExecuteDeleteAsync();
         await dbContext.Set<PortfolioTransaction>().ExecuteDeleteAsync();
         await dbContext.Set<OrderBookSnapshot>().ExecuteDeleteAsync();
         await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
         await dbContext.Set<DailyTradeStatistics>().ExecuteDeleteAsync();
         await dbContext.Set<MarketPrice>().ExecuteDeleteAsync();
         await dbContext.Set<Listing>().ExecuteDeleteAsync();
+        await dbContext.Set<PortfolioCashTransaction>().ExecuteDeleteAsync();
         await dbContext.Set<Portfolio>().ExecuteDeleteAsync();
         await dbContext.Set<Investor>().ExecuteDeleteAsync();
         await dbContext.Set<TradingCalendar>().ExecuteDeleteAsync();
@@ -491,6 +502,34 @@ internal async Task<string> CreatePortfolioTransactionListingAsync()
         await dbContext.SaveChangesAsync();
 
         return listing.Id.Value.ToString();
+    }
+/// <summary>
+/// EN: Resets cash-ledger test data and required dependencies in FK-safe order.
+/// FA: Ø¯Ø§Ø¯Ù‡â€ŒÙ‡Ø§ÛŒ ØªØ³Øª Ø¯ÙØªØ± Ù†Ù‚Ø¯ÛŒ Ùˆ ÙˆØ§Ø¨Ø³ØªÚ¯ÛŒâ€ŒÙ‡Ø§ÛŒ Ù„Ø§Ø²Ù… Ø±Ø§ Ø¨Ø§ ØªØ±ØªÛŒØ¨ Ø§Ù…Ù† FK Ù¾Ø§Ú©â€ŒØ³Ø§Ø²ÛŒ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
+/// </summary>
+public async Task ResetPortfolioCashTransactionsAsync()
+    {
+        using IServiceScope scope = _factory.Services.CreateScope();
+
+        ApplicationDbContext dbContext =
+            scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        EnsureSafeTestDatabase(dbContext);
+
+        await dbContext.Set<PortfolioCashTransaction>().ExecuteDeleteAsync();
+        await dbContext.Set<PortfolioTransaction>().ExecuteDeleteAsync();
+        await dbContext.Set<OrderBookSnapshot>().ExecuteDeleteAsync();
+        await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
+        await dbContext.Set<DailyTradeStatistics>().ExecuteDeleteAsync();
+        await dbContext.Set<MarketPrice>().ExecuteDeleteAsync();
+        await dbContext.Set<Listing>().ExecuteDeleteAsync();
+        await dbContext.Set<Portfolio>().ExecuteDeleteAsync();
+        await dbContext.Set<Investor>().ExecuteDeleteAsync();
+        await dbContext.Set<TradingCalendar>().ExecuteDeleteAsync();
+        await dbContext.Set<Venue>().ExecuteDeleteAsync();
+        await dbContext.Set<Market>().ExecuteDeleteAsync();
+        await dbContext.Set<Instrument>().ExecuteDeleteAsync();
+        await dbContext.Set<Currency>().ExecuteDeleteAsync();
     }
 public async Task DisposeAsync()
     {
@@ -529,5 +568,6 @@ internal sealed record ListingTestSeed(
     string InstrumentId,
     string VenueId,
     string QuoteCurrencyId);
+
 
 

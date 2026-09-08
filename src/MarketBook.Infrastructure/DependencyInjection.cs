@@ -61,11 +61,13 @@ public static IServiceCollection AddInfrastructure(
         services.AddScoped<IInvestorRepository, InvestorRepository>();
         services.AddScoped<IPortfolioRepository, PortfolioRepository>();
         services.AddScoped<IPortfolioTransactionRepository, PortfolioTransactionRepository>();
+        services.AddScoped<IPortfolioCashTransactionRepository, PortfolioCashTransactionRepository>();
 
         services.AddSingleton(typeof(ILoggerAdapter<>), typeof(LoggerAdapter<>));
 
         return services;
     }
 }
+
 
 

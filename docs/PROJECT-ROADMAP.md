@@ -2,9 +2,9 @@
 
 Status date: 2026-09-08
 
-## Phase 1 — Market structure foundation
+## Phase 1 â€” Market structure foundation
 
-### Country — implemented
+### Country â€” implemented
 
 - Create
 - Get by ID
@@ -12,7 +12,7 @@ Status date: 2026-09-08
 - Persistence and EF mapping
 - API integration
 
-### Exchange — implemented
+### Exchange â€” implemented
 
 - Create
 - Get by ID
@@ -23,7 +23,7 @@ Status date: 2026-09-08
 - Persistence and EF mapping
 - API integration
 
-### Market — implemented
+### Market â€” implemented
 
 - Create
 - Get by ID
@@ -34,7 +34,7 @@ Status date: 2026-09-08
 - Persistence and EF mapping
 - API integration
 
-### Venue — implemented
+### Venue â€” implemented
 
 - Create
 - Get by ID
@@ -48,11 +48,11 @@ Status date: 2026-09-08
 
 Current Venue design intentionally keeps `VenueCode` and `MarketId` immutable after creation.
 
-## Phase 2 — Listing prerequisites
+## Phase 2 â€” Listing prerequisites
 
 Recommended order:
 
-### 1. Currency — implemented and integration-tested
+### 1. Currency â€” implemented and integration-tested
 
 Reason: Listing requires `CurrencyId` as quote currency.
 
@@ -67,7 +67,7 @@ Implemented slice:
 
 Automated SQL Server integration tests are passing for the Currency slice.
 
-### 2. Instrument — implemented and integration-tested
+### 2. Instrument â€” implemented and integration-tested
 
 Reason: Listing requires `InstrumentId`.
 
@@ -84,7 +84,7 @@ Implemented slice:
 
 Industry, Sector, and CorporateAliases remain Domain capabilities but are intentionally not persisted in this first Instrument slice.
 
-### 3. Listing — implemented and integration-tested
+### 3. Listing â€” implemented and integration-tested
 
 Listing depends on:
 
@@ -104,9 +104,9 @@ Target slice:
 - EF configuration and indexes
 - API and integration tests
 
-## Phase 3 — Trading calendar and market structure details
+## Phase 3 â€” Trading calendar and market structure details
 
-### TradingCalendar / TradingSession — implemented and integration-tested
+### TradingCalendar / TradingSession â€” implemented and integration-tested
 
 Implemented:
 
@@ -119,23 +119,25 @@ Implemented:
 - Activate / Deactivate
 - EF mapping, migration, relational constraints, and integration tests
 
-### MarketPrice / price limits — implemented and integration-tested
+### MarketPrice / price limits â€” implemented and integration-tested
 
 - official daily OHLC and close/reference prices
 - daily permitted lower/upper price limits
 - unique Listing/date record
 - persistence, API, migration, and integration tests
 
-## Phase 4 — Market data
+## Phase 4 â€” Market data
 
-- Daily prices — fulfilled by MarketPrice daily record; implemented and integration-tested
-- Daily trade statistics — implemented and integration-tested
-- Intraday/tick snapshots — implemented by IntradayPriceTick and integration-tested
-- Order book — implemented by OrderBookSnapshot and integration-tested
+- Daily prices â€” fulfilled by MarketPrice daily record; implemented and integration-tested
+- Daily trade statistics â€” implemented and integration-tested
+- Intraday/tick snapshots â€” implemented by IntradayPriceTick and integration-tested
+- Order book â€” implemented by OrderBookSnapshot and integration-tested
 
 Only after Listing identity and lifecycle are stable.
 
-## Phase 5 — User-facing portfolio capabilities
+## Phase 5 â€” User-facing portfolio capabilities
+
+- Investor foundation - implementation patch prepared; pending user-environment verification
 
 - Watchlist
 - Portfolio

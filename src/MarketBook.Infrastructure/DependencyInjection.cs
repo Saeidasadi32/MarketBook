@@ -20,13 +20,13 @@ using Microsoft.Extensions.DependencyInjection;
 namespace MarketBook.Infrastructure;
 /// <summary>
 /// EN: Provides dependency injection registration for Infrastructure services.
-/// FA: Ø«Ø¨Øª ÙˆØ§Ø¨Ø³ØªÚ¯ÛŒâ€ŒÙ‡Ø§ÛŒ Ù„Ø§ÛŒÙ‡ Infrastructure Ø±Ø§ ÙØ±Ø§Ù‡Ù… Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
+/// FA: Ã˜Â«Ã˜Â¨Ã˜Âª Ã™Ë†Ã˜Â§Ã˜Â¨Ã˜Â³Ã˜ÂªÃšÂ¯Ã›Å’Ã¢â‚¬Å’Ã™â€¡Ã˜Â§Ã›Å’ Ã™â€žÃ˜Â§Ã›Å’Ã™â€¡ Infrastructure Ã˜Â±Ã˜Â§ Ã™ÂÃ˜Â±Ã˜Â§Ã™â€¡Ã™â€¦ Ã™â€¦Ã›Å’Ã¢â‚¬Å’ÃšÂ©Ã™â€ Ã˜Â¯.
 /// </summary>
 public static class DependencyInjection
 {
 /// <summary>
 /// EN: Registers Infrastructure services and persistence components.
-/// FA: Ø³Ø±ÙˆÛŒØ³â€ŒÙ‡Ø§ Ùˆ Ø§Ø¬Ø²Ø§ÛŒ Ù…Ø§Ù†Ø¯Ú¯Ø§Ø±ÛŒ Ù„Ø§ÛŒÙ‡ Infrastructure Ø±Ø§ Ø«Ø¨Øª Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
+/// FA: Ã˜Â³Ã˜Â±Ã™Ë†Ã›Å’Ã˜Â³Ã¢â‚¬Å’Ã™â€¡Ã˜Â§ Ã™Ë† Ã˜Â§Ã˜Â¬Ã˜Â²Ã˜Â§Ã›Å’ Ã™â€¦Ã˜Â§Ã™â€ Ã˜Â¯ÃšÂ¯Ã˜Â§Ã˜Â±Ã›Å’ Ã™â€žÃ˜Â§Ã›Å’Ã™â€¡ Infrastructure Ã˜Â±Ã˜Â§ Ã˜Â«Ã˜Â¨Ã˜Âª Ã™â€¦Ã›Å’Ã¢â‚¬Å’ÃšÂ©Ã™â€ Ã˜Â¯.
 /// </summary>
 public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
@@ -58,6 +58,7 @@ public static IServiceCollection AddInfrastructure(
         services.AddScoped<IDailyTradeStatisticsRepository, DailyTradeStatisticsRepository>();
         services.AddScoped<IIntradayPriceTickRepository, IntradayPriceTickRepository>();
         services.AddScoped<IOrderBookSnapshotRepository, OrderBookSnapshotRepository>();
+        services.AddScoped<IInvestorRepository, InvestorRepository>();
 
         services.AddSingleton(typeof(ILoggerAdapter<>), typeof(LoggerAdapter<>));
 

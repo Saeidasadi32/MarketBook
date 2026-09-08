@@ -85,3 +85,7 @@ Implemented, migrated, and integration-tested in the user environment. Executed-
 ## Order Book Snapshot
 
 Implemented, migrated, and integration-tested in the user environment.
+
+## Investor
+
+Implementation patch prepared for the Phase 5 Investor foundation. Domain lifecycle, Application handlers, EF persistence, API endpoints, and SQL Server integration tests are included. Migration is intentionally generated only after the patch builds successfully in the user environment.

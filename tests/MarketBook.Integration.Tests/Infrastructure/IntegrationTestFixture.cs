@@ -14,6 +14,7 @@ using MarketBook.Domain.Currency.ValueObjects;
 using MarketBook.Domain.Instrument.Aggregates;
 using MarketBook.Domain.Instrument.Enums;
 using MarketBook.Domain.Instrument.ValueObjects;
+using MarketBook.Domain.Investor.Aggregates;
 using MarketBook.Domain.Listing.Aggregates;
 using MarketBook.Domain.Market.Aggregates;
 using MarketBook.Domain.MarketData.Aggregates;
@@ -29,14 +30,14 @@ using Microsoft.Extensions.DependencyInjection;
 namespace MarketBook.Integration.Tests.Infrastructure;
 /// <summary>
 /// EN: Provides the shared API client and isolated SQL Server database for integration tests.
-/// FA: Client Ù…Ø´ØªØ±Ú© API Ùˆ Ø¯ÛŒØªØ§Ø¨ÛŒØ³ Ù…Ø¬Ø²Ø§ÛŒ SQL Server Ø±Ø§ Ø¨Ø±Ø§ÛŒ ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ Integration ÙØ±Ø§Ù‡Ù… Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
+/// FA: Client Ã™â€¦Ã˜Â´Ã˜ÂªÃ˜Â±ÃšÂ© API Ã™Ë† Ã˜Â¯Ã›Å’Ã˜ÂªÃ˜Â§Ã˜Â¨Ã›Å’Ã˜Â³ Ã™â€¦Ã˜Â¬Ã˜Â²Ã˜Â§Ã›Å’ SQL Server Ã˜Â±Ã˜Â§ Ã˜Â¨Ã˜Â±Ã˜Â§Ã›Å’ Ã˜ÂªÃ˜Â³Ã˜ÂªÃ¢â‚¬Å’Ã™â€¡Ã˜Â§Ã›Å’ Integration Ã™ÂÃ˜Â±Ã˜Â§Ã™â€¡Ã™â€¦ Ã™â€¦Ã›Å’Ã¢â‚¬Å’ÃšÂ©Ã™â€ Ã˜Â¯.
 /// </summary>
 public sealed class IntegrationTestFixture : IAsyncLifetime
 {
     private readonly MarketBookApiFactory _factory;
 /// <summary>
 /// EN: Initializes a new integration-test fixture.
-/// FA: ÛŒÚ© Fixture Ø¬Ø¯ÛŒØ¯ Ø¨Ø±Ø§ÛŒ ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ Integration Ø§ÛŒØ¬Ø§Ø¯ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
+/// FA: Ã›Å’ÃšÂ© Fixture Ã˜Â¬Ã˜Â¯Ã›Å’Ã˜Â¯ Ã˜Â¨Ã˜Â±Ã˜Â§Ã›Å’ Ã˜ÂªÃ˜Â³Ã˜ÂªÃ¢â‚¬Å’Ã™â€¡Ã˜Â§Ã›Å’ Integration Ã˜Â§Ã›Å’Ã˜Â¬Ã˜Â§Ã˜Â¯ Ã™â€¦Ã›Å’Ã¢â‚¬Å’ÃšÂ©Ã™â€ Ã˜Â¯.
 /// </summary>
 public IntegrationTestFixture()
     {
@@ -51,12 +52,12 @@ public IntegrationTestFixture()
     }
 /// <summary>
 /// EN: Gets the HTTP client connected to the in-memory MarketBook API.
-/// FA: Client Ù…ØªØµÙ„ Ø¨Ù‡ API Ø¯Ø±ÙˆÙ†â€ŒØ­Ø§ÙØ¸Ù‡â€ŒØ§ÛŒ Ù…Ø§Ø±Ú©Øªâ€ŒØ¨ÙˆÚ© Ø±Ø§ Ø¯Ø±ÛŒØ§ÙØª Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
+/// FA: Client Ã™â€¦Ã˜ÂªÃ˜ÂµÃ™â€ž Ã˜Â¨Ã™â€¡ API Ã˜Â¯Ã˜Â±Ã™Ë†Ã™â€ Ã¢â‚¬Å’Ã˜Â­Ã˜Â§Ã™ÂÃ˜Â¸Ã™â€¡Ã¢â‚¬Å’Ã˜Â§Ã›Å’ Ã™â€¦Ã˜Â§Ã˜Â±ÃšÂ©Ã˜ÂªÃ¢â‚¬Å’Ã˜Â¨Ã™Ë†ÃšÂ© Ã˜Â±Ã˜Â§ Ã˜Â¯Ã˜Â±Ã›Å’Ã˜Â§Ã™ÂÃ˜Âª Ã™â€¦Ã›Å’Ã¢â‚¬Å’ÃšÂ©Ã™â€ Ã˜Â¯.
 /// </summary>
 public HttpClient Client { get; }
 /// <summary>
 /// EN: Creates and migrates the isolated integration-test database before the test collection starts.
-/// FA: Ù¾ÛŒØ´ Ø§Ø² Ø´Ø±ÙˆØ¹ Ù…Ø¬Ù…ÙˆØ¹Ù‡ ØªØ³ØªØŒ Ø¯ÛŒØªØ§Ø¨ÛŒØ³ Ù…Ø¬Ø²Ø§ÛŒ Integration Ø±Ø§ Ø§ÛŒØ¬Ø§Ø¯ Ú©Ø±Ø¯Ù‡ Ùˆ MigrationÙ‡Ø§ Ø±Ø§ Ø§Ø¹Ù…Ø§Ù„ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
+/// FA: Ã™Â¾Ã›Å’Ã˜Â´ Ã˜Â§Ã˜Â² Ã˜Â´Ã˜Â±Ã™Ë†Ã˜Â¹ Ã™â€¦Ã˜Â¬Ã™â€¦Ã™Ë†Ã˜Â¹Ã™â€¡ Ã˜ÂªÃ˜Â³Ã˜ÂªÃ˜Å’ Ã˜Â¯Ã›Å’Ã˜ÂªÃ˜Â§Ã˜Â¨Ã›Å’Ã˜Â³ Ã™â€¦Ã˜Â¬Ã˜Â²Ã˜Â§Ã›Å’ Integration Ã˜Â±Ã˜Â§ Ã˜Â§Ã›Å’Ã˜Â¬Ã˜Â§Ã˜Â¯ ÃšÂ©Ã˜Â±Ã˜Â¯Ã™â€¡ Ã™Ë† MigrationÃ™â€¡Ã˜Â§ Ã˜Â±Ã˜Â§ Ã˜Â§Ã˜Â¹Ã™â€¦Ã˜Â§Ã™â€ž Ã™â€¦Ã›Å’Ã¢â‚¬Å’ÃšÂ©Ã™â€ Ã˜Â¯.
 /// </summary>
 public async Task InitializeAsync()
     {
@@ -71,7 +72,7 @@ public async Task InitializeAsync()
     }
 /// <summary>
 /// EN: Removes all currencies so each endpoint scenario can start from a deterministic state.
-/// FA: Ù‡Ù…Ù‡ Ø§Ø±Ø²Ù‡Ø§ Ø±Ø§ Ø­Ø°Ù Ù…ÛŒâ€ŒÚ©Ù†Ø¯ ØªØ§ Ù‡Ø± Ø³Ù†Ø§Ø±ÛŒÙˆÛŒ Endpoint Ø§Ø² ÙˆØ¶Ø¹ÛŒØª Ù‚Ø·Ø¹ÛŒ Ùˆ ØªÙ…ÛŒØ² Ø¢ØºØ§Ø² Ø´ÙˆØ¯.
+/// FA: Ã™â€¡Ã™â€¦Ã™â€¡ Ã˜Â§Ã˜Â±Ã˜Â²Ã™â€¡Ã˜Â§ Ã˜Â±Ã˜Â§ Ã˜Â­Ã˜Â°Ã™Â Ã™â€¦Ã›Å’Ã¢â‚¬Å’ÃšÂ©Ã™â€ Ã˜Â¯ Ã˜ÂªÃ˜Â§ Ã™â€¡Ã˜Â± Ã˜Â³Ã™â€ Ã˜Â§Ã˜Â±Ã›Å’Ã™Ë†Ã›Å’ Endpoint Ã˜Â§Ã˜Â² Ã™Ë†Ã˜Â¶Ã˜Â¹Ã›Å’Ã˜Âª Ã™â€šÃ˜Â·Ã˜Â¹Ã›Å’ Ã™Ë† Ã˜ÂªÃ™â€¦Ã›Å’Ã˜Â² Ã˜Â¢Ã˜ÂºÃ˜Â§Ã˜Â² Ã˜Â´Ã™Ë†Ã˜Â¯.
 /// </summary>
 public async Task ResetCurrenciesAsync()
     {
@@ -91,7 +92,7 @@ public async Task ResetCurrenciesAsync()
     }
 /// <summary>
 /// EN: Removes all instruments so each endpoint scenario starts from a deterministic state.
-/// FA: Ù‡Ù…Ù‡ Ø§Ø¨Ø²Ø§Ø±Ù‡Ø§ÛŒ Ù…Ø§Ù„ÛŒ Ø±Ø§ Ø­Ø°Ù Ù…ÛŒâ€ŒÚ©Ù†Ø¯ ØªØ§ Ù‡Ø± Ø³Ù†Ø§Ø±ÛŒÙˆÛŒ Endpoint Ø§Ø² ÙˆØ¶Ø¹ÛŒØª Ù‚Ø·Ø¹ÛŒ Ùˆ ØªÙ…ÛŒØ² Ø¢ØºØ§Ø² Ø´ÙˆØ¯.
+/// FA: Ã™â€¡Ã™â€¦Ã™â€¡ Ã˜Â§Ã˜Â¨Ã˜Â²Ã˜Â§Ã˜Â±Ã™â€¡Ã˜Â§Ã›Å’ Ã™â€¦Ã˜Â§Ã™â€žÃ›Å’ Ã˜Â±Ã˜Â§ Ã˜Â­Ã˜Â°Ã™Â Ã™â€¦Ã›Å’Ã¢â‚¬Å’ÃšÂ©Ã™â€ Ã˜Â¯ Ã˜ÂªÃ˜Â§ Ã™â€¡Ã˜Â± Ã˜Â³Ã™â€ Ã˜Â§Ã˜Â±Ã›Å’Ã™Ë†Ã›Å’ Endpoint Ã˜Â§Ã˜Â² Ã™Ë†Ã˜Â¶Ã˜Â¹Ã›Å’Ã˜Âª Ã™â€šÃ˜Â·Ã˜Â¹Ã›Å’ Ã™Ë† Ã˜ÂªÃ™â€¦Ã›Å’Ã˜Â² Ã˜Â¢Ã˜ÂºÃ˜Â§Ã˜Â² Ã˜Â´Ã™Ë†Ã˜Â¯.
 /// </summary>
 public async Task ResetInstrumentsAsync()
     {
@@ -111,7 +112,7 @@ public async Task ResetInstrumentsAsync()
     }
 /// <summary>
 /// EN: Resets tables used by Listing endpoint scenarios while respecting foreign-key order.
-/// FA: Ø¬Ø¯ÙˆÙ„â€ŒÙ‡Ø§ÛŒ Ù…ÙˆØ±Ø¯ Ø§Ø³ØªÙØ§Ø¯Ù‡ Ø³Ù†Ø§Ø±ÛŒÙˆÙ‡Ø§ÛŒ Listing Ø±Ø§ Ø¨Ø§ Ø±Ø¹Ø§ÛŒØª ØªØ±ØªÛŒØ¨ Ú©Ù„ÛŒØ¯Ù‡Ø§ÛŒ Ø®Ø§Ø±Ø¬ÛŒ Ù¾Ø§Ú©â€ŒØ³Ø§Ø²ÛŒ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
+/// FA: Ã˜Â¬Ã˜Â¯Ã™Ë†Ã™â€žÃ¢â‚¬Å’Ã™â€¡Ã˜Â§Ã›Å’ Ã™â€¦Ã™Ë†Ã˜Â±Ã˜Â¯ Ã˜Â§Ã˜Â³Ã˜ÂªÃ™ÂÃ˜Â§Ã˜Â¯Ã™â€¡ Ã˜Â³Ã™â€ Ã˜Â§Ã˜Â±Ã›Å’Ã™Ë†Ã™â€¡Ã˜Â§Ã›Å’ Listing Ã˜Â±Ã˜Â§ Ã˜Â¨Ã˜Â§ Ã˜Â±Ã˜Â¹Ã˜Â§Ã›Å’Ã˜Âª Ã˜ÂªÃ˜Â±Ã˜ÂªÃ›Å’Ã˜Â¨ ÃšÂ©Ã™â€žÃ›Å’Ã˜Â¯Ã™â€¡Ã˜Â§Ã›Å’ Ã˜Â®Ã˜Â§Ã˜Â±Ã˜Â¬Ã›Å’ Ã™Â¾Ã˜Â§ÃšÂ©Ã¢â‚¬Å’Ã˜Â³Ã˜Â§Ã˜Â²Ã›Å’ Ã™â€¦Ã›Å’Ã¢â‚¬Å’ÃšÂ©Ã™â€ Ã˜Â¯.
 /// </summary>
 public async Task ResetListingsAsync()
     {
@@ -135,7 +136,7 @@ public async Task ResetListingsAsync()
     }
 /// <summary>
 /// EN: Creates active persistence dependencies required by Listing endpoint tests.
-/// FA: ÙˆØ§Ø¨Ø³ØªÚ¯ÛŒâ€ŒÙ‡Ø§ÛŒ ÙØ¹Ø§Ù„ Ù…ÙˆØ±Ø¯ Ù†ÛŒØ§Ø² ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ Endpoint Ù…Ø±Ø¨ÙˆØ· Ø¨Ù‡ Listing Ø±Ø§ Ø§ÛŒØ¬Ø§Ø¯ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
+/// FA: Ã™Ë†Ã˜Â§Ã˜Â¨Ã˜Â³Ã˜ÂªÃšÂ¯Ã›Å’Ã¢â‚¬Å’Ã™â€¡Ã˜Â§Ã›Å’ Ã™ÂÃ˜Â¹Ã˜Â§Ã™â€ž Ã™â€¦Ã™Ë†Ã˜Â±Ã˜Â¯ Ã™â€ Ã›Å’Ã˜Â§Ã˜Â² Ã˜ÂªÃ˜Â³Ã˜ÂªÃ¢â‚¬Å’Ã™â€¡Ã˜Â§Ã›Å’ Endpoint Ã™â€¦Ã˜Â±Ã˜Â¨Ã™Ë†Ã˜Â· Ã˜Â¨Ã™â€¡ Listing Ã˜Â±Ã˜Â§ Ã˜Â§Ã›Å’Ã˜Â¬Ã˜Â§Ã˜Â¯ Ã™â€¦Ã›Å’Ã¢â‚¬Å’ÃšÂ©Ã™â€ Ã˜Â¯.
 /// </summary>
 internal async Task<ListingTestSeed> CreateListingSeedAsync()
     {
@@ -186,7 +187,7 @@ internal async Task<ListingTestSeed> CreateListingSeedAsync()
     }
 /// <summary>
 /// EN: Resets trading-calendar test data before parent markets.
-/// FA: Ø¯Ø§Ø¯Ù‡â€ŒÙ‡Ø§ÛŒ ØªØ³Øª ØªÙ‚ÙˆÛŒÙ… Ù…Ø¹Ø§Ù…Ù„Ø§ØªÛŒ Ø±Ø§ Ù¾ÛŒØ´ Ø§Ø² MarketÙ‡Ø§ÛŒ ÙˆØ§Ù„Ø¯ Ù¾Ø§Ú©â€ŒØ³Ø§Ø²ÛŒ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
+/// FA: Ã˜Â¯Ã˜Â§Ã˜Â¯Ã™â€¡Ã¢â‚¬Å’Ã™â€¡Ã˜Â§Ã›Å’ Ã˜ÂªÃ˜Â³Ã˜Âª Ã˜ÂªÃ™â€šÃ™Ë†Ã›Å’Ã™â€¦ Ã™â€¦Ã˜Â¹Ã˜Â§Ã™â€¦Ã™â€žÃ˜Â§Ã˜ÂªÃ›Å’ Ã˜Â±Ã˜Â§ Ã™Â¾Ã›Å’Ã˜Â´ Ã˜Â§Ã˜Â² MarketÃ™â€¡Ã˜Â§Ã›Å’ Ã™Ë†Ã˜Â§Ã™â€žÃ˜Â¯ Ã™Â¾Ã˜Â§ÃšÂ©Ã¢â‚¬Å’Ã˜Â³Ã˜Â§Ã˜Â²Ã›Å’ Ã™â€¦Ã›Å’Ã¢â‚¬Å’ÃšÂ©Ã™â€ Ã˜Â¯.
 /// </summary>
 public async Task ResetTradingCalendarsAsync()
     {
@@ -208,7 +209,7 @@ public async Task ResetTradingCalendarsAsync()
     }
 /// <summary>
 /// EN: Creates an active market for trading-calendar tests.
-/// FA: ÛŒÚ© Market ÙØ¹Ø§Ù„ Ø¨Ø±Ø§ÛŒ ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ ØªÙ‚ÙˆÛŒÙ… Ù…Ø¹Ø§Ù…Ù„Ø§ØªÛŒ Ø§ÛŒØ¬Ø§Ø¯ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
+/// FA: Ã›Å’ÃšÂ© Market Ã™ÂÃ˜Â¹Ã˜Â§Ã™â€ž Ã˜Â¨Ã˜Â±Ã˜Â§Ã›Å’ Ã˜ÂªÃ˜Â³Ã˜ÂªÃ¢â‚¬Å’Ã™â€¡Ã˜Â§Ã›Å’ Ã˜ÂªÃ™â€šÃ™Ë†Ã›Å’Ã™â€¦ Ã™â€¦Ã˜Â¹Ã˜Â§Ã™â€¦Ã™â€žÃ˜Â§Ã˜ÂªÃ›Å’ Ã˜Â§Ã›Å’Ã˜Â¬Ã˜Â§Ã˜Â¯ Ã™â€¦Ã›Å’Ã¢â‚¬Å’ÃšÂ©Ã™â€ Ã˜Â¯.
 /// </summary>
 internal async Task<string> CreateTradingCalendarMarketAsync()
     {
@@ -233,7 +234,7 @@ internal async Task<string> CreateTradingCalendarMarketAsync()
 
         return market.Id.Value.ToString();
     }
-/// <summary>EN: Resets MarketPrice data and Listing dependencies. FA: Ø¯Ø§Ø¯Ù‡â€ŒÙ‡Ø§ÛŒ MarketPrice Ùˆ ÙˆØ§Ø¨Ø³ØªÚ¯ÛŒâ€ŒÙ‡Ø§ÛŒ Listing Ø±Ø§ Ù¾Ø§Ú©â€ŒØ³Ø§Ø²ÛŒ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.</summary>
+/// <summary>EN: Resets MarketPrice data and Listing dependencies. FA: Ã˜Â¯Ã˜Â§Ã˜Â¯Ã™â€¡Ã¢â‚¬Å’Ã™â€¡Ã˜Â§Ã›Å’ MarketPrice Ã™Ë† Ã™Ë†Ã˜Â§Ã˜Â¨Ã˜Â³Ã˜ÂªÃšÂ¯Ã›Å’Ã¢â‚¬Å’Ã™â€¡Ã˜Â§Ã›Å’ Listing Ã˜Â±Ã˜Â§ Ã™Â¾Ã˜Â§ÃšÂ©Ã¢â‚¬Å’Ã˜Â³Ã˜Â§Ã˜Â²Ã›Å’ Ã™â€¦Ã›Å’Ã¢â‚¬Å’ÃšÂ©Ã™â€ Ã˜Â¯.</summary>
 public async Task ResetMarketPricesAsync()
     {
         using IServiceScope scope = _factory.Services.CreateScope();
@@ -250,7 +251,7 @@ public async Task ResetMarketPricesAsync()
         await dbContext.Set<Instrument>().ExecuteDeleteAsync();
         await dbContext.Set<Currency>().ExecuteDeleteAsync();
     }
-/// <summary>EN: Creates an active Listing for MarketPrice tests. FA: ÛŒÚ© Listing ÙØ¹Ø§Ù„ Ø¨Ø±Ø§ÛŒ ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ MarketPrice Ø§ÛŒØ¬Ø§Ø¯ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.</summary>
+/// <summary>EN: Creates an active Listing for MarketPrice tests. FA: Ã›Å’ÃšÂ© Listing Ã™ÂÃ˜Â¹Ã˜Â§Ã™â€ž Ã˜Â¨Ã˜Â±Ã˜Â§Ã›Å’ Ã˜ÂªÃ˜Â³Ã˜ÂªÃ¢â‚¬Å’Ã™â€¡Ã˜Â§Ã›Å’ MarketPrice Ã˜Â§Ã›Å’Ã˜Â¬Ã˜Â§Ã˜Â¯ Ã™â€¦Ã›Å’Ã¢â‚¬Å’ÃšÂ©Ã™â€ Ã˜Â¯.</summary>
 internal async Task<string> CreateMarketPriceListingAsync()
     {
         ListingTestSeed seed = await CreateListingSeedAsync();
@@ -264,7 +265,7 @@ internal async Task<string> CreateMarketPriceListingAsync()
     }
 /// <summary>
 /// EN: Resets daily trade-statistics data and Listing dependencies.
-/// FA: Ø¯Ø§Ø¯Ù‡â€ŒÙ‡Ø§ÛŒ Ø¢Ù…Ø§Ø± Ù…Ø¹Ø§Ù…Ù„Ø§Øª Ø±ÙˆØ²Ø§Ù†Ù‡ Ùˆ ÙˆØ§Ø¨Ø³ØªÚ¯ÛŒâ€ŒÙ‡Ø§ÛŒ Listing Ø±Ø§ Ù¾Ø§Ú©â€ŒØ³Ø§Ø²ÛŒ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
+/// FA: Ã˜Â¯Ã˜Â§Ã˜Â¯Ã™â€¡Ã¢â‚¬Å’Ã™â€¡Ã˜Â§Ã›Å’ Ã˜Â¢Ã™â€¦Ã˜Â§Ã˜Â± Ã™â€¦Ã˜Â¹Ã˜Â§Ã™â€¦Ã™â€žÃ˜Â§Ã˜Âª Ã˜Â±Ã™Ë†Ã˜Â²Ã˜Â§Ã™â€ Ã™â€¡ Ã™Ë† Ã™Ë†Ã˜Â§Ã˜Â¨Ã˜Â³Ã˜ÂªÃšÂ¯Ã›Å’Ã¢â‚¬Å’Ã™â€¡Ã˜Â§Ã›Å’ Listing Ã˜Â±Ã˜Â§ Ã™Â¾Ã˜Â§ÃšÂ©Ã¢â‚¬Å’Ã˜Â³Ã˜Â§Ã˜Â²Ã›Å’ Ã™â€¦Ã›Å’Ã¢â‚¬Å’ÃšÂ©Ã™â€ Ã˜Â¯.
 /// </summary>
 public async Task ResetDailyTradeStatisticsAsync()
     {
@@ -289,7 +290,7 @@ public async Task ResetDailyTradeStatisticsAsync()
 
 /// <summary>
 /// EN: Creates an active Listing for daily trade-statistics tests.
-/// FA: ÛŒÚ© Listing ÙØ¹Ø§Ù„ Ø¨Ø±Ø§ÛŒ ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ Ø¢Ù…Ø§Ø± Ù…Ø¹Ø§Ù…Ù„Ø§Øª Ø±ÙˆØ²Ø§Ù†Ù‡ Ø§ÛŒØ¬Ø§Ø¯ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
+/// FA: Ã›Å’ÃšÂ© Listing Ã™ÂÃ˜Â¹Ã˜Â§Ã™â€ž Ã˜Â¨Ã˜Â±Ã˜Â§Ã›Å’ Ã˜ÂªÃ˜Â³Ã˜ÂªÃ¢â‚¬Å’Ã™â€¡Ã˜Â§Ã›Å’ Ã˜Â¢Ã™â€¦Ã˜Â§Ã˜Â± Ã™â€¦Ã˜Â¹Ã˜Â§Ã™â€¦Ã™â€žÃ˜Â§Ã˜Âª Ã˜Â±Ã™Ë†Ã˜Â²Ã˜Â§Ã™â€ Ã™â€¡ Ã˜Â§Ã›Å’Ã˜Â¬Ã˜Â§Ã˜Â¯ Ã™â€¦Ã›Å’Ã¢â‚¬Å’ÃšÂ©Ã™â€ Ã˜Â¯.
 /// </summary>
 internal async Task<string> CreateDailyTradeStatisticsListingAsync()
     {
@@ -318,7 +319,7 @@ internal async Task<string> CreateDailyTradeStatisticsListingAsync()
 
 /// <summary>
 /// EN: Resets intraday price ticks and their Listing dependencies.
-/// FA: TickÙ‡Ø§ÛŒ Ù‚ÛŒÙ…Øª Ø¯Ø±ÙˆÙ†â€ŒØ±ÙˆØ²ÛŒ Ùˆ ÙˆØ§Ø¨Ø³ØªÚ¯ÛŒâ€ŒÙ‡Ø§ÛŒ Listing Ø±Ø§ Ù¾Ø§Ú©â€ŒØ³Ø§Ø²ÛŒ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
+/// FA: TickÃ™â€¡Ã˜Â§Ã›Å’ Ã™â€šÃ›Å’Ã™â€¦Ã˜Âª Ã˜Â¯Ã˜Â±Ã™Ë†Ã™â€ Ã¢â‚¬Å’Ã˜Â±Ã™Ë†Ã˜Â²Ã›Å’ Ã™Ë† Ã™Ë†Ã˜Â§Ã˜Â¨Ã˜Â³Ã˜ÂªÃšÂ¯Ã›Å’Ã¢â‚¬Å’Ã™â€¡Ã˜Â§Ã›Å’ Listing Ã˜Â±Ã˜Â§ Ã™Â¾Ã˜Â§ÃšÂ©Ã¢â‚¬Å’Ã˜Â³Ã˜Â§Ã˜Â²Ã›Å’ Ã™â€¦Ã›Å’Ã¢â‚¬Å’ÃšÂ©Ã™â€ Ã˜Â¯.
 /// </summary>
 public async Task ResetIntradayPriceTicksAsync()
     {
@@ -343,7 +344,7 @@ public async Task ResetIntradayPriceTicksAsync()
 
 /// <summary>
 /// EN: Creates an active Listing for intraday price-tick tests.
-/// FA: ÛŒÚ© Listing ÙØ¹Ø§Ù„ Ø¨Ø±Ø§ÛŒ ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ Tick Ù‚ÛŒÙ…Øª Ø¯Ø±ÙˆÙ†â€ŒØ±ÙˆØ²ÛŒ Ø§ÛŒØ¬Ø§Ø¯ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
+/// FA: Ã›Å’ÃšÂ© Listing Ã™ÂÃ˜Â¹Ã˜Â§Ã™â€ž Ã˜Â¨Ã˜Â±Ã˜Â§Ã›Å’ Ã˜ÂªÃ˜Â³Ã˜ÂªÃ¢â‚¬Å’Ã™â€¡Ã˜Â§Ã›Å’ Tick Ã™â€šÃ›Å’Ã™â€¦Ã˜Âª Ã˜Â¯Ã˜Â±Ã™Ë†Ã™â€ Ã¢â‚¬Å’Ã˜Â±Ã™Ë†Ã˜Â²Ã›Å’ Ã˜Â§Ã›Å’Ã˜Â¬Ã˜Â§Ã˜Â¯ Ã™â€¦Ã›Å’Ã¢â‚¬Å’ÃšÂ©Ã™â€ Ã˜Â¯.
 /// </summary>
 internal async Task<string> CreateIntradayPriceTickListingAsync()
     {
@@ -371,9 +372,9 @@ internal async Task<string> CreateIntradayPriceTickListingAsync()
     }
 /// <summary>
 /// EN: Deletes the isolated database and disposes test resources after the collection finishes.
-/// FA: Ù¾Ø³ Ø§Ø² Ù¾Ø§ÛŒØ§Ù† Ù…Ø¬Ù…ÙˆØ¹Ù‡ ØªØ³ØªØŒ Ø¯ÛŒØªØ§Ø¨ÛŒØ³ Ù…Ø¬Ø²Ø§ Ø±Ø§ Ø­Ø°Ù Ú©Ø±Ø¯Ù‡ Ùˆ Ù…Ù†Ø§Ø¨Ø¹ ØªØ³Øª Ø±Ø§ Ø¢Ø²Ø§Ø¯ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
+/// FA: Ã™Â¾Ã˜Â³ Ã˜Â§Ã˜Â² Ã™Â¾Ã˜Â§Ã›Å’Ã˜Â§Ã™â€  Ã™â€¦Ã˜Â¬Ã™â€¦Ã™Ë†Ã˜Â¹Ã™â€¡ Ã˜ÂªÃ˜Â³Ã˜ÂªÃ˜Å’ Ã˜Â¯Ã›Å’Ã˜ÂªÃ˜Â§Ã˜Â¨Ã›Å’Ã˜Â³ Ã™â€¦Ã˜Â¬Ã˜Â²Ã˜Â§ Ã˜Â±Ã˜Â§ Ã˜Â­Ã˜Â°Ã™Â ÃšÂ©Ã˜Â±Ã˜Â¯Ã™â€¡ Ã™Ë† Ã™â€¦Ã™â€ Ã˜Â§Ã˜Â¨Ã˜Â¹ Ã˜ÂªÃ˜Â³Ã˜Âª Ã˜Â±Ã˜Â§ Ã˜Â¢Ã˜Â²Ã˜Â§Ã˜Â¯ Ã™â€¦Ã›Å’Ã¢â‚¬Å’ÃšÂ©Ã™â€ Ã˜Â¯.
 /// </summary>
-/// <summary>EN: Resets OrderBookSnapshot data and Listing dependencies. FA: Ø¯Ø§Ø¯Ù‡â€ŒÙ‡Ø§ÛŒ OrderBookSnapshot Ùˆ ÙˆØ§Ø¨Ø³ØªÚ¯ÛŒâ€ŒÙ‡Ø§ÛŒ Listing Ø±Ø§ Ù¾Ø§Ú©â€ŒØ³Ø§Ø²ÛŒ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.</summary>
+/// <summary>EN: Resets OrderBookSnapshot data and Listing dependencies. FA: Ã˜Â¯Ã˜Â§Ã˜Â¯Ã™â€¡Ã¢â‚¬Å’Ã™â€¡Ã˜Â§Ã›Å’ OrderBookSnapshot Ã™Ë† Ã™Ë†Ã˜Â§Ã˜Â¨Ã˜Â³Ã˜ÂªÃšÂ¯Ã›Å’Ã¢â‚¬Å’Ã™â€¡Ã˜Â§Ã›Å’ Listing Ã˜Â±Ã˜Â§ Ã™Â¾Ã˜Â§ÃšÂ©Ã¢â‚¬Å’Ã˜Â³Ã˜Â§Ã˜Â²Ã›Å’ Ã™â€¦Ã›Å’Ã¢â‚¬Å’ÃšÂ©Ã™â€ Ã˜Â¯.</summary>
 public async Task ResetOrderBookSnapshotsAsync()
     {
         using IServiceScope scope = _factory.Services.CreateScope();
@@ -391,7 +392,7 @@ public async Task ResetOrderBookSnapshotsAsync()
         await dbContext.Set<Currency>().ExecuteDeleteAsync();
     }
 
-/// <summary>EN: Creates an active Listing for OrderBookSnapshot tests. FA: ÛŒÚ© Listing ÙØ¹Ø§Ù„ Ø¨Ø±Ø§ÛŒ ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ OrderBookSnapshot Ø§ÛŒØ¬Ø§Ø¯ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.</summary>
+/// <summary>EN: Creates an active Listing for OrderBookSnapshot tests. FA: Ã›Å’ÃšÂ© Listing Ã™ÂÃ˜Â¹Ã˜Â§Ã™â€ž Ã˜Â¨Ã˜Â±Ã˜Â§Ã›Å’ Ã˜ÂªÃ˜Â³Ã˜ÂªÃ¢â‚¬Å’Ã™â€¡Ã˜Â§Ã›Å’ OrderBookSnapshot Ã˜Â§Ã›Å’Ã˜Â¬Ã˜Â§Ã˜Â¯ Ã™â€¦Ã›Å’Ã¢â‚¬Å’ÃšÂ©Ã™â€ Ã˜Â¯.</summary>
 internal async Task<string> CreateOrderBookSnapshotListingAsync()
     {
         ListingTestSeed seed = await CreateListingSeedAsync();
@@ -408,6 +409,21 @@ internal async Task<string> CreateOrderBookSnapshotListingAsync()
         await dbContext.Set<Listing>().AddAsync(listing);
         await dbContext.SaveChangesAsync();
         return listing.Id.Value.ToString();
+    }
+/// <summary>
+/// EN: Removes Investor rows from the isolated integration-test database.
+/// FA: Removes Investor rows from the isolated integration-test database.
+/// </summary>
+public async Task ResetInvestorsAsync()
+    {
+        using IServiceScope scope = _factory.Services.CreateScope();
+
+        ApplicationDbContext dbContext =
+            scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        EnsureSafeTestDatabase(dbContext);
+
+        await dbContext.Set<Investor>().ExecuteDeleteAsync();
     }
 public async Task DisposeAsync()
     {
@@ -440,7 +456,7 @@ public async Task DisposeAsync()
 }
 /// <summary>
 /// EN: Carries identifiers of dependencies seeded for a Listing integration-test scenario.
-/// FA: Ø´Ù†Ø§Ø³Ù‡ ÙˆØ§Ø¨Ø³ØªÚ¯ÛŒâ€ŒÙ‡Ø§ÛŒ Seed Ø´Ø¯Ù‡ Ø¨Ø±Ø§ÛŒ Ø³Ù†Ø§Ø±ÛŒÙˆÛŒ ØªØ³Øª Integration Ù…Ø±Ø¨ÙˆØ· Ø¨Ù‡ Listing Ø±Ø§ Ù†Ú¯Ù‡ Ù…ÛŒâ€ŒØ¯Ø§Ø±Ø¯.
+/// FA: Ã˜Â´Ã™â€ Ã˜Â§Ã˜Â³Ã™â€¡ Ã™Ë†Ã˜Â§Ã˜Â¨Ã˜Â³Ã˜ÂªÃšÂ¯Ã›Å’Ã¢â‚¬Å’Ã™â€¡Ã˜Â§Ã›Å’ Seed Ã˜Â´Ã˜Â¯Ã™â€¡ Ã˜Â¨Ã˜Â±Ã˜Â§Ã›Å’ Ã˜Â³Ã™â€ Ã˜Â§Ã˜Â±Ã›Å’Ã™Ë†Ã›Å’ Ã˜ÂªÃ˜Â³Ã˜Âª Integration Ã™â€¦Ã˜Â±Ã˜Â¨Ã™Ë†Ã˜Â· Ã˜Â¨Ã™â€¡ Listing Ã˜Â±Ã˜Â§ Ã™â€ ÃšÂ¯Ã™â€¡ Ã™â€¦Ã›Å’Ã¢â‚¬Å’Ã˜Â¯Ã˜Â§Ã˜Â±Ã˜Â¯.
 /// </summary>
 internal sealed record ListingTestSeed(
     string InstrumentId,

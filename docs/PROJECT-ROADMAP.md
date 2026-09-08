@@ -128,10 +128,10 @@ Implemented:
 
 ## Phase 4 — Market data
 
-- Daily prices — fulfilled by MarketPrice daily record
-- Daily trade statistics — implementation patch prepared; pending user-environment verification
-- Intraday/tick snapshots
-- Order book
+- Daily prices — fulfilled by MarketPrice daily record; implemented and integration-tested
+- Daily trade statistics — implemented and integration-tested
+- Intraday/tick snapshots — implemented by IntradayPriceTick and integration-tested
+- Order book — implemented by OrderBookSnapshot and integration-tested
 
 Only after Listing identity and lifecycle are stable.
 

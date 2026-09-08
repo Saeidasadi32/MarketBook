@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Tests
@@ -82,6 +82,7 @@ public async Task ResetCurrenciesAsync()
 
         EnsureSafeTestDatabase(dbContext);
 
+        await dbContext.Set<OrderBookSnapshot>().ExecuteDeleteAsync();
         await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
         await dbContext.Set<DailyTradeStatistics>().ExecuteDeleteAsync();
         await dbContext.Set<MarketPrice>().ExecuteDeleteAsync();
@@ -101,6 +102,7 @@ public async Task ResetInstrumentsAsync()
 
         EnsureSafeTestDatabase(dbContext);
 
+        await dbContext.Set<OrderBookSnapshot>().ExecuteDeleteAsync();
         await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
         await dbContext.Set<DailyTradeStatistics>().ExecuteDeleteAsync();
         await dbContext.Set<MarketPrice>().ExecuteDeleteAsync();
@@ -120,6 +122,7 @@ public async Task ResetListingsAsync()
 
         EnsureSafeTestDatabase(dbContext);
 
+        await dbContext.Set<OrderBookSnapshot>().ExecuteDeleteAsync();
         await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
         await dbContext.Set<DailyTradeStatistics>().ExecuteDeleteAsync();
         await dbContext.Set<MarketPrice>().ExecuteDeleteAsync();
@@ -194,6 +197,7 @@ public async Task ResetTradingCalendarsAsync()
 
         EnsureSafeTestDatabase(dbContext);
 
+        await dbContext.Set<OrderBookSnapshot>().ExecuteDeleteAsync();
         await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
         await dbContext.Set<DailyTradeStatistics>().ExecuteDeleteAsync();
         await dbContext.Set<MarketPrice>().ExecuteDeleteAsync();
@@ -235,6 +239,7 @@ public async Task ResetMarketPricesAsync()
         using IServiceScope scope = _factory.Services.CreateScope();
         ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         EnsureSafeTestDatabase(dbContext);
+        await dbContext.Set<OrderBookSnapshot>().ExecuteDeleteAsync();
         await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
         await dbContext.Set<DailyTradeStatistics>().ExecuteDeleteAsync();
         await dbContext.Set<MarketPrice>().ExecuteDeleteAsync();
@@ -270,6 +275,7 @@ public async Task ResetDailyTradeStatisticsAsync()
 
         EnsureSafeTestDatabase(dbContext);
 
+        await dbContext.Set<OrderBookSnapshot>().ExecuteDeleteAsync();
         await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
         await dbContext.Set<DailyTradeStatistics>().ExecuteDeleteAsync();
         await dbContext.Set<MarketPrice>().ExecuteDeleteAsync();
@@ -323,6 +329,7 @@ public async Task ResetIntradayPriceTicksAsync()
 
         EnsureSafeTestDatabase(dbContext);
 
+        await dbContext.Set<OrderBookSnapshot>().ExecuteDeleteAsync();
         await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
         await dbContext.Set<DailyTradeStatistics>().ExecuteDeleteAsync();
         await dbContext.Set<MarketPrice>().ExecuteDeleteAsync();
@@ -366,6 +373,42 @@ internal async Task<string> CreateIntradayPriceTickListingAsync()
 /// EN: Deletes the isolated database and disposes test resources after the collection finishes.
 /// FA: Ù¾Ø³ Ø§Ø² Ù¾Ø§ÛŒØ§Ù† Ù…Ø¬Ù…ÙˆØ¹Ù‡ ØªØ³ØªØŒ Ø¯ÛŒØªØ§Ø¨ÛŒØ³ Ù…Ø¬Ø²Ø§ Ø±Ø§ Ø­Ø°Ù Ú©Ø±Ø¯Ù‡ Ùˆ Ù…Ù†Ø§Ø¨Ø¹ ØªØ³Øª Ø±Ø§ Ø¢Ø²Ø§Ø¯ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
 /// </summary>
+/// <summary>EN: Resets OrderBookSnapshot data and Listing dependencies. FA: Ø¯Ø§Ø¯Ù‡â€ŒÙ‡Ø§ÛŒ OrderBookSnapshot Ùˆ ÙˆØ§Ø¨Ø³ØªÚ¯ÛŒâ€ŒÙ‡Ø§ÛŒ Listing Ø±Ø§ Ù¾Ø§Ú©â€ŒØ³Ø§Ø²ÛŒ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.</summary>
+public async Task ResetOrderBookSnapshotsAsync()
+    {
+        using IServiceScope scope = _factory.Services.CreateScope();
+        ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        EnsureSafeTestDatabase(dbContext);
+        await dbContext.Set<OrderBookSnapshot>().ExecuteDeleteAsync();
+        await dbContext.Set<IntradayPriceTick>().ExecuteDeleteAsync();
+        await dbContext.Set<DailyTradeStatistics>().ExecuteDeleteAsync();
+        await dbContext.Set<MarketPrice>().ExecuteDeleteAsync();
+        await dbContext.Set<Listing>().ExecuteDeleteAsync();
+        await dbContext.Set<TradingCalendar>().ExecuteDeleteAsync();
+        await dbContext.Set<Venue>().ExecuteDeleteAsync();
+        await dbContext.Set<Market>().ExecuteDeleteAsync();
+        await dbContext.Set<Instrument>().ExecuteDeleteAsync();
+        await dbContext.Set<Currency>().ExecuteDeleteAsync();
+    }
+
+/// <summary>EN: Creates an active Listing for OrderBookSnapshot tests. FA: ÛŒÚ© Listing ÙØ¹Ø§Ù„ Ø¨Ø±Ø§ÛŒ ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ OrderBookSnapshot Ø§ÛŒØ¬Ø§Ø¯ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.</summary>
+internal async Task<string> CreateOrderBookSnapshotListingAsync()
+    {
+        ListingTestSeed seed = await CreateListingSeedAsync();
+        using IServiceScope scope = _factory.Services.CreateScope();
+        ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        EnsureSafeTestDatabase(dbContext);
+        Listing listing = Listing.Create(
+            InstrumentId.Parse(seed.InstrumentId),
+            VenueId.Parse(seed.VenueId),
+            CurrencyId.Parse(seed.QuoteCurrencyId),
+            new MarketBook.Domain.Listing.ValueObjects.TradingSymbol("OBSNAP"),
+            1m,
+            2);
+        await dbContext.Set<Listing>().AddAsync(listing);
+        await dbContext.SaveChangesAsync();
+        return listing.Id.Value.ToString();
+    }
 public async Task DisposeAsync()
     {
         using IServiceScope scope = _factory.Services.CreateScope();

@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Infrastructure
@@ -57,6 +57,7 @@ public static IServiceCollection AddInfrastructure(
         services.AddScoped<IMarketPriceRepository, MarketPriceRepository>();
         services.AddScoped<IDailyTradeStatisticsRepository, DailyTradeStatisticsRepository>();
         services.AddScoped<IIntradayPriceTickRepository, IntradayPriceTickRepository>();
+        services.AddScoped<IOrderBookSnapshotRepository, OrderBookSnapshotRepository>();
 
         services.AddSingleton(typeof(ILoggerAdapter<>), typeof(LoggerAdapter<>));
 

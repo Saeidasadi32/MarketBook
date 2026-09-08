@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Infrastructure
@@ -20,13 +20,13 @@ using Microsoft.Extensions.DependencyInjection;
 namespace MarketBook.Infrastructure;
 /// <summary>
 /// EN: Provides dependency injection registration for Infrastructure services.
-/// FA: Ã˜Â«Ã˜Â¨Ã˜Âª Ã™Ë†Ã˜Â§Ã˜Â¨Ã˜Â³Ã˜ÂªÃšÂ¯Ã›Å’Ã¢â‚¬Å’Ã™â€¡Ã˜Â§Ã›Å’ Ã™â€žÃ˜Â§Ã›Å’Ã™â€¡ Infrastructure Ã˜Â±Ã˜Â§ Ã™ÂÃ˜Â±Ã˜Â§Ã™â€¡Ã™â€¦ Ã™â€¦Ã›Å’Ã¢â‚¬Å’ÃšÂ©Ã™â€ Ã˜Â¯.
+/// FA: ÃƒËœÃ‚Â«ÃƒËœÃ‚Â¨ÃƒËœÃ‚Âª Ãƒâ„¢Ã‹â€ ÃƒËœÃ‚Â§ÃƒËœÃ‚Â¨ÃƒËœÃ‚Â³ÃƒËœÃ‚ÂªÃƒÅ¡Ã‚Â¯Ãƒâ€ºÃ…â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…â€™Ãƒâ„¢Ã¢â‚¬Â¡ÃƒËœÃ‚Â§Ãƒâ€ºÃ…â€™ Ãƒâ„¢Ã¢â‚¬Å¾ÃƒËœÃ‚Â§Ãƒâ€ºÃ…â€™Ãƒâ„¢Ã¢â‚¬Â¡ Infrastructure ÃƒËœÃ‚Â±ÃƒËœÃ‚Â§ Ãƒâ„¢Ã‚ÂÃƒËœÃ‚Â±ÃƒËœÃ‚Â§Ãƒâ„¢Ã¢â‚¬Â¡Ãƒâ„¢Ã¢â‚¬Â¦ Ãƒâ„¢Ã¢â‚¬Â¦Ãƒâ€ºÃ…â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…â€™ÃƒÅ¡Ã‚Â©Ãƒâ„¢Ã¢â‚¬Â ÃƒËœÃ‚Â¯.
 /// </summary>
 public static class DependencyInjection
 {
 /// <summary>
 /// EN: Registers Infrastructure services and persistence components.
-/// FA: Ã˜Â³Ã˜Â±Ã™Ë†Ã›Å’Ã˜Â³Ã¢â‚¬Å’Ã™â€¡Ã˜Â§ Ã™Ë† Ã˜Â§Ã˜Â¬Ã˜Â²Ã˜Â§Ã›Å’ Ã™â€¦Ã˜Â§Ã™â€ Ã˜Â¯ÃšÂ¯Ã˜Â§Ã˜Â±Ã›Å’ Ã™â€žÃ˜Â§Ã›Å’Ã™â€¡ Infrastructure Ã˜Â±Ã˜Â§ Ã˜Â«Ã˜Â¨Ã˜Âª Ã™â€¦Ã›Å’Ã¢â‚¬Å’ÃšÂ©Ã™â€ Ã˜Â¯.
+/// FA: ÃƒËœÃ‚Â³ÃƒËœÃ‚Â±Ãƒâ„¢Ã‹â€ Ãƒâ€ºÃ…â€™ÃƒËœÃ‚Â³ÃƒÂ¢Ã¢â€šÂ¬Ã…â€™Ãƒâ„¢Ã¢â‚¬Â¡ÃƒËœÃ‚Â§ Ãƒâ„¢Ã‹â€  ÃƒËœÃ‚Â§ÃƒËœÃ‚Â¬ÃƒËœÃ‚Â²ÃƒËœÃ‚Â§Ãƒâ€ºÃ…â€™ Ãƒâ„¢Ã¢â‚¬Â¦ÃƒËœÃ‚Â§Ãƒâ„¢Ã¢â‚¬Â ÃƒËœÃ‚Â¯ÃƒÅ¡Ã‚Â¯ÃƒËœÃ‚Â§ÃƒËœÃ‚Â±Ãƒâ€ºÃ…â€™ Ãƒâ„¢Ã¢â‚¬Å¾ÃƒËœÃ‚Â§Ãƒâ€ºÃ…â€™Ãƒâ„¢Ã¢â‚¬Â¡ Infrastructure ÃƒËœÃ‚Â±ÃƒËœÃ‚Â§ ÃƒËœÃ‚Â«ÃƒËœÃ‚Â¨ÃƒËœÃ‚Âª Ãƒâ„¢Ã¢â‚¬Â¦Ãƒâ€ºÃ…â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…â€™ÃƒÅ¡Ã‚Â©Ãƒâ„¢Ã¢â‚¬Â ÃƒËœÃ‚Â¯.
 /// </summary>
 public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
@@ -60,10 +60,12 @@ public static IServiceCollection AddInfrastructure(
         services.AddScoped<IOrderBookSnapshotRepository, OrderBookSnapshotRepository>();
         services.AddScoped<IInvestorRepository, InvestorRepository>();
         services.AddScoped<IPortfolioRepository, PortfolioRepository>();
+        services.AddScoped<IPortfolioTransactionRepository, PortfolioTransactionRepository>();
 
         services.AddSingleton(typeof(ILoggerAdapter<>), typeof(LoggerAdapter<>));
 
         return services;
     }
 }
+
 

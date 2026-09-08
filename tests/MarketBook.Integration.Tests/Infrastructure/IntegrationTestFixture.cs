@@ -15,6 +15,7 @@ using MarketBook.Domain.Instrument.Aggregates;
 using MarketBook.Domain.Instrument.Enums;
 using MarketBook.Domain.Instrument.ValueObjects;
 using MarketBook.Domain.Investor.Aggregates;
+using MarketBook.Domain.Portfolio.Aggregates;
 using MarketBook.Domain.Listing.Aggregates;
 using MarketBook.Domain.Market.Aggregates;
 using MarketBook.Domain.MarketData.Aggregates;
@@ -423,6 +424,7 @@ public async Task ResetInvestorsAsync()
 
         EnsureSafeTestDatabase(dbContext);
 
+        await dbContext.Set<Portfolio>().ExecuteDeleteAsync();
         await dbContext.Set<Investor>().ExecuteDeleteAsync();
     }
 public async Task DisposeAsync()

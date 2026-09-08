@@ -8,6 +8,7 @@
 // Licensed under the MIT License.
 // -----------------------------------------------------------------------------
 
+
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Common.ValueObjects;
 using MarketBook.Domain.Financial.ValueObjects;
@@ -19,8 +20,8 @@ using MarketBook.Domain.Portfolio.ValueObjects;
 namespace MarketBook.Domain.Portfolio.Aggregates;
 
 /// <summary>
-/// EN: Represents an investment portfolio.
-/// FA: یک پرتفوی سرمایه‌گذاری را نمایش می‌دهد.
+/// EN: Represents an investment portfolio owned by an investor.
+/// FA: یک پرتفوی سرمایه‌گذاری متعلق به یک سرمایه‌گذار را نمایش می‌دهد.
 /// </summary>
 public sealed class Portfolio : AggregateRoot<PortfolioId>
 {
@@ -37,6 +38,7 @@ public sealed class Portfolio : AggregateRoot<PortfolioId>
         PortfolioName name)
         : base(id)
     {
+        ArgumentNullException.ThrowIfNull(investorId);
         ArgumentNullException.ThrowIfNull(name);
 
         InvestorId = investorId;
@@ -51,26 +53,27 @@ public sealed class Portfolio : AggregateRoot<PortfolioId>
     /// </summary>
     private Portfolio()
     {
-        // For ORM
+        InvestorId = default!;
+        Name = default!;
     }
 
     /// <summary>
     /// EN: Gets investor identifier.
     /// FA: شناسه سرمایه‌گذار را دریافت می‌کند.
     /// </summary>
-    public InvestorId InvestorId { get; private set; } = default!;
+    public InvestorId InvestorId { get; private set; }
 
     /// <summary>
     /// EN: Gets portfolio name.
     /// FA: نام پرتفوی را دریافت می‌کند.
     /// </summary>
-    public PortfolioName Name { get; private set; } = default!;
+    public PortfolioName Name { get; private set; }
 
     /// <summary>
     /// EN: Gets creation date.
     /// FA: تاریخ ایجاد را دریافت می‌کند.
     /// </summary>
-    public DateTimeOffset CreatedOn { get; }
+    public DateTimeOffset CreatedOn { get; private set; }
 
     /// <summary>
     /// EN: Gets whether portfolio is active.
@@ -91,6 +94,20 @@ public sealed class Portfolio : AggregateRoot<PortfolioId>
     /// </summary>
     public IReadOnlyCollection<PortfolioEvent> Events
         => _events.AsReadOnly();
+
+    /// <summary>
+    /// EN: Creates a portfolio with a generated identifier.
+    /// FA: یک پرتفوی با شناسه تولیدشده ایجاد می‌کند.
+    /// </summary>
+    public static Portfolio Create(
+        InvestorId investorId,
+        PortfolioName name)
+    {
+        ArgumentNullException.ThrowIfNull(investorId);
+        ArgumentNullException.ThrowIfNull(name);
+
+        return new Portfolio(PortfolioId.New(), investorId, name);
+    }
 
     /// <summary>
     /// EN: Renames the portfolio.
@@ -150,7 +167,7 @@ public sealed class Portfolio : AggregateRoot<PortfolioId>
         _events.Add(portfolioEvent);
 
         Position? position = _positions.FirstOrDefault(
-            x => x.ListingId == portfolioEvent.ListingId);
+            item => item.ListingId == portfolioEvent.ListingId);
 
         if (position is null)
         {
@@ -207,7 +224,9 @@ public sealed class Portfolio : AggregateRoot<PortfolioId>
 /// EN: Domain event raised when a portfolio is renamed.
 /// FA: رویداد دامنه زمانی که نام پرتفوی تغییر می‌کند.
 /// </summary>
-public sealed record PortfolioRenamedEvent(PortfolioId PortfolioId, PortfolioName NewName) : DomainEvent;
+public sealed record PortfolioRenamedEvent(
+    PortfolioId PortfolioId,
+    PortfolioName NewName) : DomainEvent;
 
 /// <summary>
 /// EN: Domain event raised when a portfolio is activated.
@@ -225,4 +244,6 @@ public sealed record PortfolioDeactivatedEvent(PortfolioId PortfolioId) : Domain
 /// EN: Domain event raised when an event is registered on a portfolio.
 /// FA: رویداد دامنه زمانی که یک رویداد روی پرتفوی ثبت می‌شود.
 /// </summary>
-public sealed record PortfolioEventRegisteredEvent(PortfolioId PortfolioId, PortfolioEvent PortfolioEvent) : DomainEvent;
+public sealed record PortfolioEventRegisteredEvent(
+    PortfolioId PortfolioId,
+    PortfolioEvent PortfolioEvent) : DomainEvent;

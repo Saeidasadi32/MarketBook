@@ -59,6 +59,7 @@ public static IServiceCollection AddInfrastructure(
         services.AddScoped<IIntradayPriceTickRepository, IntradayPriceTickRepository>();
         services.AddScoped<IOrderBookSnapshotRepository, OrderBookSnapshotRepository>();
         services.AddScoped<IInvestorRepository, InvestorRepository>();
+        services.AddScoped<IPortfolioRepository, PortfolioRepository>();
 
         services.AddSingleton(typeof(ILoggerAdapter<>), typeof(LoggerAdapter<>));
 

@@ -1,6 +1,6 @@
 # MarketBook Project Roadmap
 
-Status date: 2026-09-05
+Status date: 2026-09-08
 
 ## Phase 1 — Market structure foundation
 
@@ -106,7 +106,7 @@ Target slice:
 
 ## Phase 3 — Trading calendar and market structure details
 
-### TradingCalendar / TradingSession — implemented, pending user-environment verification
+### TradingCalendar / TradingSession — implemented and integration-tested
 
 Implemented:
 
@@ -119,16 +119,19 @@ Implemented:
 - Activate / Deactivate
 - EF mapping, migration, relational constraints, and integration tests
 
-Implemented next:
+### MarketPrice / price limits — implemented and integration-tested
 
-- MarketPrice / price limits — implementation patch prepared; pending user-environment verification
+- official daily OHLC and close/reference prices
+- daily permitted lower/upper price limits
+- unique Listing/date record
+- persistence, API, migration, and integration tests
 
 ## Phase 4 — Market data
 
-- Daily prices
+- Daily prices — fulfilled by MarketPrice daily record
+- Daily trade statistics — implementation patch prepared; pending user-environment verification
 - Intraday/tick snapshots
 - Order book
-- Trade statistics
 
 Only after Listing identity and lifecycle are stable.
 

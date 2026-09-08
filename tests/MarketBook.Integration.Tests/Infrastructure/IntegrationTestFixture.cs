@@ -82,6 +82,7 @@ public async Task ResetCurrenciesAsync()
 
         EnsureSafeTestDatabase(dbContext);
 
+        await dbContext.Set<DailyTradeStatistics>().ExecuteDeleteAsync();
         await dbContext.Set<MarketPrice>().ExecuteDeleteAsync();
         await dbContext.Set<Listing>().ExecuteDeleteAsync();
         await dbContext.Set<Currency>().ExecuteDeleteAsync();
@@ -99,6 +100,7 @@ public async Task ResetInstrumentsAsync()
 
         EnsureSafeTestDatabase(dbContext);
 
+        await dbContext.Set<DailyTradeStatistics>().ExecuteDeleteAsync();
         await dbContext.Set<MarketPrice>().ExecuteDeleteAsync();
         await dbContext.Set<Listing>().ExecuteDeleteAsync();
         await dbContext.Set<Instrument>().ExecuteDeleteAsync();
@@ -116,6 +118,7 @@ public async Task ResetListingsAsync()
 
         EnsureSafeTestDatabase(dbContext);
 
+        await dbContext.Set<DailyTradeStatistics>().ExecuteDeleteAsync();
         await dbContext.Set<MarketPrice>().ExecuteDeleteAsync();
         await dbContext.Set<Listing>().ExecuteDeleteAsync();
         await dbContext.Set<TradingCalendar>().ExecuteDeleteAsync();
@@ -188,6 +191,7 @@ public async Task ResetTradingCalendarsAsync()
 
         EnsureSafeTestDatabase(dbContext);
 
+        await dbContext.Set<DailyTradeStatistics>().ExecuteDeleteAsync();
         await dbContext.Set<MarketPrice>().ExecuteDeleteAsync();
         await dbContext.Set<Listing>().ExecuteDeleteAsync();
         await dbContext.Set<TradingCalendar>().ExecuteDeleteAsync();
@@ -227,6 +231,7 @@ public async Task ResetMarketPricesAsync()
         using IServiceScope scope = _factory.Services.CreateScope();
         ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         EnsureSafeTestDatabase(dbContext);
+        await dbContext.Set<DailyTradeStatistics>().ExecuteDeleteAsync();
         await dbContext.Set<MarketPrice>().ExecuteDeleteAsync();
         await dbContext.Set<Listing>().ExecuteDeleteAsync();
         await dbContext.Set<TradingCalendar>().ExecuteDeleteAsync();
@@ -247,6 +252,58 @@ internal async Task<string> CreateMarketPriceListingAsync()
         await dbContext.SaveChangesAsync();
         return listing.Id.Value.ToString();
     }
+/// <summary>
+/// EN: Resets daily trade-statistics data and Listing dependencies.
+/// FA: داده‌های آمار معاملات روزانه و وابستگی‌های Listing را پاک‌سازی می‌کند.
+/// </summary>
+public async Task ResetDailyTradeStatisticsAsync()
+    {
+        using IServiceScope scope = _factory.Services.CreateScope();
+
+        ApplicationDbContext dbContext =
+            scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        EnsureSafeTestDatabase(dbContext);
+
+        await dbContext.Set<DailyTradeStatistics>().ExecuteDeleteAsync();
+        await dbContext.Set<MarketPrice>().ExecuteDeleteAsync();
+        await dbContext.Set<Listing>().ExecuteDeleteAsync();
+        await dbContext.Set<TradingCalendar>().ExecuteDeleteAsync();
+        await dbContext.Set<Venue>().ExecuteDeleteAsync();
+        await dbContext.Set<Market>().ExecuteDeleteAsync();
+        await dbContext.Set<Instrument>().ExecuteDeleteAsync();
+        await dbContext.Set<Currency>().ExecuteDeleteAsync();
+    }
+
+/// <summary>
+/// EN: Creates an active Listing for daily trade-statistics tests.
+/// FA: یک Listing فعال برای تست‌های آمار معاملات روزانه ایجاد می‌کند.
+/// </summary>
+internal async Task<string> CreateDailyTradeStatisticsListingAsync()
+    {
+        ListingTestSeed seed = await CreateListingSeedAsync();
+
+        using IServiceScope scope = _factory.Services.CreateScope();
+
+        ApplicationDbContext dbContext =
+            scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        EnsureSafeTestDatabase(dbContext);
+
+        Listing listing = Listing.Create(
+            InstrumentId.Parse(seed.InstrumentId),
+            VenueId.Parse(seed.VenueId),
+            CurrencyId.Parse(seed.QuoteCurrencyId),
+            new MarketBook.Domain.Listing.ValueObjects.TradingSymbol("DTSTAT"),
+            1m,
+            0);
+
+        await dbContext.Set<Listing>().AddAsync(listing);
+        await dbContext.SaveChangesAsync();
+
+        return listing.Id.Value.ToString();
+    }
+
 /// <summary>
 /// EN: Deletes the isolated database and disposes test resources after the collection finishes.
 /// FA: پس از پایان مجموعه تست، دیتابیس مجزا را حذف کرده و منابع تست را آزاد می‌کند.

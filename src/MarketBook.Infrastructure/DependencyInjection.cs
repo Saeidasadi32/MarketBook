@@ -55,6 +55,7 @@ public static IServiceCollection AddInfrastructure(
         services.AddScoped<IListingRepository, ListingRepository>();
         services.AddScoped<ITradingCalendarRepository, TradingCalendarRepository>();
         services.AddScoped<IMarketPriceRepository, MarketPriceRepository>();
+        services.AddScoped<IDailyTradeStatisticsRepository, DailyTradeStatisticsRepository>();
 
         services.AddSingleton(typeof(ILoggerAdapter<>), typeof(LoggerAdapter<>));
 

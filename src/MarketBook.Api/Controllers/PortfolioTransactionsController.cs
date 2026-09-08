@@ -13,6 +13,7 @@ using MarketBook.Application.Features.PortfolioTransactions.Commands.CreatePortf
 using MarketBook.Application.Features.PortfolioTransactions.Queries.GetPortfolioPositions;
 using MarketBook.Application.Features.PortfolioTransactions.Queries.GetPortfolioRealizedPnl;
 using MarketBook.Application.Features.PortfolioTransactions.Queries.GetPortfolioValuation;
+using MarketBook.Application.Features.PortfolioTransactions.Queries.GetPortfolioTotalPnl;
 using MarketBook.Application.Features.PortfolioTransactions.Queries.GetPortfolioTransactionById;
 using MarketBook.Application.Features.PortfolioTransactions.Queries.GetPortfolioTransactions;
 using MarketBook.Domain.Common;
@@ -107,6 +108,28 @@ public sealed class PortfolioTransactionsController : ControllerBase
         Result<GetPortfolioPositionsResponse> result =
             await _sender.Send(
                 new GetPortfolioPositionsQuery(portfolioId),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Returns realized, unrealized, and total portfolio P/L separated by currency.
+    /// FA: سود/زیان تحقق‌یافته، تحقق‌نیافته و کل پرتفوی را به تفکیک ارز برمی‌گرداند.
+    /// </summary>
+    [HttpGet("total-pnl")]
+    public async Task<IActionResult> GetTotalPnl(
+        [FromQuery] string portfolioId,
+        [FromQuery] string? listingId = null,
+        CancellationToken cancellationToken = default)
+    {
+        Result<GetPortfolioTotalPnlResponse> result =
+            await _sender.Send(
+                new GetPortfolioTotalPnlQuery(
+                    portfolioId,
+                    listingId),
                 cancellationToken);
 
         return result.IsSuccess

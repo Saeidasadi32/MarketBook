@@ -17,6 +17,7 @@ using MarketBook.Application.Features.Portfolios.Commands.SetPortfolioBaseCurren
 using MarketBook.Application.Features.Portfolios.Commands.UpdatePortfolio;
 using MarketBook.Application.Features.Portfolios.Queries.GetAllPortfolios;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioById;
+using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioNav;
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Portfolio.ValueObjects;
 using MediatR;
@@ -151,6 +152,25 @@ public sealed class PortfoliosController : ControllerBase
     {
         Result<GetPortfolioByIdResponse> result =
             await _sender.Send(new GetPortfolioByIdQuery(id), cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Gets current net asset value grouped by currency.
+    /// FA: ارزش خالص دارایی جاری را به تفکیک ارز دریافت می‌کند.
+    /// </summary>
+    [HttpGet("{id}/nav")]
+    public async Task<IActionResult> GetNav(
+        string id,
+        CancellationToken cancellationToken)
+    {
+        Result<GetPortfolioNavResponse> result =
+            await _sender.Send(
+                new GetPortfolioNavQuery(id),
+                cancellationToken);
 
         return result.IsSuccess
             ? Ok(result.Value)

@@ -18,6 +18,7 @@ using MarketBook.Application.Features.Portfolios.Commands.UpdatePortfolio;
 using MarketBook.Application.Features.Portfolios.Queries.GetAllPortfolios;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioById;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioNav;
+using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioTranslatedNav;
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Portfolio.ValueObjects;
 using MediatR;
@@ -170,6 +171,25 @@ public sealed class PortfoliosController : ControllerBase
         Result<GetPortfolioNavResponse> result =
             await _sender.Send(
                 new GetPortfolioNavQuery(id),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Gets current portfolio NAV translated into the configured base currency.
+    /// FA: NAV جاری پرتفوی را پس از ترجمه به ارز پایه تنظیم‌شده دریافت می‌کند.
+    /// </summary>
+    [HttpGet("{id}/translated-nav")]
+    public async Task<IActionResult> GetTranslatedNav(
+        string id,
+        CancellationToken cancellationToken)
+    {
+        Result<GetPortfolioTranslatedNavResponse> result =
+            await _sender.Send(
+                new GetPortfolioTranslatedNavQuery(id),
                 cancellationToken);
 
         return result.IsSuccess

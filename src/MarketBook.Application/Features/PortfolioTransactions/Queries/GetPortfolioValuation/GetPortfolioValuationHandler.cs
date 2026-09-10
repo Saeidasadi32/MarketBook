@@ -89,10 +89,16 @@ public sealed class GetPortfolioValuationHandler
         }
 
         List<PortfolioTransaction> ledger =
-            await _transactionRepository.GetLedgerAsync(
-                portfolioId,
-                listingId,
-                cancellationToken);
+            request.AsOf.HasValue
+                ? await _transactionRepository.GetLedgerAsync(
+                    portfolioId,
+                    listingId,
+                    request.AsOf.Value,
+                    cancellationToken)
+                : await _transactionRepository.GetLedgerAsync(
+                    portfolioId,
+                    listingId,
+                    cancellationToken);
 
         List<PortfolioValuationItemResponse> items = [];
 
@@ -177,9 +183,14 @@ public sealed class GetPortfolioValuationHandler
             }
 
             MarketPrice? latestPrice =
-                await _marketPriceRepository.GetLatestByListingIdAsync(
-                    currentListingId,
-                    cancellationToken);
+                request.AsOf.HasValue
+                    ? await _marketPriceRepository.GetLatestByListingIdAsync(
+                        currentListingId,
+                        DateOnly.FromDateTime(request.AsOf.Value.DateTime),
+                        cancellationToken)
+                    : await _marketPriceRepository.GetLatestByListingIdAsync(
+                        currentListingId,
+                        cancellationToken);
 
             decimal averageAcquisitionPrice = bookCost / quantity;
 

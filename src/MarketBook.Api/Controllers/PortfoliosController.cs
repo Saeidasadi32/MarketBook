@@ -18,6 +18,7 @@ using MarketBook.Application.Features.Portfolios.Commands.UpdatePortfolio;
 using MarketBook.Application.Features.Portfolios.Queries.GetAllPortfolios;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioById;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioNav;
+using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioNavAsOf;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioTranslatedNav;
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Portfolio.ValueObjects;
@@ -171,6 +172,26 @@ public sealed class PortfoliosController : ControllerBase
         Result<GetPortfolioNavResponse> result =
             await _sender.Send(
                 new GetPortfolioNavQuery(id),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Gets portfolio NAV reconstructed at an inclusive historical cutoff instant.
+    /// FA: NAV پرتفوی را در یک لحظه تاریخی شامل‌شونده بازسازی و دریافت می‌کند.
+    /// </summary>
+    [HttpGet("{id}/nav/as-of")]
+    public async Task<IActionResult> GetNavAsOf(
+        string id,
+        [FromQuery] DateTimeOffset asOf,
+        CancellationToken cancellationToken)
+    {
+        Result<GetPortfolioNavAsOfResponse> result =
+            await _sender.Send(
+                new GetPortfolioNavAsOfQuery(id, asOf),
                 cancellationToken);
 
         return result.IsSuccess

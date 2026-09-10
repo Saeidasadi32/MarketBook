@@ -27,6 +27,8 @@ void Update(MarketPrice marketPrice);
 
 /// <summary>EN: Gets the latest available market price for a Listing. FA: آخرین قیمت بازار موجود برای یک Listing را دریافت می‌کند.</summary>
 Task<MarketPrice?> GetLatestByListingIdAsync(ListingId listingId,CancellationToken cancellationToken=default);
+/// <summary>EN: Gets the latest market price on or before a trading date. FA: آخرین قیمت بازار را در تاریخ معاملاتی تعیین‌شده یا قبل از آن دریافت می‌کند.</summary>
+Task<MarketPrice?> GetLatestByListingIdAsync(ListingId listingId,DateOnly onOrBeforeTradingDate,CancellationToken cancellationToken=default);
 /// <summary>EN: Gets paged records. FA: رکوردهای صفحه‌بندی‌شده را دریافت می‌کند.</summary>
 Task<PagedResult<MarketPrice>> GetPagedAsync(PageRequest pageRequest,CancellationToken cancellationToken=default);
 }

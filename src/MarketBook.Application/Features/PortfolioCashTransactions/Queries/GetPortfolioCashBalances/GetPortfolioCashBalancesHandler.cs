@@ -39,7 +39,15 @@ public sealed class GetPortfolioCashBalancesHandler
                 "PortfolioCashTransaction.InvalidPortfolioId",
                 "The portfolio identifier is invalid."));
 
-        List<PortfolioCashTransaction> ledger = await _repository.GetLedgerAsync(portfolioId, cancellationToken);
+        List<PortfolioCashTransaction> ledger =
+            request.AsOf.HasValue
+                ? await _repository.GetLedgerAsync(
+                    portfolioId,
+                    request.AsOf.Value,
+                    cancellationToken)
+                : await _repository.GetLedgerAsync(
+                    portfolioId,
+                    cancellationToken);
 
         List<PortfolioCashBalanceItemResponse> items = ledger
             .GroupBy(item => item.CurrencyId)

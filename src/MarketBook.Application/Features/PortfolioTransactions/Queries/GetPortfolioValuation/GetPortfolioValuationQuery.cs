@@ -19,7 +19,9 @@ namespace MarketBook.Application.Features.PortfolioTransactions.Queries.GetPortf
 /// </summary>
 /// <param name="PortfolioId">EN: Portfolio identifier. FA: شناسه پرتفوی.</param>
 /// <param name="ListingId">EN: Optional listing filter. FA: فیلتر اختیاری لیستینگ.</param>
+/// <param name="AsOf">EN: Optional historical cutoff instant. FA: لحظه تاریخی اختیاری برای محدودکردن محاسبه.</param>
 public sealed record GetPortfolioValuationQuery(
     string PortfolioId,
-    string? ListingId)
+    string? ListingId,
+    DateTimeOffset? AsOf = null)
     : IRequest<Result<GetPortfolioValuationResponse>>;

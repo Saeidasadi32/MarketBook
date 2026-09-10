@@ -74,10 +74,34 @@ public sealed class PortfolioTransactionRepository
             totalCount);
     }
 
+    /// <inheritdoc/>
     public Task<List<PortfolioTransaction>> GetLedgerAsync(
         PortfolioId portfolioId,
         ListingId? listingId,
         CancellationToken cancellationToken = default)
+        => GetLedgerCoreAsync(
+            portfolioId,
+            listingId,
+            null,
+            cancellationToken);
+
+    /// <inheritdoc/>
+    public Task<List<PortfolioTransaction>> GetLedgerAsync(
+        PortfolioId portfolioId,
+        ListingId? listingId,
+        DateTimeOffset asOf,
+        CancellationToken cancellationToken = default)
+        => GetLedgerCoreAsync(
+            portfolioId,
+            listingId,
+            asOf,
+            cancellationToken);
+
+    private Task<List<PortfolioTransaction>> GetLedgerCoreAsync(
+        PortfolioId portfolioId,
+        ListingId? listingId,
+        DateTimeOffset? asOf,
+        CancellationToken cancellationToken)
     {
         IQueryable<PortfolioTransaction> query =
             _dbContext.Set<PortfolioTransaction>()
@@ -85,7 +109,15 @@ public sealed class PortfolioTransactionRepository
                 .Where(item => item.PortfolioId == portfolioId);
 
         if (listingId is not null)
+        {
             query = query.Where(item => item.ListingId == listingId);
+        }
+
+        if (asOf.HasValue)
+        {
+            DateTimeOffset cutoff = asOf.Value;
+            query = query.Where(item => item.ExecutedOn <= cutoff);
+        }
 
         return query
             .OrderBy(item => item.ExecutedOn)

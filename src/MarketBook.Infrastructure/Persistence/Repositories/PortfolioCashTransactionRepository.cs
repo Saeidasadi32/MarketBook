@@ -74,10 +74,40 @@ public sealed class PortfolioCashTransactionRepository : IPortfolioCashTransacti
     public Task<List<PortfolioCashTransaction>> GetLedgerAsync(
         PortfolioId portfolioId,
         CancellationToken cancellationToken = default)
-        => _dbContext.Set<PortfolioCashTransaction>()
-            .AsNoTracking()
-            .Where(item => item.PortfolioId == portfolioId)
+        => GetLedgerCoreAsync(
+            portfolioId,
+            null,
+            cancellationToken);
+
+    /// <summary>EN: Gets ledger entries up to an inclusive historical cutoff. FA: سطرهای دفتر را تا یک برش تاریخی شامل‌شونده دریافت می‌کند.</summary>
+    public Task<List<PortfolioCashTransaction>> GetLedgerAsync(
+        PortfolioId portfolioId,
+        DateTimeOffset asOf,
+        CancellationToken cancellationToken = default)
+        => GetLedgerCoreAsync(
+            portfolioId,
+            asOf,
+            cancellationToken);
+
+    private Task<List<PortfolioCashTransaction>> GetLedgerCoreAsync(
+        PortfolioId portfolioId,
+        DateTimeOffset? asOf,
+        CancellationToken cancellationToken)
+    {
+        IQueryable<PortfolioCashTransaction> query =
+            _dbContext.Set<PortfolioCashTransaction>()
+                .AsNoTracking()
+                .Where(item => item.PortfolioId == portfolioId);
+
+        if (asOf.HasValue)
+        {
+            DateTimeOffset cutoff = asOf.Value;
+            query = query.Where(item => item.OccurredOn <= cutoff);
+        }
+
+        return query
             .OrderBy(item => item.OccurredOn)
             .ThenBy(item => item.Id)
             .ToListAsync(cancellationToken);
+    }
 }

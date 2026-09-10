@@ -15,5 +15,7 @@ using MediatR;
 namespace MarketBook.Application.Features.PortfolioCashTransactions.Queries.GetPortfolioCashBalances;
 
 /// <summary>EN: Query to project cash balances from the immutable ledger. FA: Query محاسبه موجودی‌های نقدی از دفتر تغییرناپذیر.</summary>
-public sealed record GetPortfolioCashBalancesQuery(string PortfolioId)
+public sealed record GetPortfolioCashBalancesQuery(
+    string PortfolioId,
+    DateTimeOffset? AsOf = null)
     : IRequest<Result<GetPortfolioCashBalancesResponse>>;

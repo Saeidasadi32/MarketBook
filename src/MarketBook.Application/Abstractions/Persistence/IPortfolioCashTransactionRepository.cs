@@ -43,4 +43,20 @@ public interface IPortfolioCashTransactionRepository
     Task<List<PortfolioCashTransaction>> GetLedgerAsync(
         PortfolioId portfolioId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// EN: Gets the deterministic cash ledger limited to an inclusive as-of instant.
+    /// FA: دفتر قطعی تراکنش‌های نقدی را تا یک لحظه تاریخی شامل‌شونده دریافت می‌کند.
+    /// </summary>
+    /// <param name="portfolioId">EN: Portfolio identifier. FA: شناسه پرتفوی.</param>
+    /// <param name="asOf">EN: Inclusive historical cutoff instant. FA: لحظه تاریخی شامل‌شونده برای برش Ledger.</param>
+    /// <param name="cancellationToken">EN: Cancellation token. FA: توکن لغو.</param>
+    /// <returns>
+    /// EN: Ordered cash ledger containing only transactions occurring on or before the cutoff.
+    /// FA: دفتر مرتب تراکنش‌های نقدی شامل فقط مواردی که در لحظه برش یا قبل از آن رخ داده‌اند.
+    /// </returns>
+    Task<List<PortfolioCashTransaction>> GetLedgerAsync(
+        PortfolioId portfolioId,
+        DateTimeOffset asOf,
+        CancellationToken cancellationToken = default);
 }

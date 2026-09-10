@@ -20,6 +20,7 @@ using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioById;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioNav;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioNavAsOf;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioTranslatedNav;
+using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioTranslatedNavAsOf;
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Portfolio.ValueObjects;
 using MediatR;
@@ -211,6 +212,26 @@ public sealed class PortfoliosController : ControllerBase
         Result<GetPortfolioTranslatedNavResponse> result =
             await _sender.Send(
                 new GetPortfolioTranslatedNavQuery(id),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Gets historical portfolio NAV translated into the configured base currency using FX available on or before the as-of date.
+    /// FA: NAV تاریخی پرتفوی را با استفاده از نرخ FX موجود در تاریخ As-Of یا قبل از آن به ارز پایه تنظیم‌شده ترجمه می‌کند.
+    /// </summary>
+    [HttpGet("{id}/translated-nav/as-of")]
+    public async Task<IActionResult> GetTranslatedNavAsOf(
+        string id,
+        [FromQuery] DateTimeOffset asOf,
+        CancellationToken cancellationToken)
+    {
+        Result<GetPortfolioTranslatedNavAsOfResponse> result =
+            await _sender.Send(
+                new GetPortfolioTranslatedNavAsOfQuery(id, asOf),
                 cancellationToken);
 
         return result.IsSuccess

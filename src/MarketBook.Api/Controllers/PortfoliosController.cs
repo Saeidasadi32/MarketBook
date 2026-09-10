@@ -21,6 +21,7 @@ using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioNav;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioNavAsOf;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioTranslatedNav;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioTranslatedNavAsOf;
+using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformance;
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Portfolio.ValueObjects;
 using MediatR;
@@ -232,6 +233,27 @@ public sealed class PortfoliosController : ControllerBase
         Result<GetPortfolioTranslatedNavAsOfResponse> result =
             await _sender.Send(
                 new GetPortfolioTranslatedNavAsOfQuery(id, asOf),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Gets cash-flow-aware historical portfolio performance foundation in the configured base currency.
+    /// FA: مبنای عملکرد تاریخی پرتفوی را با لحاظ جریان نقدی خارجی و در ارز پایه تنظیم‌شده دریافت می‌کند.
+    /// </summary>
+    [HttpGet("{id}/performance")]
+    public async Task<IActionResult> GetPerformance(
+        string id,
+        [FromQuery] DateTimeOffset from,
+        [FromQuery] DateTimeOffset to,
+        CancellationToken cancellationToken)
+    {
+        Result<GetPortfolioPerformanceResponse> result =
+            await _sender.Send(
+                new GetPortfolioPerformanceQuery(id, from, to),
                 cancellationToken);
 
         return result.IsSuccess

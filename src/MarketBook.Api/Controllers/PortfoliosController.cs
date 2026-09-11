@@ -24,6 +24,7 @@ using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioTranslatedN
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformance;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioTimeWeightedReturn;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioMoneyWeightedReturn;
+using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformanceComparison;
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Portfolio.ValueObjects;
 using MediatR;
@@ -298,6 +299,27 @@ public sealed class PortfoliosController : ControllerBase
         Result<GetPortfolioMoneyWeightedReturnResponse> result =
             await _sender.Send(
                 new GetPortfolioMoneyWeightedReturnQuery(id, from, to),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Compares historical time-weighted and money-weighted portfolio returns for one period.
+    /// FA: بازده تاریخی زمان‌وزن و پول‌وزن پرتفوی را برای یک دوره مقایسه می‌کند.
+    /// </summary>
+    [HttpGet("{id}/performance/comparison")]
+    public async Task<IActionResult> GetPerformanceComparison(
+        string id,
+        [FromQuery] DateTimeOffset from,
+        [FromQuery] DateTimeOffset to,
+        CancellationToken cancellationToken)
+    {
+        Result<GetPortfolioPerformanceComparisonResponse> result =
+            await _sender.Send(
+                new GetPortfolioPerformanceComparisonQuery(id, from, to),
                 cancellationToken);
 
         return result.IsSuccess

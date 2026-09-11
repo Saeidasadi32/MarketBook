@@ -22,6 +22,7 @@ using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioNavAsOf;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioTranslatedNav;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioTranslatedNavAsOf;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformance;
+using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioTimeWeightedReturn;
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Portfolio.ValueObjects;
 using MediatR;
@@ -254,6 +255,27 @@ public sealed class PortfoliosController : ControllerBase
         Result<GetPortfolioPerformanceResponse> result =
             await _sender.Send(
                 new GetPortfolioPerformanceQuery(id, from, to),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Gets historical portfolio time-weighted return with external cash-flow neutralization.
+    /// FA: بازده زمانی‌وزن تاریخی پرتفوی را با خنثی‌سازی جریان‌های نقدی خارجی دریافت می‌کند.
+    /// </summary>
+    [HttpGet("{id}/twr")]
+    public async Task<IActionResult> GetTimeWeightedReturn(
+        string id,
+        [FromQuery] DateTimeOffset from,
+        [FromQuery] DateTimeOffset to,
+        CancellationToken cancellationToken)
+    {
+        Result<GetPortfolioTimeWeightedReturnResponse> result =
+            await _sender.Send(
+                new GetPortfolioTimeWeightedReturnQuery(id, from, to),
                 cancellationToken);
 
         return result.IsSuccess

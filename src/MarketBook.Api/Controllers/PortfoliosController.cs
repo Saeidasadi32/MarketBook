@@ -27,6 +27,7 @@ using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioMoneyWeight
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformanceComparison;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformancePresets;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformanceSeries;
+using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioDrawdown;
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Portfolio.ValueObjects;
 using MediatR;
@@ -364,6 +365,28 @@ public sealed class PortfoliosController : ControllerBase
         Result<GetPortfolioPerformanceSeriesResponse> result =
             await _sender.Send(
                 new GetPortfolioPerformanceSeriesQuery(id, from, to, interval),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Gets portfolio drawdown analytics from historical base-currency NAV.
+    /// FA: تحلیل افت سرمایه پرتفوی را از NAV تاریخی ارز پایه دریافت می‌کند.
+    /// </summary>
+    [HttpGet("{id}/performance/drawdown")]
+    public async Task<IActionResult> GetDrawdown(
+        string id,
+        [FromQuery] DateTimeOffset from,
+        [FromQuery] DateTimeOffset to,
+        [FromQuery] string interval = "Daily",
+        CancellationToken cancellationToken = default)
+    {
+        Result<GetPortfolioDrawdownResponse> result =
+            await _sender.Send(
+                new GetPortfolioDrawdownQuery(id, from, to, interval),
                 cancellationToken);
 
         return result.IsSuccess

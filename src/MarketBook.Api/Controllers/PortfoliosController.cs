@@ -25,6 +25,7 @@ using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformance
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioTimeWeightedReturn;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioMoneyWeightedReturn;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformanceComparison;
+using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformancePresets;
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Portfolio.ValueObjects;
 using MediatR;
@@ -320,6 +321,26 @@ public sealed class PortfoliosController : ControllerBase
         Result<GetPortfolioPerformanceComparisonResponse> result =
             await _sender.Send(
                 new GetPortfolioPerformanceComparisonQuery(id, from, to),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Gets standard dashboard performance periods ending at the supplied as-of instant.
+    /// FA: دوره‌های استاندارد عملکرد داشبورد را تا لحظه as-of داده‌شده دریافت می‌کند.
+    /// </summary>
+    [HttpGet("{id}/performance/presets")]
+    public async Task<IActionResult> GetPerformancePresets(
+        string id,
+        [FromQuery] DateTimeOffset asOf,
+        CancellationToken cancellationToken)
+    {
+        Result<GetPortfolioPerformancePresetsResponse> result =
+            await _sender.Send(
+                new GetPortfolioPerformancePresetsQuery(id, asOf),
                 cancellationToken);
 
         return result.IsSuccess

@@ -26,6 +26,7 @@ using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioTimeWeighte
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioMoneyWeightedReturn;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformanceComparison;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformancePresets;
+using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformanceSeries;
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Portfolio.ValueObjects;
 using MediatR;
@@ -341,6 +342,28 @@ public sealed class PortfoliosController : ControllerBase
         Result<GetPortfolioPerformancePresetsResponse> result =
             await _sender.Send(
                 new GetPortfolioPerformancePresetsQuery(id, asOf),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Gets historical chart-series data with base-currency NAV, cumulative TWR, and external-flow markers.
+    /// FA: داده سری زمانی تاریخی شامل NAV ارز پایه، TWR تجمعی و markerهای جریان خارجی را دریافت می‌کند.
+    /// </summary>
+    [HttpGet("{id}/performance/series")]
+    public async Task<IActionResult> GetPerformanceSeries(
+        string id,
+        [FromQuery] DateTimeOffset from,
+        [FromQuery] DateTimeOffset to,
+        [FromQuery] string interval = "Daily",
+        CancellationToken cancellationToken = default)
+    {
+        Result<GetPortfolioPerformanceSeriesResponse> result =
+            await _sender.Send(
+                new GetPortfolioPerformanceSeriesQuery(id, from, to, interval),
                 cancellationToken);
 
         return result.IsSuccess

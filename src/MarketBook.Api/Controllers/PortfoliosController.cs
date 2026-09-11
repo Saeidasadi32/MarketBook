@@ -33,6 +33,7 @@ using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskStatist
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskRatios;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRollingRisk;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioValueAtRisk;
+using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRollingValueAtRisk;
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Portfolio.ValueObjects;
 using MediatR;
@@ -525,6 +526,36 @@ public sealed class PortfoliosController : ControllerBase
                     from,
                     to,
                     interval,
+                    confidenceLevel),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Gets rolling historical Value at Risk and Conditional Value at Risk.
+    /// FA: VaR و CVaR تاریخی Rolling را دریافت می‌کند.
+    /// </summary>
+    [HttpGet("{id}/performance/risk/var/rolling")]
+    public async Task<IActionResult> GetRollingValueAtRisk(
+        string id,
+        [FromQuery] DateTimeOffset from,
+        [FromQuery] DateTimeOffset to,
+        [FromQuery] string interval = "Daily",
+        [FromQuery] int windowPeriods = 30,
+        [FromQuery] decimal confidenceLevel = 0.95m,
+        CancellationToken cancellationToken = default)
+    {
+        Result<GetPortfolioRollingValueAtRiskResponse> result =
+            await _sender.Send(
+                new GetPortfolioRollingValueAtRiskQuery(
+                    id,
+                    from,
+                    to,
+                    interval,
+                    windowPeriods,
                     confidenceLevel),
                 cancellationToken);
 

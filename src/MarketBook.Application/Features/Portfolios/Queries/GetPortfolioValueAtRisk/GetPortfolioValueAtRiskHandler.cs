@@ -27,6 +27,7 @@ public sealed class GetPortfolioValueAtRiskHandler
     /// EN: Initializes the VaR/CVaR handler.
     /// FA: Handler مربوط به VaR/CVaR را مقداردهی می‌کند.
     /// </summary>
+    /// <param name="sender">EN: MediatR sender. FA: Sender مدیاتور.</param>
     public GetPortfolioValueAtRiskHandler(ISender sender)
     {
         ArgumentNullException.ThrowIfNull(sender);
@@ -37,6 +38,9 @@ public sealed class GetPortfolioValueAtRiskHandler
     /// EN: Calculates historical VaR and CVaR.
     /// FA: VaR و CVaR تاریخی را محاسبه می‌کند.
     /// </summary>
+    /// <param name="request">EN: VaR/CVaR request. FA: درخواست VaR/CVaR.</param>
+    /// <param name="cancellationToken">EN: Cancellation token. FA: توکن لغو.</param>
+    /// <returns>EN: Historical VaR/CVaR analytics. FA: تحلیل تاریخی VaR/CVaR.</returns>
     public async Task<Result<GetPortfolioValueAtRiskResponse>> Handle(
         GetPortfolioValueAtRiskQuery request,
         CancellationToken cancellationToken)
@@ -70,9 +74,13 @@ public sealed class GetPortfolioValueAtRiskHandler
         GetPortfolioRiskStatisticsResponse statistics =
             statisticsResult.Value!;
 
-        decimal[] sortedReturns =
+        decimal[] returns =
             statistics.Returns
                 .Select(item => item.Return)
+                .ToArray();
+
+        decimal[] sortedReturns =
+            returns
                 .OrderBy(item => item)
                 .ToArray();
 
@@ -100,7 +108,7 @@ public sealed class GetPortfolioValueAtRiskHandler
                     sortedReturns));
         }
 
-        if (sortedReturns.Length < 2)
+        if (returns.Length < 2)
         {
             return Result<GetPortfolioValueAtRiskResponse>.Success(
                 new GetPortfolioValueAtRiskResponse(
@@ -121,39 +129,10 @@ public sealed class GetPortfolioValueAtRiskHandler
                     sortedReturns));
         }
 
-        int quantileRank =
-            (int)Math.Ceiling(
-                (double)(tailProbability * sortedReturns.Length));
-
-        quantileRank =
-            Math.Clamp(
-                quantileRank,
-                1,
-                sortedReturns.Length);
-
-        int quantileIndex =
-            quantileRank - 1;
-
-        decimal quantileReturn =
-            sortedReturns[quantileIndex];
-
-        decimal valueAtRiskReturn =
-            Math.Max(
-                -quantileReturn,
-                0m);
-
-        decimal[] tailReturns =
-            sortedReturns
-                .Where(item => item <= quantileReturn)
-                .ToArray();
-
-        decimal averageTailReturn =
-            tailReturns.Average();
-
-        decimal conditionalValueAtRiskReturn =
-            Math.Max(
-                -averageTailReturn,
-                0m);
+        HistoricalValueAtRiskCalculation calculation =
+            HistoricalValueAtRiskCalculator.Calculate(
+                returns,
+                request.ConfidenceLevel);
 
         return Result<GetPortfolioValueAtRiskResponse>.Success(
             new GetPortfolioValueAtRiskResponse(
@@ -164,13 +143,13 @@ public sealed class GetPortfolioValueAtRiskHandler
                 statistics.Interval,
                 true,
                 true,
-                sortedReturns.Length,
+                returns.Length,
                 request.ConfidenceLevel,
                 tailProbability,
-                valueAtRiskReturn,
-                conditionalValueAtRiskReturn,
-                quantileReturn,
-                tailReturns.Length,
-                sortedReturns));
+                calculation.ValueAtRiskReturn,
+                calculation.ConditionalValueAtRiskReturn,
+                calculation.HistoricalQuantileReturn,
+                calculation.TailObservationCount,
+                calculation.SortedReturns));
     }
 }

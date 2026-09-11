@@ -29,6 +29,7 @@ using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformance
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformanceSeries;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioDrawdown;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioDrawdownEpisodes;
+using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskStatistics;
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Portfolio.ValueObjects;
 using MediatR;
@@ -410,6 +411,28 @@ public sealed class PortfoliosController : ControllerBase
         Result<GetPortfolioDrawdownEpisodesResponse> result =
             await _sender.Send(
                 new GetPortfolioDrawdownEpisodesQuery(id, from, to, interval),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Gets volatility and downside-deviation statistics from periodic TWR returns.
+    /// FA: آمار نوسان و انحراف نزولی را از بازده‌های دوره‌ای TWR دریافت می‌کند.
+    /// </summary>
+    [HttpGet("{id}/performance/risk-statistics")]
+    public async Task<IActionResult> GetRiskStatistics(
+        string id,
+        [FromQuery] DateTimeOffset from,
+        [FromQuery] DateTimeOffset to,
+        [FromQuery] string interval = "Daily",
+        CancellationToken cancellationToken = default)
+    {
+        Result<GetPortfolioRiskStatisticsResponse> result =
+            await _sender.Send(
+                new GetPortfolioRiskStatisticsQuery(id, from, to, interval),
                 cancellationToken);
 
         return result.IsSuccess

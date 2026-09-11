@@ -34,6 +34,7 @@ using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskRatios;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRollingRisk;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioValueAtRisk;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioValueAtRiskAmount;
+using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRollingValueAtRiskAmount;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRollingValueAtRisk;
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Portfolio.ValueObjects;
@@ -580,6 +581,36 @@ public sealed class PortfoliosController : ControllerBase
         Result<GetPortfolioRollingValueAtRiskResponse> result =
             await _sender.Send(
                 new GetPortfolioRollingValueAtRiskQuery(
+                    id,
+                    from,
+                    to,
+                    interval,
+                    windowPeriods,
+                    confidenceLevel),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Gets rolling historical VaR/CVaR translated to base-currency amounts at each window end.
+    /// FA: VaR/CVaR تاریخی Rolling را در پایان هر پنجره به مبلغ ارز پایه تبدیل و دریافت می‌کند.
+    /// </summary>
+    [HttpGet("{id}/performance/risk/var/rolling/amount")]
+    public async Task<IActionResult> GetRollingValueAtRiskAmount(
+        string id,
+        [FromQuery] DateTimeOffset from,
+        [FromQuery] DateTimeOffset to,
+        [FromQuery] string interval = "Daily",
+        [FromQuery] int windowPeriods = 30,
+        [FromQuery] decimal confidenceLevel = 0.95m,
+        CancellationToken cancellationToken = default)
+    {
+        Result<GetPortfolioRollingValueAtRiskAmountResponse> result =
+            await _sender.Send(
+                new GetPortfolioRollingValueAtRiskAmountQuery(
                     id,
                     from,
                     to,

@@ -33,6 +33,7 @@ using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskStatist
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskRatios;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRollingRisk;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioValueAtRisk;
+using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioValueAtRiskAmount;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRollingValueAtRisk;
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Portfolio.ValueObjects;
@@ -522,6 +523,34 @@ public sealed class PortfoliosController : ControllerBase
         Result<GetPortfolioValueAtRiskResponse> result =
             await _sender.Send(
                 new GetPortfolioValueAtRiskQuery(
+                    id,
+                    from,
+                    to,
+                    interval,
+                    confidenceLevel),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Gets historical Value at Risk and Conditional Value at Risk translated to base-currency amounts.
+    /// FA: VaR و CVaR تاریخی را به مبلغ در ارز پایه پرتفوی دریافت می‌کند.
+    /// </summary>
+    [HttpGet("{id}/performance/risk/var/amount")]
+    public async Task<IActionResult> GetValueAtRiskAmount(
+        string id,
+        [FromQuery] DateTimeOffset from,
+        [FromQuery] DateTimeOffset to,
+        [FromQuery] string interval = "Daily",
+        [FromQuery] decimal confidenceLevel = 0.95m,
+        CancellationToken cancellationToken = default)
+    {
+        Result<GetPortfolioValueAtRiskAmountResponse> result =
+            await _sender.Send(
+                new GetPortfolioValueAtRiskAmountQuery(
                     id,
                     from,
                     to,

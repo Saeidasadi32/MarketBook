@@ -22,15 +22,19 @@ namespace MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskRat
 /// <param name="IsComplete">EN: Mirrors completeness of DOC-0033 risk statistics. FA: کامل‌بودن آمار ریسک DOC-0033 را منعکس می‌کند.</param>
 /// <param name="ObservationCount">EN: Number of periodic-return observations. FA: تعداد مشاهدات بازده دوره‌ای.</param>
 /// <param name="AnnualizationPeriodsPerYear">EN: Annualization periods inherited from DOC-0033. FA: تعداد دوره سالانه‌سازی دریافت‌شده از DOC-0033.</param>
-/// <param name="RiskFreeRateAnnual">EN: Annual risk-free rate used by Sharpe; fixed at zero in this foundation. FA: نرخ بدون‌ریسک سالانه Sharpe که در این نسخه صفر ثابت است.</param>
-/// <param name="MinimumAcceptableReturnAnnual">EN: Annual minimum acceptable return used by Sortino; fixed at zero in this foundation. FA: حداقل بازده قابل‌قبول سالانه Sortino که در این نسخه صفر ثابت است.</param>
+/// <param name="RiskFreeRateAnnual">EN: Requested annual arithmetic risk-free rate. FA: نرخ بدون‌ریسک حسابی سالانه درخواست‌شده.</param>
+/// <param name="RiskFreeRatePeriodic">EN: Annual risk-free rate divided by periods per year. FA: نرخ بدون‌ریسک سالانه تقسیم بر تعداد دوره‌های سال.</param>
+/// <param name="MinimumAcceptableReturnAnnual">EN: Requested annual arithmetic minimum acceptable return. FA: حداقل بازده قابل‌قبول حسابی سالانه درخواست‌شده.</param>
+/// <param name="MinimumAcceptableReturnPeriodic">EN: Annual MAR divided by periods per year. FA: MAR سالانه تقسیم بر تعداد دوره‌های سال.</param>
 /// <param name="IsSharpeCalculable">EN: True when Sharpe has sufficient data and positive volatility. FA: وقتی Sharpe داده کافی و نوسان مثبت داشته باشد true است.</param>
-/// <param name="SharpeRatio">EN: Annualized zero-risk-free Sharpe ratio. FA: نسبت Sharpe سالانه‌شده با نرخ بدون‌ریسک صفر.</param>
-/// <param name="IsSortinoCalculable">EN: True when Sortino has sufficient data and positive downside deviation. FA: وقتی Sortino داده کافی و انحراف نزولی مثبت داشته باشد true است.</param>
-/// <param name="SortinoRatio">EN: Annualized zero-target Sortino ratio. FA: نسبت Sortino سالانه‌شده با هدف صفر.</param>
+/// <param name="SharpeRatio">EN: Annualized Sharpe ratio using the requested risk-free rate. FA: نسبت Sharpe سالانه‌شده با نرخ بدون‌ریسک درخواست‌شده.</param>
+/// <param name="IsSortinoCalculable">EN: True when Sortino has sufficient data and positive MAR-relative downside deviation. FA: وقتی Sortino داده کافی و انحراف نزولی مثبت نسبت به MAR داشته باشد true است.</param>
+/// <param name="SortinoRatio">EN: Annualized Sortino ratio using the requested MAR. FA: نسبت Sortino سالانه‌شده با MAR درخواست‌شده.</param>
 /// <param name="MeanPeriodicReturn">EN: Arithmetic mean periodic return from DOC-0033. FA: میانگین حسابی بازده دوره‌ای از DOC-0033.</param>
+/// <param name="MeanPeriodicExcessReturnOverRiskFree">EN: Mean periodic return minus periodic risk-free rate. FA: میانگین بازده دوره‌ای منهای نرخ بدون‌ریسک دوره‌ای.</param>
+/// <param name="MeanPeriodicExcessReturnOverMinimumAcceptableReturn">EN: Mean periodic return minus periodic MAR. FA: میانگین بازده دوره‌ای منهای MAR دوره‌ای.</param>
 /// <param name="PeriodicVolatility">EN: Sample periodic volatility from DOC-0033. FA: نوسان نمونه دوره‌ای از DOC-0033.</param>
-/// <param name="PeriodicDownsideDeviation">EN: Zero-target periodic downside deviation from DOC-0033. FA: انحراف نزولی دوره‌ای با هدف صفر از DOC-0033.</param>
+/// <param name="PeriodicDownsideDeviationRelativeToMinimumAcceptableReturn">EN: Downside deviation recalculated against the requested periodic MAR. FA: انحراف نزولی بازمحاسبه‌شده نسبت به MAR دوره‌ای درخواست‌شده.</param>
 public sealed record GetPortfolioRiskRatiosResponse(
     string PortfolioId,
     string BaseCurrencyId,
@@ -41,11 +45,15 @@ public sealed record GetPortfolioRiskRatiosResponse(
     int ObservationCount,
     int AnnualizationPeriodsPerYear,
     decimal RiskFreeRateAnnual,
+    decimal RiskFreeRatePeriodic,
     decimal MinimumAcceptableReturnAnnual,
+    decimal MinimumAcceptableReturnPeriodic,
     bool IsSharpeCalculable,
     decimal? SharpeRatio,
     bool IsSortinoCalculable,
     decimal? SortinoRatio,
     decimal? MeanPeriodicReturn,
+    decimal? MeanPeriodicExcessReturnOverRiskFree,
+    decimal? MeanPeriodicExcessReturnOverMinimumAcceptableReturn,
     decimal? PeriodicVolatility,
-    decimal? PeriodicDownsideDeviation);
+    decimal? PeriodicDownsideDeviationRelativeToMinimumAcceptableReturn);

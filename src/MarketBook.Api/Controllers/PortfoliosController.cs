@@ -31,6 +31,7 @@ using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioDrawdown;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioDrawdownEpisodes;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskStatistics;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskRatios;
+using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRollingRisk;
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Portfolio.ValueObjects;
 using MediatR;
@@ -442,8 +443,8 @@ public sealed class PortfoliosController : ControllerBase
     }
 
     /// <summary>
-    /// EN: Gets zero-risk-free Sharpe and zero-target Sortino ratios.
-    /// FA: نسبت‌های Sharpe با نرخ بدون‌ریسک صفر و Sortino با هدف صفر را دریافت می‌کند.
+    /// EN: Gets Sharpe and Sortino ratios with optional annual risk-free and minimum acceptable rates.
+    /// FA: نسبت‌های Sharpe و Sortino را با نرخ بدون‌ریسک و حداقل بازده قابل‌قبول سالانه اختیاری دریافت می‌کند.
     /// </summary>
     [HttpGet("{id}/performance/risk-ratios")]
     public async Task<IActionResult> GetRiskRatios(
@@ -451,11 +452,51 @@ public sealed class PortfoliosController : ControllerBase
         [FromQuery] DateTimeOffset from,
         [FromQuery] DateTimeOffset to,
         [FromQuery] string interval = "Daily",
+        [FromQuery] decimal riskFreeRateAnnual = 0m,
+        [FromQuery] decimal minimumAcceptableReturnAnnual = 0m,
         CancellationToken cancellationToken = default)
     {
         Result<GetPortfolioRiskRatiosResponse> result =
             await _sender.Send(
-                new GetPortfolioRiskRatiosQuery(id, from, to, interval),
+                new GetPortfolioRiskRatiosQuery(
+                    id,
+                    from,
+                    to,
+                    interval,
+                    riskFreeRateAnnual,
+                    minimumAcceptableReturnAnnual),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Gets rolling volatility, downside deviation, Sharpe, and Sortino analytics.
+    /// FA: تحلیل‌های Rolling نوسان، انحراف نزولی، Sharpe و Sortino را دریافت می‌کند.
+    /// </summary>
+    [HttpGet("{id}/performance/risk/rolling")]
+    public async Task<IActionResult> GetRollingRisk(
+        string id,
+        [FromQuery] DateTimeOffset from,
+        [FromQuery] DateTimeOffset to,
+        [FromQuery] string interval = "Daily",
+        [FromQuery] int windowPeriods = 30,
+        [FromQuery] decimal riskFreeRateAnnual = 0m,
+        [FromQuery] decimal minimumAcceptableReturnAnnual = 0m,
+        CancellationToken cancellationToken = default)
+    {
+        Result<GetPortfolioRollingRiskResponse> result =
+            await _sender.Send(
+                new GetPortfolioRollingRiskQuery(
+                    id,
+                    from,
+                    to,
+                    interval,
+                    windowPeriods,
+                    riskFreeRateAnnual,
+                    minimumAcceptableReturnAnnual),
                 cancellationToken);
 
         return result.IsSuccess

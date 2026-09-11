@@ -30,6 +30,7 @@ using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformance
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioDrawdown;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioDrawdownEpisodes;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskStatistics;
+using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskRatios;
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Portfolio.ValueObjects;
 using MediatR;
@@ -433,6 +434,28 @@ public sealed class PortfoliosController : ControllerBase
         Result<GetPortfolioRiskStatisticsResponse> result =
             await _sender.Send(
                 new GetPortfolioRiskStatisticsQuery(id, from, to, interval),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Gets zero-risk-free Sharpe and zero-target Sortino ratios.
+    /// FA: نسبت‌های Sharpe با نرخ بدون‌ریسک صفر و Sortino با هدف صفر را دریافت می‌کند.
+    /// </summary>
+    [HttpGet("{id}/performance/risk-ratios")]
+    public async Task<IActionResult> GetRiskRatios(
+        string id,
+        [FromQuery] DateTimeOffset from,
+        [FromQuery] DateTimeOffset to,
+        [FromQuery] string interval = "Daily",
+        CancellationToken cancellationToken = default)
+    {
+        Result<GetPortfolioRiskRatiosResponse> result =
+            await _sender.Send(
+                new GetPortfolioRiskRatiosQuery(id, from, to, interval),
                 cancellationToken);
 
         return result.IsSuccess

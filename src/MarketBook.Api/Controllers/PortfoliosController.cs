@@ -23,6 +23,7 @@ using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioTranslatedN
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioTranslatedNavAsOf;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformance;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioTimeWeightedReturn;
+using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioMoneyWeightedReturn;
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Portfolio.ValueObjects;
 using MediatR;
@@ -276,6 +277,27 @@ public sealed class PortfoliosController : ControllerBase
         Result<GetPortfolioTimeWeightedReturnResponse> result =
             await _sender.Send(
                 new GetPortfolioTimeWeightedReturnQuery(id, from, to),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Gets historical money-weighted return (XIRR) from dated external cash flows and terminal NAV.
+    /// FA: بازده پول‌وزن تاریخی (XIRR) را از جریان‌های نقدی خارجی تاریخ‌دار و NAV نهایی دریافت می‌کند.
+    /// </summary>
+    [HttpGet("{id}/xirr")]
+    public async Task<IActionResult> GetMoneyWeightedReturn(
+        string id,
+        [FromQuery] DateTimeOffset from,
+        [FromQuery] DateTimeOffset to,
+        CancellationToken cancellationToken)
+    {
+        Result<GetPortfolioMoneyWeightedReturnResponse> result =
+            await _sender.Send(
+                new GetPortfolioMoneyWeightedReturnQuery(id, from, to),
                 cancellationToken);
 
         return result.IsSuccess

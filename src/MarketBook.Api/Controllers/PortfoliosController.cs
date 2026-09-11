@@ -28,6 +28,7 @@ using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformance
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformancePresets;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformanceSeries;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioDrawdown;
+using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioMonetaryDrawdown;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioDrawdownEpisodes;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskStatistics;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskRatios;
@@ -395,6 +396,32 @@ public sealed class PortfoliosController : ControllerBase
         Result<GetPortfolioDrawdownResponse> result =
             await _sender.Send(
                 new GetPortfolioDrawdownQuery(id, from, to, interval),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Gets cash-flow-neutral drawdown translated to base-currency monetary amounts.
+    /// FA: افت سرمایه خنثی نسبت به جریان سرمایه را به مبالغ ارز پایه تبدیل و دریافت می‌کند.
+    /// </summary>
+    [HttpGet("{id}/performance/drawdown/amount")]
+    public async Task<IActionResult> GetMonetaryDrawdown(
+        string id,
+        [FromQuery] DateTimeOffset from,
+        [FromQuery] DateTimeOffset to,
+        [FromQuery] string interval = "Daily",
+        CancellationToken cancellationToken = default)
+    {
+        Result<GetPortfolioMonetaryDrawdownResponse> result =
+            await _sender.Send(
+                new GetPortfolioMonetaryDrawdownQuery(
+                    id,
+                    from,
+                    to,
+                    interval),
                 cancellationToken);
 
         return result.IsSuccess

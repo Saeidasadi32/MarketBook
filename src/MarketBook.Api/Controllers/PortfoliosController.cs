@@ -28,6 +28,7 @@ using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformance
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformancePresets;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformanceSeries;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioDrawdown;
+using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioDrawdownEpisodes;
 using MarketBook.Domain.Common;
 using MarketBook.Domain.Portfolio.ValueObjects;
 using MediatR;
@@ -387,6 +388,28 @@ public sealed class PortfoliosController : ControllerBase
         Result<GetPortfolioDrawdownResponse> result =
             await _sender.Send(
                 new GetPortfolioDrawdownQuery(id, from, to, interval),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Gets drawdown-duration and recovery episodes for a portfolio.
+    /// FA: دوره‌های مدت افت و بازیابی پرتفوی را دریافت می‌کند.
+    /// </summary>
+    [HttpGet("{id}/performance/drawdown/episodes")]
+    public async Task<IActionResult> GetDrawdownEpisodes(
+        string id,
+        [FromQuery] DateTimeOffset from,
+        [FromQuery] DateTimeOffset to,
+        [FromQuery] string interval = "Daily",
+        CancellationToken cancellationToken = default)
+    {
+        Result<GetPortfolioDrawdownEpisodesResponse> result =
+            await _sender.Send(
+                new GetPortfolioDrawdownEpisodesQuery(id, from, to, interval),
                 cancellationToken);
 
         return result.IsSuccess

@@ -32,6 +32,7 @@ using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioMonetaryDra
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioMonetaryDrawdownEpisodes;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskSummary;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRollingRiskSummarySnapshot;
+using MarketBook.Application.Features.Portfolios.Queries.EvaluatePortfolioRiskLimits;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioDrawdownEpisodes;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskStatistics;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskRatios;
@@ -473,6 +474,52 @@ public sealed class PortfoliosController : ControllerBase
         Result<GetPortfolioDrawdownEpisodesResponse> result =
             await _sender.Send(
                 new GetPortfolioDrawdownEpisodesQuery(id, from, to, interval),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Evaluates request-scoped portfolio risk limits against the compact risk summary.
+    /// FA: حدود ریسک request-scoped پرتفوی را در برابر خلاصه فشرده ریسک ارزیابی می‌کند.
+    /// </summary>
+    [HttpGet("{id}/performance/risk/limits/evaluate")]
+    public async Task<IActionResult> EvaluateRiskLimits(
+        string id,
+        [FromQuery] DateTimeOffset from,
+        [FromQuery] DateTimeOffset to,
+        [FromQuery] string interval = "Daily",
+        [FromQuery] decimal confidenceLevel = 0.95m,
+        [FromQuery] decimal riskFreeRateAnnual = 0m,
+        [FromQuery] decimal minimumAcceptableReturnAnnual = 0m,
+        [FromQuery] decimal? maxAnnualizedVolatility = null,
+        [FromQuery] decimal? maxValueAtRiskReturn = null,
+        [FromQuery] decimal? maxValueAtRiskAmountBase = null,
+        [FromQuery] decimal? maxDrawdownLossRatio = null,
+        [FromQuery] decimal? maxDrawdownAmountBase = null,
+        [FromQuery] decimal? minSharpeRatio = null,
+        [FromQuery] decimal? minSortinoRatio = null,
+        CancellationToken cancellationToken = default)
+    {
+        Result<EvaluatePortfolioRiskLimitsResponse> result =
+            await _sender.Send(
+                new EvaluatePortfolioRiskLimitsQuery(
+                    id,
+                    from,
+                    to,
+                    interval,
+                    confidenceLevel,
+                    riskFreeRateAnnual,
+                    minimumAcceptableReturnAnnual,
+                    maxAnnualizedVolatility,
+                    maxValueAtRiskReturn,
+                    maxValueAtRiskAmountBase,
+                    maxDrawdownLossRatio,
+                    maxDrawdownAmountBase,
+                    minSharpeRatio,
+                    minSortinoRatio),
                 cancellationToken);
 
         return result.IsSuccess

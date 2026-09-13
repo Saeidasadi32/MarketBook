@@ -30,6 +30,7 @@ using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformance
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioDrawdown;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioMonetaryDrawdown;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioMonetaryDrawdownEpisodes;
+using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskSummary;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioDrawdownEpisodes;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskStatistics;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskRatios;
@@ -471,6 +472,38 @@ public sealed class PortfoliosController : ControllerBase
         Result<GetPortfolioDrawdownEpisodesResponse> result =
             await _sender.Send(
                 new GetPortfolioDrawdownEpisodesQuery(id, from, to, interval),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Gets a compact portfolio risk dashboard composed from existing risk projections.
+    /// FA: داشبورد فشرده ریسک پرتفوی را با ترکیب projectionهای موجود دریافت می‌کند.
+    /// </summary>
+    [HttpGet("{id}/performance/risk/summary")]
+    public async Task<IActionResult> GetRiskSummary(
+        string id,
+        [FromQuery] DateTimeOffset from,
+        [FromQuery] DateTimeOffset to,
+        [FromQuery] string interval = "Daily",
+        [FromQuery] decimal confidenceLevel = 0.95m,
+        [FromQuery] decimal riskFreeRateAnnual = 0m,
+        [FromQuery] decimal minimumAcceptableReturnAnnual = 0m,
+        CancellationToken cancellationToken = default)
+    {
+        Result<GetPortfolioRiskSummaryResponse> result =
+            await _sender.Send(
+                new GetPortfolioRiskSummaryQuery(
+                    id,
+                    from,
+                    to,
+                    interval,
+                    confidenceLevel,
+                    riskFreeRateAnnual,
+                    minimumAcceptableReturnAnnual),
                 cancellationToken);
 
         return result.IsSuccess

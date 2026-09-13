@@ -31,6 +31,7 @@ using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioDrawdown;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioMonetaryDrawdown;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioMonetaryDrawdownEpisodes;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskSummary;
+using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRollingRiskSummarySnapshot;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioDrawdownEpisodes;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskStatistics;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskRatios;
@@ -472,6 +473,40 @@ public sealed class PortfoliosController : ControllerBase
         Result<GetPortfolioDrawdownEpisodesResponse> result =
             await _sender.Send(
                 new GetPortfolioDrawdownEpisodesQuery(id, from, to, interval),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Gets the latest compact rolling-risk and rolling-VaR dashboard snapshot.
+    /// FA: آخرین snapshot فشرده Rolling Risk و Rolling VaR داشبورد را دریافت می‌کند.
+    /// </summary>
+    [HttpGet("{id}/performance/risk/summary/rolling")]
+    public async Task<IActionResult> GetRollingRiskSummarySnapshot(
+        string id,
+        [FromQuery] DateTimeOffset from,
+        [FromQuery] DateTimeOffset to,
+        [FromQuery] string interval = "Daily",
+        [FromQuery] int windowPeriods = 30,
+        [FromQuery] decimal confidenceLevel = 0.95m,
+        [FromQuery] decimal riskFreeRateAnnual = 0m,
+        [FromQuery] decimal minimumAcceptableReturnAnnual = 0m,
+        CancellationToken cancellationToken = default)
+    {
+        Result<GetPortfolioRollingRiskSummarySnapshotResponse> result =
+            await _sender.Send(
+                new GetPortfolioRollingRiskSummarySnapshotQuery(
+                    id,
+                    from,
+                    to,
+                    interval,
+                    windowPeriods,
+                    confidenceLevel,
+                    riskFreeRateAnnual,
+                    minimumAcceptableReturnAnnual),
                 cancellationToken);
 
         return result.IsSuccess

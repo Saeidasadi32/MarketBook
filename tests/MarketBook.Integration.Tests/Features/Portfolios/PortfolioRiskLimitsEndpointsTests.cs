@@ -16,8 +16,8 @@ using MarketBook.Integration.Tests.Infrastructure;
 namespace MarketBook.Integration.Tests.Features.Portfolios;
 
 /// <summary>
-/// EN: Integration tests for request-scoped portfolio risk-limit evaluation.
-/// FA: تست‌های Integration ارزیابی request-scoped حدود ریسک پرتفوی.
+/// EN: Integration tests for request overrides and persisted portfolio risk-policy evaluation.
+/// FA: تست‌های Integration ارزیابی Overrideهای Request و Policy ریسک ذخیره‌شده پرتفوی.
 /// </summary>
 [Collection(IntegrationTestCollection.Name)]
 public sealed class PortfolioRiskLimitsEndpointsTests
@@ -188,6 +188,239 @@ public sealed class PortfolioRiskLimitsEndpointsTests
         Assert.Equal(
             7,
             root.GetProperty("rules").GetArrayLength());
+    }
+
+    /// <summary>
+    /// EN: Verifies an active persisted policy supplies limits when the request omits them.
+    /// FA: بررسی می‌کند Policy فعال ذخیره‌شده در نبود Limitهای Request، حدود را تأمین کند.
+    /// </summary>
+    [Fact]
+    public async Task RiskLimits_Should_Fallback_To_Active_Persisted_Policy()
+    {
+        PortfolioScenario scenario =
+            await CreateScenarioAsync();
+
+        await CreateRiskPolicyAsync(
+            scenario.PortfolioId,
+            scenario.From,
+            10m,
+            null,
+            null,
+            null,
+            1000m,
+            null,
+            null);
+
+        using HttpResponseMessage response =
+            await GetRiskLimitsAsync(
+                scenario.PortfolioId,
+                scenario.From,
+                scenario.To,
+                string.Empty);
+
+        Assert.Equal(
+            HttpStatusCode.OK,
+            response.StatusCode);
+
+        using JsonDocument document =
+            await ReadJsonAsync(response);
+
+        JsonElement root =
+            document.RootElement;
+
+        Assert.Equal(
+            "PersistedPolicy",
+            root.GetProperty("limitSource").GetString());
+
+        Assert.Equal(
+            1,
+            root.GetProperty("policyVersion").GetInt32());
+
+        Assert.False(
+            string.IsNullOrWhiteSpace(
+                root.GetProperty("policyId").GetString()));
+
+        Assert.Equal(
+            2,
+            root.GetProperty("configuredLimitCount").GetInt32());
+
+        Assert.Equal(
+            "WithinLimit",
+            root.GetProperty("overallStatus").GetString());
+    }
+
+    /// <summary>
+    /// EN: Verifies explicit request limits override the corresponding persisted values.
+    /// FA: بررسی می‌کند Limit صریح Request روی مقدار متناظر ذخیره‌شده اولویت داشته باشد.
+    /// </summary>
+    [Fact]
+    public async Task RiskLimits_Should_Override_Persisted_Limit_With_Request_Value()
+    {
+        PortfolioScenario scenario =
+            await CreateScenarioAsync();
+
+        await CreateRiskPolicyAsync(
+            scenario.PortfolioId,
+            scenario.From,
+            null,
+            null,
+            null,
+            null,
+            1000m,
+            null,
+            null);
+
+        using HttpResponseMessage response =
+            await GetRiskLimitsAsync(
+                scenario.PortfolioId,
+                scenario.From,
+                scenario.To,
+                "&maxDrawdownAmountBase=50");
+
+        Assert.Equal(
+            HttpStatusCode.OK,
+            response.StatusCode);
+
+        using JsonDocument document =
+            await ReadJsonAsync(response);
+
+        JsonElement root =
+            document.RootElement;
+
+        Assert.Equal(
+            "RequestOverride",
+            root.GetProperty("limitSource").GetString());
+
+        JsonElement rule =
+            root.GetProperty("rules")
+                .EnumerateArray()
+                .Single(
+                    item =>
+                        item.GetProperty("code").GetString() ==
+                        "MaximumDrawdownAmountBase");
+
+        Assert.Equal(
+            50m,
+            rule.GetProperty("limit").GetDecimal());
+
+        Assert.Equal(
+            "Breached",
+            rule.GetProperty("status").GetString());
+    }
+
+    /// <summary>
+    /// EN: Verifies request overrides can be combined with different persisted fallback limits.
+    /// FA: بررسی می‌کند Overrideهای Request با Limitهای متفاوت Policy ذخیره‌شده ترکیب شوند.
+    /// </summary>
+    [Fact]
+    public async Task RiskLimits_Should_Report_Mixed_Source_When_Fallback_And_Override_Are_Both_Used()
+    {
+        PortfolioScenario scenario =
+            await CreateScenarioAsync();
+
+        await CreateRiskPolicyAsync(
+            scenario.PortfolioId,
+            scenario.From,
+            10m,
+            null,
+            null,
+            null,
+            1000m,
+            null,
+            null);
+
+        using HttpResponseMessage response =
+            await GetRiskLimitsAsync(
+                scenario.PortfolioId,
+                scenario.From,
+                scenario.To,
+                "&maxDrawdownAmountBase=50");
+
+        Assert.Equal(
+            HttpStatusCode.OK,
+            response.StatusCode);
+
+        using JsonDocument document =
+            await ReadJsonAsync(response);
+
+        JsonElement root =
+            document.RootElement;
+
+        Assert.Equal(
+            "Mixed",
+            root.GetProperty("limitSource").GetString());
+
+        Assert.Equal(
+            2,
+            root.GetProperty("configuredLimitCount").GetInt32());
+
+        JsonElement volatility =
+            root.GetProperty("rules")
+                .EnumerateArray()
+                .Single(
+                    item =>
+                        item.GetProperty("code").GetString() ==
+                        "AnnualizedVolatility");
+
+        Assert.Equal(
+            10m,
+            volatility.GetProperty("limit").GetDecimal());
+
+        JsonElement drawdown =
+            root.GetProperty("rules")
+                .EnumerateArray()
+                .Single(
+                    item =>
+                        item.GetProperty("code").GetString() ==
+                        "MaximumDrawdownAmountBase");
+
+        Assert.Equal(
+            50m,
+            drawdown.GetProperty("limit").GetDecimal());
+    }
+
+    /// <summary>
+    /// EN: Verifies DOC-0045 behavior remains unchanged when neither request nor persisted limits exist.
+    /// FA: بررسی می‌کند در نبود Limitهای Request و Policy ذخیره‌شده، رفتار DOC-0045 بدون تغییر بماند.
+    /// </summary>
+    [Fact]
+    public async Task RiskLimits_Should_Preserve_NoLimitsConfigured_When_No_Active_Policy_Exists()
+    {
+        PortfolioScenario scenario =
+            await CreateScenarioAsync();
+
+        using HttpResponseMessage response =
+            await GetRiskLimitsAsync(
+                scenario.PortfolioId,
+                scenario.From,
+                scenario.To,
+                string.Empty);
+
+        Assert.Equal(
+            HttpStatusCode.OK,
+            response.StatusCode);
+
+        using JsonDocument document =
+            await ReadJsonAsync(response);
+
+        JsonElement root =
+            document.RootElement;
+
+        Assert.Equal(
+            "None",
+            root.GetProperty("limitSource").GetString());
+
+        Assert.Equal(
+            JsonValueKind.Null,
+            root.GetProperty("policyId").ValueKind);
+
+        Assert.Equal(
+            JsonValueKind.Null,
+            root.GetProperty("policyVersion").ValueKind);
+
+        Assert.Equal(
+            "NoLimitsConfigured",
+            root.GetProperty("overallStatus").GetString());
     }
 
     private async Task<PortfolioScenario> CreateScenarioAsync()
@@ -375,6 +608,35 @@ public sealed class PortfolioRiskLimitsEndpointsTests
             response.StatusCode);
     }
 
+    private async Task CreateRiskPolicyAsync(
+        string portfolioId,
+        DateTimeOffset effectiveFrom,
+        decimal? maxAnnualizedVolatility,
+        decimal? maxValueAtRiskReturn,
+        decimal? maxValueAtRiskAmountBase,
+        decimal? maxDrawdownLossRatio,
+        decimal? maxDrawdownAmountBase,
+        decimal? minSharpeRatio,
+        decimal? minSortinoRatio)
+    {
+        using HttpResponseMessage response =
+            await _client.PostAsJsonAsync(
+                $"/api/v1/portfolios/{portfolioId}/risk-policy",
+                new RiskPolicyRequest(
+                    effectiveFrom,
+                    maxAnnualizedVolatility,
+                    maxValueAtRiskReturn,
+                    maxValueAtRiskAmountBase,
+                    maxDrawdownLossRatio,
+                    maxDrawdownAmountBase,
+                    minSharpeRatio,
+                    minSortinoRatio));
+
+        Assert.Equal(
+            HttpStatusCode.OK,
+            response.StatusCode);
+    }
+
     private static async Task<JsonDocument> ReadJsonAsync(
         HttpResponseMessage response)
         => await JsonDocument.ParseAsync(
@@ -399,6 +661,16 @@ public sealed class PortfolioRiskLimitsEndpointsTests
 
     private sealed record SetBaseCurrencyRequest(
         string CurrencyId);
+
+    private sealed record RiskPolicyRequest(
+        DateTimeOffset EffectiveFrom,
+        decimal? MaxAnnualizedVolatility,
+        decimal? MaxValueAtRiskReturn,
+        decimal? MaxValueAtRiskAmountBase,
+        decimal? MaxDrawdownLossRatio,
+        decimal? MaxDrawdownAmountBase,
+        decimal? MinSharpeRatio,
+        decimal? MinSortinoRatio);
 
     private sealed record CashRequest(
         string PortfolioId,

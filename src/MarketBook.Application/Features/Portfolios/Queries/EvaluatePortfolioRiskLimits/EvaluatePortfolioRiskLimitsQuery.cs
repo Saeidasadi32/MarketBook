@@ -14,8 +14,8 @@ using MediatR;
 namespace MarketBook.Application.Features.Portfolios.Queries.EvaluatePortfolioRiskLimits;
 
 /// <summary>
-/// EN: Evaluates optional request-scoped portfolio risk limits against DOC-0043.
-/// FA: حدود اختیاری request-scoped ریسک پرتفوی را در برابر DOC-0043 ارزیابی می‌کند.
+/// EN: Evaluates portfolio risk limits using request values first and the active persisted policy as fallback.
+/// FA: حدود ریسک پرتفوی را با اولویت مقادیر Request و سپس Policy فعال ذخیره‌شده ارزیابی می‌کند.
 /// </summary>
 /// <param name="PortfolioId">EN: Portfolio identifier. FA: شناسه پرتفوی.</param>
 /// <param name="From">EN: Beginning instant. FA: لحظه شروع.</param>

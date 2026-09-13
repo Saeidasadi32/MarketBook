@@ -8,15 +8,18 @@
 // Licensed under the MIT License.
 // -----------------------------------------------------------------------------
 
+using MarketBook.Application.Abstractions.Persistence;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskSummary;
 using MarketBook.Domain.Common;
+using MarketBook.Domain.Portfolio.ValueObjects;
+using MarketBook.Domain.PortfolioRiskPolicy.Aggregates;
 using MediatR;
 
 namespace MarketBook.Application.Features.Portfolios.Queries.EvaluatePortfolioRiskLimits;
 
 /// <summary>
-/// EN: Evaluates request-scoped limits using DOC-0043 as the sole risk-metric source.
-/// FA: حدود request-scoped را با استفاده از DOC-0043 به‌عنوان تنها منبع Metricهای ریسک ارزیابی می‌کند.
+/// EN: Evaluates resolved limits using DOC-0043 as the sole risk-metric source.
+/// FA: Limitهای resolve‌شده را با استفاده از DOC-0043 به‌عنوان تنها منبع Metricهای ریسک ارزیابی می‌کند.
 /// </summary>
 public sealed class EvaluatePortfolioRiskLimitsHandler
     : IRequestHandler<EvaluatePortfolioRiskLimitsQuery, Result<EvaluatePortfolioRiskLimitsResponse>>
@@ -29,21 +32,28 @@ public sealed class EvaluatePortfolioRiskLimitsHandler
     private const string Breached = "Breached";
 
     private readonly ISender _sender;
+    private readonly IPortfolioRiskPolicyRepository _riskPolicies;
 
     /// <summary>
     /// EN: Initializes the risk-limit evaluation handler.
     /// FA: Handler ارزیابی حدود ریسک را مقداردهی می‌کند.
     /// </summary>
     /// <param name="sender">EN: MediatR sender. FA: Sender مدیاتور.</param>
-    public EvaluatePortfolioRiskLimitsHandler(ISender sender)
+    /// <param name="riskPolicies">EN: Persisted risk-policy repository. FA: Repository سیاست ریسک ذخیره‌شده.</param>
+    public EvaluatePortfolioRiskLimitsHandler(
+        ISender sender,
+        IPortfolioRiskPolicyRepository riskPolicies)
     {
         ArgumentNullException.ThrowIfNull(sender);
+        ArgumentNullException.ThrowIfNull(riskPolicies);
+
         _sender = sender;
+        _riskPolicies = riskPolicies;
     }
 
     /// <summary>
-    /// EN: Compares configured limits with compact risk-summary metrics.
-    /// FA: Limitهای پیکربندی‌شده را با Metricهای خلاصه فشرده ریسک مقایسه می‌کند.
+    /// EN: Resolves request overrides over the active policy and evaluates them against compact risk-summary metrics.
+    /// FA: Overrideهای Request را روی Policy فعال resolve کرده و در برابر Metricهای خلاصه ریسک ارزیابی می‌کند.
     /// </summary>
     /// <param name="request">EN: Risk-limit request. FA: درخواست حدود ریسک.</param>
     /// <param name="cancellationToken">EN: Cancellation token. FA: توکن لغو.</param>
@@ -53,6 +63,22 @@ public sealed class EvaluatePortfolioRiskLimitsHandler
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
+
+        PortfolioRiskPolicy? activePolicy = null;
+
+        if (PortfolioId.TryParse(request.PortfolioId, out PortfolioId? portfolioId) &&
+            portfolioId is not null)
+        {
+            activePolicy =
+                await _riskPolicies.GetActiveAsync(
+                    portfolioId,
+                    cancellationToken);
+        }
+
+        ResolvedLimits limits =
+            ResolveLimits(
+                request,
+                activePolicy);
 
         Result<GetPortfolioRiskSummaryResponse> summaryResult =
             await _sender.Send(
@@ -84,31 +110,31 @@ public sealed class EvaluatePortfolioRiskLimitsHandler
         [
             EvaluateMaximum(
                 "AnnualizedVolatility",
-                request.MaxAnnualizedVolatility,
+                limits.MaxAnnualizedVolatility,
                 summary.RiskStatistics.AnnualizedVolatility),
             EvaluateMaximum(
                 "ValueAtRiskReturn",
-                request.MaxValueAtRiskReturn,
+                limits.MaxValueAtRiskReturn,
                 summary.ValueAtRisk.ValueAtRiskReturn),
             EvaluateMaximum(
                 "ValueAtRiskAmountBase",
-                request.MaxValueAtRiskAmountBase,
+                limits.MaxValueAtRiskAmountBase,
                 summary.ValueAtRisk.ValueAtRiskAmountBase),
             EvaluateMaximum(
                 "MaximumDrawdownLossRatio",
-                request.MaxDrawdownLossRatio,
+                limits.MaxDrawdownLossRatio,
                 maximumDrawdownLossRatio),
             EvaluateMaximum(
                 "MaximumDrawdownAmountBase",
-                request.MaxDrawdownAmountBase,
+                limits.MaxDrawdownAmountBase,
                 summary.Drawdown.MaximumDrawdownAmountBase),
             EvaluateMinimum(
                 "SharpeRatio",
-                request.MinSharpeRatio,
+                limits.MinSharpeRatio,
                 summary.RiskRatios.SharpeRatio),
             EvaluateMinimum(
                 "SortinoRatio",
-                request.MinSortinoRatio,
+                limits.MinSortinoRatio,
                 summary.RiskRatios.SortinoRatio)
         ];
 
@@ -135,12 +161,100 @@ public sealed class EvaluatePortfolioRiskLimitsHandler
                 summary.From,
                 summary.To,
                 summary.Interval,
+                limits.LimitSource,
+                limits.PolicyId,
+                limits.PolicyVersion,
                 summary.IsComplete,
                 overallStatus,
                 configuredLimitCount,
                 breachedLimitCount,
                 notCalculableLimitCount,
                 rules));
+    }
+
+    private static ResolvedLimits ResolveLimits(
+        EvaluatePortfolioRiskLimitsQuery request,
+        PortfolioRiskPolicy? activePolicy)
+    {
+        bool hasRequestLimit =
+            request.MaxAnnualizedVolatility.HasValue ||
+            request.MaxValueAtRiskReturn.HasValue ||
+            request.MaxValueAtRiskAmountBase.HasValue ||
+            request.MaxDrawdownLossRatio.HasValue ||
+            request.MaxDrawdownAmountBase.HasValue ||
+            request.MinSharpeRatio.HasValue ||
+            request.MinSortinoRatio.HasValue;
+
+        bool hasPersistedLimit =
+            activePolicy is not null &&
+            (
+                activePolicy.MaxAnnualizedVolatility.HasValue ||
+                activePolicy.MaxValueAtRiskReturn.HasValue ||
+                activePolicy.MaxValueAtRiskAmountBase.HasValue ||
+                activePolicy.MaxDrawdownLossRatio.HasValue ||
+                activePolicy.MaxDrawdownAmountBase.HasValue ||
+                activePolicy.MinSharpeRatio.HasValue ||
+                activePolicy.MinSortinoRatio.HasValue
+            );
+
+        string limitSource =
+            ResolveLimitSource(
+                request,
+                activePolicy,
+                hasRequestLimit,
+                hasPersistedLimit);
+
+        return new ResolvedLimits(
+            request.MaxAnnualizedVolatility ?? activePolicy?.MaxAnnualizedVolatility,
+            request.MaxValueAtRiskReturn ?? activePolicy?.MaxValueAtRiskReturn,
+            request.MaxValueAtRiskAmountBase ?? activePolicy?.MaxValueAtRiskAmountBase,
+            request.MaxDrawdownLossRatio ?? activePolicy?.MaxDrawdownLossRatio,
+            request.MaxDrawdownAmountBase ?? activePolicy?.MaxDrawdownAmountBase,
+            request.MinSharpeRatio ?? activePolicy?.MinSharpeRatio,
+            request.MinSortinoRatio ?? activePolicy?.MinSortinoRatio,
+            limitSource,
+            activePolicy?.Id.Value.ToString(),
+            activePolicy?.PolicyVersion);
+    }
+
+    private static string ResolveLimitSource(
+        EvaluatePortfolioRiskLimitsQuery request,
+        PortfolioRiskPolicy? activePolicy,
+        bool hasRequestLimit,
+        bool hasPersistedLimit)
+    {
+        if (!hasRequestLimit && !hasPersistedLimit)
+        {
+            return "None";
+        }
+
+        if (!hasRequestLimit)
+        {
+            return "PersistedPolicy";
+        }
+
+        if (!hasPersistedLimit)
+        {
+            return "RequestOverride";
+        }
+
+        PortfolioRiskPolicy policy =
+            activePolicy
+            ?? throw new InvalidOperationException(
+                "A persisted policy was expected while resolving the risk-limit source.");
+
+        bool persistedFallbackUsed =
+            (!request.MaxAnnualizedVolatility.HasValue && policy.MaxAnnualizedVolatility.HasValue) ||
+            (!request.MaxValueAtRiskReturn.HasValue && policy.MaxValueAtRiskReturn.HasValue) ||
+            (!request.MaxValueAtRiskAmountBase.HasValue && policy.MaxValueAtRiskAmountBase.HasValue) ||
+            (!request.MaxDrawdownLossRatio.HasValue && policy.MaxDrawdownLossRatio.HasValue) ||
+            (!request.MaxDrawdownAmountBase.HasValue && policy.MaxDrawdownAmountBase.HasValue) ||
+            (!request.MinSharpeRatio.HasValue && policy.MinSharpeRatio.HasValue) ||
+            (!request.MinSortinoRatio.HasValue && policy.MinSortinoRatio.HasValue);
+
+        return persistedFallbackUsed
+            ? "Mixed"
+            : "RequestOverride";
     }
 
     private static PortfolioRiskLimitEvaluationResponse EvaluateMaximum(
@@ -266,4 +380,16 @@ public sealed class EvaluatePortfolioRiskLimitsHandler
 
         return WithinLimit;
     }
+
+    private sealed record ResolvedLimits(
+        decimal? MaxAnnualizedVolatility,
+        decimal? MaxValueAtRiskReturn,
+        decimal? MaxValueAtRiskAmountBase,
+        decimal? MaxDrawdownLossRatio,
+        decimal? MaxDrawdownAmountBase,
+        decimal? MinSharpeRatio,
+        decimal? MinSortinoRatio,
+        string LimitSource,
+        string? PolicyId,
+        int? PolicyVersion);
 }

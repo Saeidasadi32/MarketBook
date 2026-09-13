@@ -33,6 +33,13 @@ using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioMonetaryDra
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskSummary;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRollingRiskSummarySnapshot;
 using MarketBook.Application.Features.Portfolios.Queries.EvaluatePortfolioRiskLimits;
+using MarketBook.Application.Features.PortfolioRiskPolicies;
+using MarketBook.Application.Features.PortfolioRiskPolicies.Commands.CreatePortfolioRiskPolicy;
+using MarketBook.Application.Features.PortfolioRiskPolicies.Commands.CreatePortfolioRiskPolicyVersion;
+using MarketBook.Application.Features.PortfolioRiskPolicies.Commands.ActivatePortfolioRiskPolicy;
+using MarketBook.Application.Features.PortfolioRiskPolicies.Commands.ArchivePortfolioRiskPolicy;
+using MarketBook.Application.Features.PortfolioRiskPolicies.Queries.GetActivePortfolioRiskPolicy;
+using MarketBook.Application.Features.PortfolioRiskPolicies.Queries.GetPortfolioRiskPolicyHistory;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioDrawdownEpisodes;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskStatistics;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskRatios;
@@ -525,6 +532,84 @@ public sealed class PortfoliosController : ControllerBase
         return result.IsSuccess
             ? Ok(result.Value)
             : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>EN: Creates the first active persisted risk policy. FA: اولین Policy ریسک فعال را ایجاد می‌کند.</summary>
+    [HttpPost("{id}/risk-policy")]
+    public async Task<IActionResult> CreateRiskPolicy(
+        string id,
+        [FromBody] PortfolioRiskPolicyLimitsRequest request,
+        CancellationToken cancellationToken)
+    {
+        Result<PortfolioRiskPolicyResponse> result =
+            await _sender.Send(new CreatePortfolioRiskPolicyCommand(id, request), cancellationToken);
+
+        return result.IsSuccess ? Ok(result.Value) : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>EN: Gets the active persisted risk policy. FA: Policy ریسک فعال را دریافت می‌کند.</summary>
+    [HttpGet("{id}/risk-policy")]
+    public async Task<IActionResult> GetActiveRiskPolicy(string id, CancellationToken cancellationToken)
+    {
+        Result<PortfolioRiskPolicyResponse> result =
+            await _sender.Send(new GetActivePortfolioRiskPolicyQuery(id), cancellationToken);
+
+        return result.IsSuccess ? Ok(result.Value) : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>EN: Gets persisted risk-policy history. FA: تاریخچه Policy ریسک را دریافت می‌کند.</summary>
+    [HttpGet("{id}/risk-policy/history")]
+    public async Task<IActionResult> GetRiskPolicyHistory(string id, CancellationToken cancellationToken)
+    {
+        Result<IReadOnlyCollection<PortfolioRiskPolicyResponse>> result =
+            await _sender.Send(new GetPortfolioRiskPolicyHistoryQuery(id), cancellationToken);
+
+        return result.IsSuccess ? Ok(result.Value) : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>EN: Creates the next draft risk-policy version. FA: نسخه Draft بعدی Policy ریسک را ایجاد می‌کند.</summary>
+    [HttpPut("{id}/risk-policy")]
+    public async Task<IActionResult> CreateRiskPolicyVersion(
+        string id,
+        [FromBody] PortfolioRiskPolicyLimitsRequest request,
+        CancellationToken cancellationToken)
+    {
+        Result<PortfolioRiskPolicyResponse> result =
+            await _sender.Send(new CreatePortfolioRiskPolicyVersionCommand(id, request), cancellationToken);
+
+        return result.IsSuccess ? Ok(result.Value) : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>EN: Activates a risk-policy version. FA: یک نسخه Policy ریسک را فعال می‌کند.</summary>
+    [HttpPost("{id}/risk-policy/{version:int}/activate")]
+    public async Task<IActionResult> ActivateRiskPolicy(
+        string id,
+        int version,
+        [FromQuery] DateTimeOffset effectiveFrom,
+        CancellationToken cancellationToken)
+    {
+        Result<PortfolioRiskPolicyResponse> result =
+            await _sender.Send(
+                new ActivatePortfolioRiskPolicyCommand(id, version, effectiveFrom),
+                cancellationToken);
+
+        return result.IsSuccess ? Ok(result.Value) : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>EN: Archives a risk-policy version. FA: یک نسخه Policy ریسک را بایگانی می‌کند.</summary>
+    [HttpDelete("{id}/risk-policy/{version:int}")]
+    public async Task<IActionResult> ArchiveRiskPolicy(
+        string id,
+        int version,
+        [FromQuery] DateTimeOffset effectiveTo,
+        CancellationToken cancellationToken)
+    {
+        Result<PortfolioRiskPolicyResponse> result =
+            await _sender.Send(
+                new ArchivePortfolioRiskPolicyCommand(id, version, effectiveTo),
+                cancellationToken);
+
+        return result.IsSuccess ? Ok(result.Value) : ApiErrorMapper.ToActionResult(this, result.Error);
     }
 
     /// <summary>

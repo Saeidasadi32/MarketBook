@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Project   : MarketBook (Intelligent Market Book System)
 // Platform  : MarketBook Platform
 // Layer     : Infrastructure
@@ -60,6 +60,7 @@ public static IServiceCollection AddInfrastructure(
         services.AddScoped<IOrderBookSnapshotRepository, OrderBookSnapshotRepository>();
         services.AddScoped<IInvestorRepository, InvestorRepository>();
         services.AddScoped<IPortfolioRepository, PortfolioRepository>();
+        services.AddScoped<IPortfolioRiskPolicyRepository, PortfolioRiskPolicyRepository>();
         services.AddScoped<IPortfolioTransactionRepository, PortfolioTransactionRepository>();
         services.AddScoped<IPortfolioCashTransactionRepository, PortfolioCashTransactionRepository>();
 

@@ -29,6 +29,7 @@ using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformance
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioPerformanceSeries;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioDrawdown;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioMonetaryDrawdown;
+using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioMonetaryDrawdownEpisodes;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioDrawdownEpisodes;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskStatistics;
 using MarketBook.Application.Features.Portfolios.Queries.GetPortfolioRiskRatios;
@@ -418,6 +419,32 @@ public sealed class PortfoliosController : ControllerBase
         Result<GetPortfolioMonetaryDrawdownResponse> result =
             await _sender.Send(
                 new GetPortfolioMonetaryDrawdownQuery(
+                    id,
+                    from,
+                    to,
+                    interval),
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : ApiErrorMapper.ToActionResult(this, result.Error);
+    }
+
+    /// <summary>
+    /// EN: Gets drawdown episodes with base-currency trough, recovery, and active monetary amounts.
+    /// FA: دوره‌های افت را همراه با مبالغ ارز پایه کف، بازیابی و افت فعال دریافت می‌کند.
+    /// </summary>
+    [HttpGet("{id}/performance/drawdown/episodes/amount")]
+    public async Task<IActionResult> GetMonetaryDrawdownEpisodes(
+        string id,
+        [FromQuery] DateTimeOffset from,
+        [FromQuery] DateTimeOffset to,
+        [FromQuery] string interval = "Daily",
+        CancellationToken cancellationToken = default)
+    {
+        Result<GetPortfolioMonetaryDrawdownEpisodesResponse> result =
+            await _sender.Send(
+                new GetPortfolioMonetaryDrawdownEpisodesQuery(
                     id,
                     from,
                     to,

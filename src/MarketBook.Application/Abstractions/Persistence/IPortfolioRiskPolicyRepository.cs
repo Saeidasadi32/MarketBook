@@ -23,6 +23,15 @@ public interface IPortfolioRiskPolicyRepository
     /// <summary>EN: Gets the active policy. FA: Policy فعال را دریافت می‌کند.</summary>
     Task<PortfolioRiskPolicy?> GetActiveAsync(PortfolioId portfolioId, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// EN: Gets the persisted non-draft policy effective at the supplied instant using half-open [from, to) semantics.
+    /// FA: Policy ذخیره‌شده غیر Draft معتبر در لحظه داده‌شده را با منطق بازه نیمه‌باز [from, to) دریافت می‌کند.
+    /// </summary>
+    Task<PortfolioRiskPolicy?> GetEffectiveAsOfAsync(
+        PortfolioId portfolioId,
+        DateTimeOffset asOf,
+        CancellationToken cancellationToken = default);
+
     /// <summary>EN: Gets a policy by identifier. FA: Policy را با شناسه دریافت می‌کند.</summary>
     Task<PortfolioRiskPolicy?> GetByIdAsync(PortfolioRiskPolicyId id, CancellationToken cancellationToken = default);
 

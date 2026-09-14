@@ -18,8 +18,8 @@ using MediatR;
 namespace MarketBook.Application.Features.Portfolios.Queries.EvaluatePortfolioRiskLimits;
 
 /// <summary>
-/// EN: Evaluates resolved limits using DOC-0043 as the sole risk-metric source.
-/// FA: Limitهای resolve‌شده را با استفاده از DOC-0043 به‌عنوان تنها منبع Metricهای ریسک ارزیابی می‌کند.
+/// EN: Evaluates resolved limits using DOC-0043 as the sole risk-metric source and To as the persisted-policy as-of instant.
+/// FA: Limitهای resolve‌شده را با DOC-0043 به‌عنوان تنها منبع Metric ریسک و To به‌عنوان لحظه As-Of Policy ذخیره‌شده ارزیابی می‌کند.
 /// </summary>
 public sealed class EvaluatePortfolioRiskLimitsHandler
     : IRequestHandler<EvaluatePortfolioRiskLimitsQuery, Result<EvaluatePortfolioRiskLimitsResponse>>
@@ -52,8 +52,8 @@ public sealed class EvaluatePortfolioRiskLimitsHandler
     }
 
     /// <summary>
-    /// EN: Resolves request overrides over the active policy and evaluates them against compact risk-summary metrics.
-    /// FA: Overrideهای Request را روی Policy فعال resolve کرده و در برابر Metricهای خلاصه ریسک ارزیابی می‌کند.
+    /// EN: Resolves request overrides over the policy effective as of To and evaluates them against compact risk-summary metrics.
+    /// FA: Overrideهای Request را روی Policy معتبر در لحظه To resolve کرده و در برابر Metricهای خلاصه ریسک ارزیابی می‌کند.
     /// </summary>
     /// <param name="request">EN: Risk-limit request. FA: درخواست حدود ریسک.</param>
     /// <param name="cancellationToken">EN: Cancellation token. FA: توکن لغو.</param>
@@ -64,21 +64,22 @@ public sealed class EvaluatePortfolioRiskLimitsHandler
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        PortfolioRiskPolicy? activePolicy = null;
+        PortfolioRiskPolicy? effectivePolicy = null;
 
         if (PortfolioId.TryParse(request.PortfolioId, out PortfolioId? portfolioId) &&
             portfolioId is not null)
         {
-            activePolicy =
-                await _riskPolicies.GetActiveAsync(
+            effectivePolicy =
+                await _riskPolicies.GetEffectiveAsOfAsync(
                     portfolioId,
+                    request.To,
                     cancellationToken);
         }
 
         ResolvedLimits limits =
             ResolveLimits(
                 request,
-                activePolicy);
+                effectivePolicy);
 
         Result<GetPortfolioRiskSummaryResponse> summaryResult =
             await _sender.Send(
@@ -161,6 +162,7 @@ public sealed class EvaluatePortfolioRiskLimitsHandler
                 summary.From,
                 summary.To,
                 summary.Interval,
+                request.To,
                 limits.LimitSource,
                 limits.PolicyId,
                 limits.PolicyVersion,
@@ -174,7 +176,7 @@ public sealed class EvaluatePortfolioRiskLimitsHandler
 
     private static ResolvedLimits ResolveLimits(
         EvaluatePortfolioRiskLimitsQuery request,
-        PortfolioRiskPolicy? activePolicy)
+        PortfolioRiskPolicy? effectivePolicy)
     {
         bool hasRequestLimit =
             request.MaxAnnualizedVolatility.HasValue ||
@@ -186,40 +188,40 @@ public sealed class EvaluatePortfolioRiskLimitsHandler
             request.MinSortinoRatio.HasValue;
 
         bool hasPersistedLimit =
-            activePolicy is not null &&
+            effectivePolicy is not null &&
             (
-                activePolicy.MaxAnnualizedVolatility.HasValue ||
-                activePolicy.MaxValueAtRiskReturn.HasValue ||
-                activePolicy.MaxValueAtRiskAmountBase.HasValue ||
-                activePolicy.MaxDrawdownLossRatio.HasValue ||
-                activePolicy.MaxDrawdownAmountBase.HasValue ||
-                activePolicy.MinSharpeRatio.HasValue ||
-                activePolicy.MinSortinoRatio.HasValue
+                effectivePolicy.MaxAnnualizedVolatility.HasValue ||
+                effectivePolicy.MaxValueAtRiskReturn.HasValue ||
+                effectivePolicy.MaxValueAtRiskAmountBase.HasValue ||
+                effectivePolicy.MaxDrawdownLossRatio.HasValue ||
+                effectivePolicy.MaxDrawdownAmountBase.HasValue ||
+                effectivePolicy.MinSharpeRatio.HasValue ||
+                effectivePolicy.MinSortinoRatio.HasValue
             );
 
         string limitSource =
             ResolveLimitSource(
                 request,
-                activePolicy,
+                effectivePolicy,
                 hasRequestLimit,
                 hasPersistedLimit);
 
         return new ResolvedLimits(
-            request.MaxAnnualizedVolatility ?? activePolicy?.MaxAnnualizedVolatility,
-            request.MaxValueAtRiskReturn ?? activePolicy?.MaxValueAtRiskReturn,
-            request.MaxValueAtRiskAmountBase ?? activePolicy?.MaxValueAtRiskAmountBase,
-            request.MaxDrawdownLossRatio ?? activePolicy?.MaxDrawdownLossRatio,
-            request.MaxDrawdownAmountBase ?? activePolicy?.MaxDrawdownAmountBase,
-            request.MinSharpeRatio ?? activePolicy?.MinSharpeRatio,
-            request.MinSortinoRatio ?? activePolicy?.MinSortinoRatio,
+            request.MaxAnnualizedVolatility ?? effectivePolicy?.MaxAnnualizedVolatility,
+            request.MaxValueAtRiskReturn ?? effectivePolicy?.MaxValueAtRiskReturn,
+            request.MaxValueAtRiskAmountBase ?? effectivePolicy?.MaxValueAtRiskAmountBase,
+            request.MaxDrawdownLossRatio ?? effectivePolicy?.MaxDrawdownLossRatio,
+            request.MaxDrawdownAmountBase ?? effectivePolicy?.MaxDrawdownAmountBase,
+            request.MinSharpeRatio ?? effectivePolicy?.MinSharpeRatio,
+            request.MinSortinoRatio ?? effectivePolicy?.MinSortinoRatio,
             limitSource,
-            activePolicy?.Id.Value.ToString(),
-            activePolicy?.PolicyVersion);
+            effectivePolicy?.Id.Value.ToString(),
+            effectivePolicy?.PolicyVersion);
     }
 
     private static string ResolveLimitSource(
         EvaluatePortfolioRiskLimitsQuery request,
-        PortfolioRiskPolicy? activePolicy,
+        PortfolioRiskPolicy? effectivePolicy,
         bool hasRequestLimit,
         bool hasPersistedLimit)
     {
@@ -239,9 +241,9 @@ public sealed class EvaluatePortfolioRiskLimitsHandler
         }
 
         PortfolioRiskPolicy policy =
-            activePolicy
+            effectivePolicy
             ?? throw new InvalidOperationException(
-                "A persisted policy was expected while resolving the risk-limit source.");
+                "An effective persisted policy was expected while resolving the risk-limit source.");
 
         bool persistedFallbackUsed =
             (!request.MaxAnnualizedVolatility.HasValue && policy.MaxAnnualizedVolatility.HasValue) ||

@@ -380,6 +380,230 @@ public sealed class PortfolioRiskLimitsEndpointsTests
     }
 
     /// <summary>
+    /// EN: Verifies an archived policy remains selectable for a historical To instant inside its effective interval.
+    /// FA: بررسی می‌کند Policy بایگانی‌شده برای To تاریخی داخل بازه اعتبار خودش قابل انتخاب باقی بماند.
+    /// </summary>
+    [Fact]
+    public async Task RiskLimits_Should_Select_Historical_Policy_AsOf_To()
+    {
+        PortfolioScenario scenario =
+            await CreateScenarioAsync();
+
+        DateTimeOffset version2EffectiveFrom =
+            scenario.From.AddDays(2);
+
+        await CreateRiskPolicyAsync(
+            scenario.PortfolioId,
+            scenario.From,
+            null,
+            null,
+            null,
+            null,
+            1000m,
+            null,
+            null);
+
+        await CreateRiskPolicyVersionAsync(
+            scenario.PortfolioId,
+            version2EffectiveFrom,
+            null,
+            null,
+            null,
+            null,
+            50m,
+            null,
+            null);
+
+        await ActivateRiskPolicyAsync(
+            scenario.PortfolioId,
+            2,
+            version2EffectiveFrom);
+
+        DateTimeOffset historicalTo =
+            version2EffectiveFrom.AddTicks(-1);
+
+        using HttpResponseMessage response =
+            await GetRiskLimitsAsync(
+                scenario.PortfolioId,
+                scenario.From,
+                historicalTo,
+                string.Empty);
+
+        Assert.Equal(
+            HttpStatusCode.OK,
+            response.StatusCode);
+
+        using JsonDocument document =
+            await ReadJsonAsync(response);
+
+        JsonElement root =
+            document.RootElement;
+
+        Assert.Equal(
+            "PersistedPolicy",
+            root.GetProperty("limitSource").GetString());
+
+        Assert.Equal(
+            1,
+            root.GetProperty("policyVersion").GetInt32());
+
+        Assert.Equal(
+            historicalTo,
+            root.GetProperty("policyAsOf").GetDateTimeOffset());
+
+        JsonElement drawdown =
+            root.GetProperty("rules")
+                .EnumerateArray()
+                .Single(
+                    item =>
+                        item.GetProperty("code").GetString() ==
+                        "MaximumDrawdownAmountBase");
+
+        Assert.Equal(
+            1000m,
+            drawdown.GetProperty("limit").GetDecimal());
+    }
+
+    /// <summary>
+    /// EN: Verifies the newly activated version wins exactly at its EffectiveFrom boundary.
+    /// FA: بررسی می‌کند نسخه تازه فعال‌شده دقیقاً در مرز EffectiveFrom انتخاب شود.
+    /// </summary>
+    [Fact]
+    public async Task RiskLimits_Should_Select_New_Policy_At_Activation_Boundary()
+    {
+        PortfolioScenario scenario =
+            await CreateScenarioAsync();
+
+        DateTimeOffset version2EffectiveFrom =
+            scenario.From.AddDays(2);
+
+        await CreateRiskPolicyAsync(
+            scenario.PortfolioId,
+            scenario.From,
+            null,
+            null,
+            null,
+            null,
+            1000m,
+            null,
+            null);
+
+        await CreateRiskPolicyVersionAsync(
+            scenario.PortfolioId,
+            version2EffectiveFrom,
+            null,
+            null,
+            null,
+            null,
+            50m,
+            null,
+            null);
+
+        await ActivateRiskPolicyAsync(
+            scenario.PortfolioId,
+            2,
+            version2EffectiveFrom);
+
+        using HttpResponseMessage response =
+            await GetRiskLimitsAsync(
+                scenario.PortfolioId,
+                scenario.From,
+                version2EffectiveFrom,
+                string.Empty);
+
+        Assert.Equal(
+            HttpStatusCode.OK,
+            response.StatusCode);
+
+        using JsonDocument document =
+            await ReadJsonAsync(response);
+
+        JsonElement root =
+            document.RootElement;
+
+        Assert.Equal(
+            2,
+            root.GetProperty("policyVersion").GetInt32());
+
+        Assert.Equal(
+            version2EffectiveFrom,
+            root.GetProperty("policyAsOf").GetDateTimeOffset());
+
+        JsonElement drawdown =
+            root.GetProperty("rules")
+                .EnumerateArray()
+                .Single(
+                    item =>
+                        item.GetProperty("code").GetString() ==
+                        "MaximumDrawdownAmountBase");
+
+        Assert.Equal(
+            50m,
+            drawdown.GetProperty("limit").GetDecimal());
+    }
+
+    /// <summary>
+    /// EN: Verifies a future active policy is not back-applied to an earlier historical evaluation.
+    /// FA: بررسی می‌کند Policy فعال با شروع اعتبار آینده روی ارزیابی تاریخی قبل از شروع اعتبار اعمال نشود.
+    /// </summary>
+    [Fact]
+    public async Task RiskLimits_Should_Not_BackApply_Future_Policy()
+    {
+        PortfolioScenario scenario =
+            await CreateScenarioAsync();
+
+        DateTimeOffset policyEffectiveFrom =
+            scenario.From.AddDays(2);
+
+        await CreateRiskPolicyAsync(
+            scenario.PortfolioId,
+            policyEffectiveFrom,
+            null,
+            null,
+            null,
+            null,
+            1000m,
+            null,
+            null);
+
+        DateTimeOffset historicalTo =
+            policyEffectiveFrom.AddTicks(-1);
+
+        using HttpResponseMessage response =
+            await GetRiskLimitsAsync(
+                scenario.PortfolioId,
+                scenario.From,
+                historicalTo,
+                string.Empty);
+
+        Assert.Equal(
+            HttpStatusCode.OK,
+            response.StatusCode);
+
+        using JsonDocument document =
+            await ReadJsonAsync(response);
+
+        JsonElement root =
+            document.RootElement;
+
+        Assert.Equal(
+            "None",
+            root.GetProperty("limitSource").GetString());
+
+        Assert.Equal(
+            JsonValueKind.Null,
+            root.GetProperty("policyId").ValueKind);
+
+        Assert.Equal(
+            JsonValueKind.Null,
+            root.GetProperty("policyVersion").ValueKind);
+
+        Assert.Equal(
+            0,
+            root.GetProperty("configuredLimitCount").GetInt32());
+    }
+
+    /// <summary>
     /// EN: Verifies DOC-0045 behavior remains unchanged when neither request nor persisted limits exist.
     /// FA: بررسی می‌کند در نبود Limitهای Request و Policy ذخیره‌شده، رفتار DOC-0045 بدون تغییر بماند.
     /// </summary>
@@ -631,6 +855,51 @@ public sealed class PortfolioRiskLimitsEndpointsTests
                     maxDrawdownAmountBase,
                     minSharpeRatio,
                     minSortinoRatio));
+
+        Assert.Equal(
+            HttpStatusCode.OK,
+            response.StatusCode);
+    }
+
+    private async Task CreateRiskPolicyVersionAsync(
+        string portfolioId,
+        DateTimeOffset effectiveFrom,
+        decimal? maxAnnualizedVolatility,
+        decimal? maxValueAtRiskReturn,
+        decimal? maxValueAtRiskAmountBase,
+        decimal? maxDrawdownLossRatio,
+        decimal? maxDrawdownAmountBase,
+        decimal? minSharpeRatio,
+        decimal? minSortinoRatio)
+    {
+        using HttpResponseMessage response =
+            await _client.PutAsJsonAsync(
+                $"/api/v1/portfolios/{portfolioId}/risk-policy",
+                new RiskPolicyRequest(
+                    effectiveFrom,
+                    maxAnnualizedVolatility,
+                    maxValueAtRiskReturn,
+                    maxValueAtRiskAmountBase,
+                    maxDrawdownLossRatio,
+                    maxDrawdownAmountBase,
+                    minSharpeRatio,
+                    minSortinoRatio));
+
+        Assert.Equal(
+            HttpStatusCode.OK,
+            response.StatusCode);
+    }
+
+    private async Task ActivateRiskPolicyAsync(
+        string portfolioId,
+        int policyVersion,
+        DateTimeOffset effectiveFrom)
+    {
+        using HttpResponseMessage response =
+            await _client.PostAsync(
+                $"/api/v1/portfolios/{portfolioId}/risk-policy/{policyVersion}/activate" +
+                $"?effectiveFrom={Uri.EscapeDataString(effectiveFrom.ToString("O"))}",
+                null);
 
         Assert.Equal(
             HttpStatusCode.OK,

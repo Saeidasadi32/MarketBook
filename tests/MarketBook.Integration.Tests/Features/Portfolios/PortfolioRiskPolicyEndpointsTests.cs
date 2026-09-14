@@ -34,7 +34,6 @@ public sealed class PortfolioRiskPolicyEndpointsTests
     public async Task CreatePolicy_Should_Create_First_Active_Version()
     {
         string portfolioId = await CreatePortfolioAsync();
-
         using HttpResponseMessage response =
             await _client.PostAsJsonAsync(
                 $"/api/v1/portfolios/{portfolioId}/risk-policy",

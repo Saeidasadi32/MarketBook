@@ -31,17 +31,18 @@ public sealed record PortfolioRiskLimitEvaluationResponse(
     decimal? BreachAmount);
 
 /// <summary>
-/// EN: Portfolio risk-limit evaluation result resolved from request overrides and/or the active persisted policy.
-/// FA: نتیجه ارزیابی حدود ریسک پرتفوی که از Overrideهای Request و/یا Policy فعال ذخیره‌شده resolve شده است.
+/// EN: Portfolio risk-limit evaluation resolved from request overrides and/or the persisted policy effective as of To.
+/// FA: نتیجه ارزیابی حدود ریسک پرتفوی که از Overrideهای Request و/یا Policy ذخیره‌شده معتبر در لحظه To resolve شده است.
 /// </summary>
 /// <param name="PortfolioId">EN: Portfolio identifier. FA: شناسه پرتفوی.</param>
 /// <param name="BaseCurrencyId">EN: Portfolio base currency. FA: ارز پایه پرتفوی.</param>
 /// <param name="From">EN: Beginning instant. FA: لحظه شروع.</param>
 /// <param name="To">EN: Ending instant. FA: لحظه پایان.</param>
 /// <param name="Interval">EN: Resolved interval. FA: فاصله resolve‌شده.</param>
+/// <param name="PolicyAsOf">EN: Instant used to select the persisted policy; equals To. FA: لحظه انتخاب Policy ذخیره‌شده که برابر To است.</param>
 /// <param name="LimitSource">EN: None, PersistedPolicy, RequestOverride, or Mixed. FA: منبع Limitهای resolve‌شده.</param>
-/// <param name="PolicyId">EN: Active persisted policy identifier when one participated in resolution. FA: شناسه Policy فعال ذخیره‌شده در صورت مشارکت در resolve.</param>
-/// <param name="PolicyVersion">EN: Active persisted business version when one participated in resolution. FA: نسخه کسب‌وکاری Policy فعال ذخیره‌شده در صورت مشارکت در resolve.</param>
+/// <param name="PolicyId">EN: Effective persisted policy identifier when one participated in resolution. FA: شناسه Policy ذخیره‌شده معتبر در صورت مشارکت در resolve.</param>
+/// <param name="PolicyVersion">EN: Effective persisted business version when one participated in resolution. FA: نسخه کسب‌وکاری Policy ذخیره‌شده معتبر در صورت مشارکت در resolve.</param>
 /// <param name="IsComplete">EN: Mirrors DOC-0043 source completeness. FA: کامل‌بودن منبع DOC-0043 را منعکس می‌کند.</param>
 /// <param name="OverallStatus">EN: Incomplete, NoLimitsConfigured, Indeterminate, WithinLimit, or Breached. FA: وضعیت کلی ارزیابی.</param>
 /// <param name="ConfiguredLimitCount">EN: Number of configured limits. FA: تعداد Limitهای پیکربندی‌شده.</param>
@@ -54,6 +55,7 @@ public sealed record EvaluatePortfolioRiskLimitsResponse(
     DateTimeOffset From,
     DateTimeOffset To,
     string Interval,
+    DateTimeOffset PolicyAsOf,
     string LimitSource,
     string? PolicyId,
     int? PolicyVersion,

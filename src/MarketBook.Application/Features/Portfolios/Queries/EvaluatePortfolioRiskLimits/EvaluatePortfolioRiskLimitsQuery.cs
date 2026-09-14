@@ -14,12 +14,12 @@ using MediatR;
 namespace MarketBook.Application.Features.Portfolios.Queries.EvaluatePortfolioRiskLimits;
 
 /// <summary>
-/// EN: Evaluates portfolio risk limits using request values first and the active persisted policy as fallback.
-/// FA: حدود ریسک پرتفوی را با اولویت مقادیر Request و سپس Policy فعال ذخیره‌شده ارزیابی می‌کند.
+/// EN: Evaluates portfolio risk limits using request values first and the persisted policy effective at To as fallback.
+/// FA: حدود ریسک پرتفوی را با اولویت مقادیر Request و سپس Policy ذخیره‌شده معتبر در لحظه To ارزیابی می‌کند.
 /// </summary>
 /// <param name="PortfolioId">EN: Portfolio identifier. FA: شناسه پرتفوی.</param>
 /// <param name="From">EN: Beginning instant. FA: لحظه شروع.</param>
-/// <param name="To">EN: Ending instant. FA: لحظه پایان.</param>
+/// <param name="To">EN: Ending instant and persisted-policy as-of instant. FA: لحظه پایان و لحظه As-Of انتخاب Policy ذخیره‌شده.</param>
 /// <param name="Interval">EN: Sampling interval. FA: فاصله نمونه‌برداری.</param>
 /// <param name="ConfidenceLevel">EN: VaR/CVaR confidence level. FA: سطح اطمینان VaR/CVaR.</param>
 /// <param name="RiskFreeRateAnnual">EN: Annual risk-free rate for Sharpe. FA: نرخ بدون‌ریسک سالانه برای Sharpe.</param>

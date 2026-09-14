@@ -37,6 +37,23 @@ public sealed class PortfolioRiskPolicyRepository : IPortfolioRiskPolicyReposito
                 cancellationToken);
 
     /// <inheritdoc />
+    public Task<PortfolioRiskPolicy?> GetEffectiveAsOfAsync(
+        PortfolioId portfolioId,
+        DateTimeOffset asOf,
+        CancellationToken cancellationToken = default)
+        => _dbContext.Set<PortfolioRiskPolicy>()
+            .AsNoTracking()
+            .Where(
+                item =>
+                    item.PortfolioId == portfolioId &&
+                    item.Status != RiskPolicyStatus.Draft &&
+                    item.EffectiveFrom <= asOf &&
+                    (!item.EffectiveTo.HasValue || asOf < item.EffectiveTo.Value))
+            .OrderByDescending(item => item.EffectiveFrom)
+            .ThenByDescending(item => item.PolicyVersion)
+            .FirstOrDefaultAsync(cancellationToken);
+
+    /// <inheritdoc />
     public Task<PortfolioRiskPolicy?> GetByIdAsync(PortfolioRiskPolicyId id, CancellationToken cancellationToken = default)
         => _dbContext.Set<PortfolioRiskPolicy>().SingleOrDefaultAsync(item => item.Id == id, cancellationToken);
 
